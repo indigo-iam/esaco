@@ -1,0 +1,2 @@
+x509:
+  trustAnchorsDir: ${X509_TRUST_ANCHORS_DIR:/tmp}

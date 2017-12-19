@@ -1,0 +1,23 @@
+server:
+  context-path: /argus-oidc-client
+  port: ${CLIENT_PORT:8156}
+
+spring:
+  profiles:
+    active: test
+
+oidc:
+  clients:
+      - issuer-url: http://localhost:8080/
+        client-id: password-grant
+        client-secret: secret
+      - issuer-url: https://iam.local.io/
+        client-id: argus-oidc-client-id
+        client-secret: argus-oidc-client-secret
+      - issuer-url: https://iam-test.indigo-datacloud.eu/
+        client-id: argus-oidc-client-id
+        client-secret: argus-oidc-client-secret
+
+x509:
+  trustAnchorsDir: ${X509_TRUST_ANCHORS_DIR:/etc/grid-security/certificates}
+  trustAnchorsRefreshMsec: ${X509_TRUST_ANCHORS_REFRESH:14400}
