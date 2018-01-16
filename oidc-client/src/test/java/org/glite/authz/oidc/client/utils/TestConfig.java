@@ -1,27 +1,32 @@
 package org.glite.authz.oidc.client.utils;
 
+import java.util.Map;
+
 import org.glite.authz.oidc.client.service.TimeProvider;
 import org.mitre.oauth2.introspectingfilter.service.IntrospectionConfigurationService;
+import org.mitre.oauth2.introspectingfilter.service.impl.StaticIntrospectionConfigurationService;
 import org.mitre.oauth2.model.ClientDetailsEntity.AuthMethod;
 import org.mitre.oauth2.model.RegisteredClient;
 import org.mitre.openid.connect.client.service.ClientConfigurationService;
 import org.mitre.openid.connect.client.service.ServerConfigurationService;
+import org.mitre.openid.connect.client.service.impl.StaticClientConfigurationService;
+import org.mitre.openid.connect.client.service.impl.StaticServerConfigurationService;
 import org.mitre.openid.connect.config.ServerConfiguration;
-import org.mockito.Mockito;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-@Configuration
+@TestConfiguration
 public class TestConfig {
 
   public static final String TEST_CLIENT_ID = "iam";
   public static final String TEST_ISSUER = "http://localhost:8080/";
-  public static final String TEST_AUTHORIZATION_ENDPOINT_URI = "http://localhost:8080/authz";
+  public static final String TEST_AUTHORIZATION_ENDPOINT_URI = "http://localhost:8080/authorize";
   public static final String TEST_TOKEN_ENDPOINT_URI = "http://localhost:8080/token";
   public static final String TEST_INTROSPECTION_ENDPOINT_URI = "http://localhost:8080/introspect";
   public static final String TEST_USERINFO_ENDPOINT_URI = "http://localhost:8080/userinfo";
@@ -41,13 +46,17 @@ public class TestConfig {
     sc.setUserInfoUri(TEST_USERINFO_ENDPOINT_URI);
     sc.setRevocationEndpointUri(TEST_REVOKE_ENDPOINT_URI);
 
-    ServerConfigurationService service = Mockito.mock(ServerConfigurationService.class);
-    Mockito.when(service.getServerConfiguration(TEST_ISSUER)).thenReturn(sc);
+    Map<String, ServerConfiguration> servers = Maps.newLinkedHashMap();
+    servers.put(TEST_ISSUER, sc);
+
+    StaticServerConfigurationService service = new StaticServerConfigurationService();
+    service.setServers(servers);
 
     return service;
   }
 
-  private RegisteredClient fakeRegisteredClient() {
+  @Bean(name = "fakeRegisteredClient")
+  public RegisteredClient fakeRegisteredClient() {
     RegisteredClient rc = new RegisteredClient();
     rc.setTokenEndpointAuthMethod(AuthMethod.SECRET_BASIC);
     rc.setScope(Sets.newHashSet("openid profile email"));
@@ -60,8 +69,11 @@ public class TestConfig {
   @Primary
   public ClientConfigurationService mockClientConfiguration() {
 
-    ClientConfigurationService service = Mockito.mock(ClientConfigurationService.class);
-    Mockito.when(service.getClientConfiguration(Mockito.any())).thenReturn(fakeRegisteredClient());
+    Map<String, RegisteredClient> clients = Maps.newLinkedHashMap();
+    clients.put(TEST_CLIENT_ID, fakeRegisteredClient());
+
+    StaticClientConfigurationService service = new StaticClientConfigurationService();
+    service.setClients(clients);
 
     return service;
   }
@@ -86,12 +98,12 @@ public class TestConfig {
   @Primary
   public IntrospectionConfigurationService introspectionConfigService() {
 
-    IntrospectionConfigurationService cs = Mockito.mock(IntrospectionConfigurationService.class);
-    Mockito.when(cs.getIntrospectionUrl(Mockito.anyString()))
-      .thenReturn(TEST_INTROSPECTION_ENDPOINT_URI);
-    Mockito.when(cs.getClientConfiguration(Mockito.anyString())).thenReturn(fakeRegisteredClient());
+    StaticIntrospectionConfigurationService configurationService =
+        new StaticIntrospectionConfigurationService();
+    configurationService.setClientConfiguration(fakeRegisteredClient());
+    configurationService.setIntrospectionUrl(TEST_INTROSPECTION_ENDPOINT_URI);
 
-    return cs;
+    return configurationService;
   }
 
 }

@@ -30,7 +30,7 @@ public class TokenInfoController {
 
     accessTokenSanityChecks(accessToken);
 
-    AccessToken token = tokenInfoService.parseAccessToken(accessToken);
+    AccessToken token = tokenInfoService.parseJWTAccessToken(accessToken);
 
     IamIntrospection introspection = null;
     IamUser info = null;

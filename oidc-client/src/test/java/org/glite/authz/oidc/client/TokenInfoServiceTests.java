@@ -10,7 +10,9 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.glite.authz.oidc.client.exception.HttpConnectionException;
 import org.glite.authz.oidc.client.exception.TokenIntrospectionException;
@@ -19,11 +21,12 @@ import org.glite.authz.oidc.client.exception.UnsupportedIssuerException;
 import org.glite.authz.oidc.client.model.AccessToken;
 import org.glite.authz.oidc.client.model.IamIntrospection;
 import org.glite.authz.oidc.client.model.IamUser;
-import org.glite.authz.oidc.client.service.HttpService;
 import org.glite.authz.oidc.client.service.TokenInfoService;
+import org.glite.authz.oidc.client.service.impl.DefaultTokenIntrospectionService;
 import org.glite.authz.oidc.client.utils.ClientTestUtils;
 import org.glite.authz.oidc.client.utils.MockTimeProvider;
 import org.glite.authz.oidc.client.utils.TestConfig;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -33,8 +36,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,29 +44,42 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SpringBootTest
 public class TokenInfoServiceTests extends ClientTestUtils {
 
-  @Autowired
-  private ObjectMapper mapper;
+  private static final String NOT_JWT_TOKEN = "any.notjwt.token";
 
   @Autowired
-  private TokenInfoService tokenService;
+  private ObjectMapper mapper;
 
   @Autowired
   @Qualifier("mockTimeProvider")
   private MockTimeProvider timeProvider;
 
   @MockBean
-  private HttpService httpService;
+  private DefaultTokenIntrospectionService introspectionService;
+
+  @Autowired
+  private TokenInfoService tokenService;
+
+  @Before
+  public void setup() throws Exception {
+
+    when(introspectionService.introspectToken(VALID_JWT))
+      .thenReturn(Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
+    when(introspectionService.getUserInfoForToken(VALID_JWT))
+      .thenReturn(Optional.of(mapper.writeValueAsString(VALID_USERINFO)));
+
+    when(introspectionService.introspectToken(NOT_JWT_TOKEN)).thenCallRealMethod();
+    when(introspectionService.getUserInfoForToken(NOT_JWT_TOKEN)).thenCallRealMethod();
+
+    when(introspectionService.introspectToken(TOKEN_FROM_UNKNOWN_ISSUER))
+      .thenThrow(new UnsupportedIssuerException(
+          String.format("Issuer %s not supported", TestConfig.TEST_ISSUER)));
+    when(introspectionService.getUserInfoForToken(TOKEN_FROM_UNKNOWN_ISSUER))
+      .thenThrow(new UnsupportedIssuerException(
+          String.format("Issuer %s not supported", TestConfig.TEST_ISSUER)));
+  }
 
   @Test
   public void testIntrospectWithValidToken() throws Exception {
-
-    MultiValueMap<String, String> body = new LinkedMultiValueMap<>(0);
-    body.add("token", VALID_JWT);
-
-    String expected = mapper.writeValueAsString(VALID_INTROSPECTION);
-
-    given(httpService.postWithBasicAuthentication(Mockito.anyString(), Mockito.anyString(),
-        Mockito.anyString(), Mockito.any())).willReturn(expected);
 
     IamIntrospection introspection = tokenService.introspectToken(VALID_JWT);
 
@@ -81,11 +95,6 @@ public class TokenInfoServiceTests extends ClientTestUtils {
   @Test
   public void testUserInfoWithValidToken() throws Exception {
 
-    String expected = mapper.writeValueAsString(VALID_USERINFO);
-
-    given(httpService.postWithOAuthAuthentication(Mockito.anyString(), Mockito.anyString(),
-        Mockito.any())).willReturn(expected);
-
     IamUser userinfo = tokenService.decodeUserInfo(VALID_JWT);
 
     assertNotNull(userinfo);
@@ -99,9 +108,7 @@ public class TokenInfoServiceTests extends ClientTestUtils {
   @Test(expected = HttpConnectionException.class)
   public void testIntrospectionEndpointConnectionError() {
 
-    given(httpService.postWithBasicAuthentication(Mockito.anyString(), Mockito.anyString(),
-        Mockito.anyString(), Mockito.any())).willThrow(
-            new HttpConnectionException(format("Error connecting to endpoint '%s'", "foo")));
+    when(introspectionService.introspectToken(Mockito.anyString())).thenReturn(Optional.empty());
 
     try {
       IamIntrospection introspection = tokenService.introspectToken(VALID_JWT);
@@ -114,9 +121,8 @@ public class TokenInfoServiceTests extends ClientTestUtils {
   @Test(expected = HttpConnectionException.class)
   public void testUserinfoEndpointConnectionError() {
 
-    given(httpService
-      .postWithOAuthAuthentication(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
-        .willThrow(new HttpConnectionException(format("Error connecting to endpoint '%s'", "foo")));
+    when(introspectionService.getUserInfoForToken(Mockito.anyString()))
+      .thenThrow(new HttpConnectionException(format("Error connecting to endpoint '%s'", "foo")));
 
     try {
       IamUser userInfo = tokenService.decodeUserInfo(VALID_JWT);
@@ -129,9 +135,8 @@ public class TokenInfoServiceTests extends ClientTestUtils {
   @Test(expected = TokenIntrospectionException.class)
   public void testIntrospectionParsingError() {
 
-    given(httpService.postWithBasicAuthentication(Mockito.anyString(), Mockito.anyString(),
-        Mockito.anyString(), Mockito.any())).willReturn(
-            "random_String}_that-isNot-a_JSON-representation_of:aIAM-.Introspection_object");
+    when(introspectionService.introspectToken(Mockito.anyString())).thenReturn(Optional
+      .of("random_String}_that-isNot-a_JSON-representation_of:aIAM-.Introspection_object"));
 
     try {
       IamIntrospection introspection = tokenService.introspectToken(VALID_JWT);
@@ -145,9 +150,8 @@ public class TokenInfoServiceTests extends ClientTestUtils {
   @Test(expected = TokenIntrospectionException.class)
   public void testUserinfoParsingError() {
 
-    given(httpService.postWithOAuthAuthentication(Mockito.anyString(), Mockito.anyString(),
-        Mockito.any()))
-          .willReturn("Invalid_String}_that-isNot-a_JSON-representation_of:aIAM-.user^info_object");
+    when(introspectionService.getUserInfoForToken(Mockito.anyString())).thenReturn(
+        Optional.of("Invalid_String}_that-isNot-a_JSON-representation_of:aIAM-.user^info_object"));
 
     try {
       IamUser userinfo = tokenService.decodeUserInfo(VALID_JWT);
@@ -157,19 +161,10 @@ public class TokenInfoServiceTests extends ClientTestUtils {
     }
   }
 
-  @Test(expected = UnsupportedIssuerException.class)
-  public void testIntrospectionWithUnsupportedIssuer() {
+  @Test(expected = TokenValidationException.class)
+  public void testParseNotJwtToken() {
     try {
-      tokenService.introspectToken(TOKEN_FROM_UNKNOWN_ISSUER);
-    } catch (Exception e) {
-      throw e;
-    }
-  }
-
-  @Test(expected = UnsupportedIssuerException.class)
-  public void testuserInfoWithUnsupportedIssuer() {
-    try {
-      tokenService.decodeUserInfo(TOKEN_FROM_UNKNOWN_ISSUER);
+      tokenService.parseJWTAccessToken("any.notjwt.token");
     } catch (Exception e) {
       throw e;
     }
@@ -196,7 +191,7 @@ public class TokenInfoServiceTests extends ClientTestUtils {
   @Test
   public void testAccessTokenIsActive() {
 
-    AccessToken token = tokenService.parseAccessToken(VALID_JWT);
+    AccessToken token = tokenService.parseJWTAccessToken(VALID_JWT);
     assertNotNull(token);
 
     timeProvider.setTime(token.getIssuedAt());

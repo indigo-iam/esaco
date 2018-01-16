@@ -63,7 +63,7 @@ public class TokenInfoControllerTests extends ClientTestUtils {
   public void setup() {
     given(tokenInfoService.isAccessTokenActive(Mockito.any())).willReturn(true);
 
-    given(tokenInfoService.parseAccessToken(Mockito.anyString())).willCallRealMethod();
+    given(tokenInfoService.parseJWTAccessToken(Mockito.anyString())).willCallRealMethod();
 
     given(tokenInfoService.introspectToken(VALID_JWT)).willReturn(VALID_INTROSPECTION);
     given(tokenInfoService.decodeUserInfo(VALID_JWT)).willReturn(VALID_USERINFO);
