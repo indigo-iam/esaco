@@ -22,3 +22,12 @@ oidc:
 x509:
   trustAnchorsDir: ${X509_TRUST_ANCHORS_DIR:/etc/grid-security/certificates}
   trustAnchorsRefreshMsec: ${X509_TRUST_ANCHORS_REFRESH:14400}
+
+security:
+  basic:
+    enabled: ${CLIENT_ENABLE_BASIC_AUTH:true}
+  user:
+    name: ${CLIENT_USER_NAME:user}
+    password: ${CLIENT_USER_PASSWORD:password}
+  
+  enable-csrf: false

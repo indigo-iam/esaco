@@ -42,8 +42,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -54,7 +52,7 @@ import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 @Configuration
 @EnableAutoConfiguration
 @EnableConfigurationProperties
-public class ClientConfiguration extends WebSecurityConfigurerAdapter {
+public class ClientConfiguration {
 
   @Value("${x509.trustAnchorsDir}")
   private String trustAnchorsDir;
@@ -194,16 +192,5 @@ public class ClientConfiguration extends WebSecurityConfigurerAdapter {
   @Bean
   public TimeProvider timeProvider() {
     return new SystemTimeProvider();
-  }
-
-  @Override
-  public void configure(HttpSecurity http) throws Exception {
-    //@formatter:off
-    http.authorizeRequests()
-      .anyRequest()
-        .permitAll()
-      .and()
-        .csrf().disable();
-    //@formatter:on
   }
 }
