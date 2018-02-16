@@ -5,6 +5,7 @@ public class IamIntrospectionBuilder {
   String scope;
   String expiresAt;
   Long exp;
+  String iss;
   String sub;
   String userId;
   String clientId;
@@ -33,6 +34,11 @@ public class IamIntrospectionBuilder {
     return this;
   }
 
+  public IamIntrospectionBuilder iss(String iss) {
+    this.iss = iss;
+    return this;
+  }
+  
   public IamIntrospectionBuilder sub(String sub) {
     this.sub = sub;
     return this;

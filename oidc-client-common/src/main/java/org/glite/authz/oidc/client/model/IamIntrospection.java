@@ -17,6 +17,7 @@ public class IamIntrospection {
   private final String expiresAt;
   private final Long exp;
   private final String sub;
+  private final String iss;
   private final String userId;
   private final String clientId;
   private final String tokenType;
@@ -27,7 +28,7 @@ public class IamIntrospection {
   @JsonCreator
   public IamIntrospection(@JsonProperty("active") boolean active,
       @JsonProperty("scope") String scope, @JsonProperty("expires_at") String expiresAt,
-      @JsonProperty("exp") Long exp, @JsonProperty("sub") String sub,
+      @JsonProperty("exp") Long exp, @JsonProperty("iss") String iss, @JsonProperty("sub") String sub,
       @JsonProperty("user_id") String userId, @JsonProperty("client_id") String clientId,
       @JsonProperty("token_type") String tokenType, @JsonProperty("groups") String[] groups,
       @JsonProperty("preferred_username") String preferredUsername,
@@ -37,6 +38,7 @@ public class IamIntrospection {
     this.scope = scope;
     this.expiresAt = expiresAt;
     this.exp = exp;
+    this.iss = iss;
     this.sub = sub;
     this.userId = userId;
     this.clientId = clientId;
@@ -51,6 +53,7 @@ public class IamIntrospection {
     this.scope = builder.scope;
     this.expiresAt = builder.expiresAt;
     this.exp = builder.exp;
+    this.iss = builder.iss;
     this.sub = builder.sub;
     this.userId = builder.userId;
     this.clientId = builder.clientId;
@@ -85,6 +88,10 @@ public class IamIntrospection {
     return exp;
   }
 
+  public String getIss() {
+    return iss;
+  }
+  
   public String getSub() {
 
     return sub;
@@ -120,17 +127,17 @@ public class IamIntrospection {
     return organisationName;
   }
 
-  @Override
   @Generated("auto-generated method")
+  @Override
   public int hashCode() {
-
-    int prime = 31;
+    final int prime = 31;
     int result = 1;
     result = prime * result + (active ? 1231 : 1237);
     result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
     result = prime * result + ((exp == null) ? 0 : exp.hashCode());
     result = prime * result + ((expiresAt == null) ? 0 : expiresAt.hashCode());
     result = prime * result + Arrays.hashCode(groups);
+    result = prime * result + ((iss == null) ? 0 : iss.hashCode());
     result = prime * result + ((organisationName == null) ? 0 : organisationName.hashCode());
     result = prime * result + ((preferredUsername == null) ? 0 : preferredUsername.hashCode());
     result = prime * result + ((scope == null) ? 0 : scope.hashCode());
@@ -140,10 +147,10 @@ public class IamIntrospection {
     return result;
   }
 
-  @Override
+  
   @Generated("auto-generated method")
+  @Override
   public boolean equals(Object obj) {
-
     if (this == obj)
       return true;
     if (obj == null)
@@ -169,6 +176,11 @@ public class IamIntrospection {
     } else if (!expiresAt.equals(other.expiresAt))
       return false;
     if (!Arrays.equals(groups, other.groups))
+      return false;
+    if (iss == null) {
+      if (other.iss != null)
+        return false;
+    } else if (!iss.equals(other.iss))
       return false;
     if (organisationName == null) {
       if (other.organisationName != null)
