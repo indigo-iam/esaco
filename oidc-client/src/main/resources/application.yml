@@ -2,6 +2,8 @@ server:
   context-path: /argus-oidc-client
   port: ${CLIENT_PORT:8156}
   address: ${CLIENT_ADDRESS:127.0.0.1}
+  
+  use-forward-headers: ${CLIENT_USE_FORWARDED_HEADERS:false}
 
 spring:
   profiles:

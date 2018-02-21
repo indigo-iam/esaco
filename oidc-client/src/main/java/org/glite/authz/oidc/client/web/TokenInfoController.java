@@ -45,6 +45,21 @@ public class TokenInfoController {
     return new TokenInfo(token, introspection, info);
   }
 
+  @RequestMapping(value = "/introspect", method = RequestMethod.POST,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public IamIntrospection introspectToken(
+      @RequestParam(name = "token", required = false) String accessToken) {
+    accessTokenSanityChecks(accessToken);
+    
+    AccessToken token = tokenInfoService.parseJWTAccessToken(accessToken);
+    
+    if (!tokenInfoService.isAccessTokenActive(token)) {
+      return IamIntrospection.getBuilder().isActive(false).build();
+    }
+    
+    return tokenInfoService.introspectToken(accessToken); 
+  }
+
   private void accessTokenSanityChecks(String accessToken) {
 
     if (Strings.isNullOrEmpty(accessToken)) {

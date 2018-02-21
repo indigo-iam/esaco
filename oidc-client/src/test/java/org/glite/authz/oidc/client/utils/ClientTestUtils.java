@@ -33,6 +33,7 @@ public class ClientTestUtils {
     .scope("openid profile")
     .expiresAt("2017-09-04T16:09:03+0200")
     .exp(1504534143L)
+    .iss(ISS)
     .sub("73f16d93-2441-4a50-88ff-85360d78c6b5")
     .userId("admin")
     .clientId("password-grant")
