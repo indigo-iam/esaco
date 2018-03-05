@@ -16,8 +16,10 @@ fi
 
 echo "Building image using jar from ${ARGUS_OIDC_CLIENT_JAR}"
 
+ARGUS_OIDC_CLIENT_IMAGE=${ARGUS_OIDC_CLIENT_IMAGE:-argus/argus-oidc-client}
+
 cd ${DIR}
 cp ${ARGUS_OIDC_CLIENT_JAR} oidc-client.jar
 
-docker build --rm=true -t argus/argus-oidc-client .
+docker build --rm=true -t ${ARGUS_OIDC_CLIENT_IMAGE} .
 rm oidc-client.jar

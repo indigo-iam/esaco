@@ -10,6 +10,17 @@ pipeline {
   }
   
   stages {
+
+    stage('checkout') {
+      steps {
+        container('maven-runner'){
+          deleteDir()
+          checkout scm
+          stash name: 'code', useDefaultExcludes: false
+        }
+      }
+    }
+
     stage('build') {
       steps {
         container('maven-runner'){
@@ -35,6 +46,15 @@ pipeline {
       }
     }
     
+    stage('package') {
+      steps {
+        container('maven-runner'){
+          sh 'mvn -DskipTests clean package'
+          stash includes: 'oidc-client/target/oidc-client-*.jar', name: 'oidc-client-artifacts'
+        }
+      }
+    }
+
     stage('PR analysis'){
       when{
         not {
@@ -88,11 +108,26 @@ pipeline {
     stage('deploy') {
       steps {
         container('maven-runner'){
-          sh "mvn clean -U -B deploy"
+          sh "mvn clean -DskipTests -U -B deploy"
         }
       }
     }
     
+    stage('docker-images') {
+      agent { label 'docker' }
+      steps {
+        container('docker-runner') {
+          deleteDir()
+          unstash 'code'
+          unstash 'oidc-client-artifacts'
+          sh'''
+          /bin/bash oidc-client/docker/build-image.sh
+          /bin/bash oidc-client/docker/push-image.sh
+          '''
+        }
+      }
+    }
+
     stage('result'){
       steps {
         script { currentBuild.result = 'SUCCESS' }
