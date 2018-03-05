@@ -4,7 +4,7 @@
 
 	<groupId>org.glite.authz</groupId>
 	<artifactId>argus-oidc-client</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Argus OIDC client</name>
