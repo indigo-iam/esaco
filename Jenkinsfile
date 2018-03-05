@@ -11,16 +11,6 @@ pipeline {
   
   stages {
 
-    stage('checkout') {
-      steps {
-        container('maven-runner'){
-          deleteDir()
-          checkout scm
-          stash name: 'code', useDefaultExcludes: false
-        }
-      }
-    }
-
     stage('build') {
       steps {
         container('maven-runner'){
@@ -117,8 +107,6 @@ pipeline {
       agent { label 'docker' }
       steps {
         container('docker-runner') {
-          deleteDir()
-          unstash 'code'
           unstash 'oidc-client-artifacts'
           sh'''
           /bin/bash oidc-client/docker/build-image.sh
