@@ -34,8 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -59,6 +57,9 @@ public class ClientConfiguration {
 
   @Value("${x509.trustAnchorsRefreshMsec}")
   private Long trustAnchorsRefreshInterval;
+
+  @Value("${tls.version}")
+  private String tlsVersion;
 
   @Autowired
   private ClientProperties oidcConfig;
@@ -125,7 +126,7 @@ public class ClientConfiguration {
   public SSLContext sslContext() {
 
     try {
-      SSLContext context = SSLContext.getInstance("TLSv1");
+      SSLContext context = SSLContext.getInstance(tlsVersion);
 
       X509TrustManager tm = SocketFactoryCreator.getSSLTrustManager(certificateValidator());
       SecureRandom r = new SecureRandom();
@@ -178,15 +179,6 @@ public class ClientConfiguration {
     Jackson2ObjectMapperBuilder jacksonBuilder = new Jackson2ObjectMapperBuilder();
     jacksonBuilder.filters(new SimpleFilterProvider().setFailOnUnknownId(false));
     return jacksonBuilder;
-  }
-
-  @Bean
-  public CacheManager caffeineCacheManager() {
-
-    CaffeineCacheManager manager = new CaffeineCacheManager("introspect", "userinfo");
-    manager.setCacheSpecification("expireAfterWrite=60s, maximumSize=500");
-
-    return manager;
   }
 
   @Bean

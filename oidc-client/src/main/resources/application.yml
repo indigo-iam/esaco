@@ -9,6 +9,12 @@ spring:
   profiles:
     active: test
 
+  cache:
+    type: ${CLIENT_CACHE:caffeine}
+    cache-names: introspect,userinfo
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=60s
+
 oidc:
   clients:
       - issuer-url: http://localhost:8080/
@@ -24,6 +30,9 @@ oidc:
 x509:
   trustAnchorsDir: ${X509_TRUST_ANCHORS_DIR:/etc/grid-security/certificates}
   trustAnchorsRefreshMsec: ${X509_TRUST_ANCHORS_REFRESH:14400}
+  
+tls:
+  version: ${CLIENT_TLS_VERSION:TLSv1.2}
 
 security:
   basic:

@@ -16,7 +16,7 @@
 
 		<mitreid.version>1.3.0.cnaf-SNAPSHOT</mitreid.version>
 		<voms.version>3.2.0</voms.version>
-		<caffeine.version>2.5.6</caffeine.version>
+		<caffeine.version>2.6.2</caffeine.version>
 		<httpclient.version>4.5.3</httpclient.version>
 		<json-path.version>2.4.0</json-path.version>
 		<jackson.version>2.8.9</jackson.version>
