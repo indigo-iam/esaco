@@ -47,7 +47,7 @@ TLS. When deploying behind a reverse proxy, set the
 
 #### Authorization server configuration
 
-Trusted authorization servers can be configured via a provided application.yml
+Trusted authorization servers can be configured via a provided `application.yml`
 file with the following structure:
 
 ```yaml
@@ -65,11 +65,31 @@ oidc:
 See instructions below on how this file can be provided when running the
 service with Docker.
 
+#### Cache management
+
+Argus OIDC client uses an internal in-memory cache to improve the performance
+serving the requests.
+The client save the results of the introspection and userinfo incoming from 
+the IDP.
+
+The size and the eviction time are customizable setting the property `spring.cache.caffeine.spec`
+in the `application.yml`.
+
+By default, the cache is setup with a maximum size of 500 elements and the records 
+are evicted after 60 seconds:
+
+```yaml
+spring.cache.caffeine.spec: maximumSize=500,expireAfterWrite=60s
+```
+
+More configuration options can be found into 
+[caffeine official documentation](https://github.com/ben-manes/caffeine/wiki).
+
 ### Configuration reference
 
 ```bash
 # oidc client will bind on this port
-CLIENT_PORT=8156 
+CLIENT_PORT=8156
 
 # oidc client will bind on this address
 CLIENT_ADDRESS=127.0.0.1
@@ -83,19 +103,26 @@ X509_TRUST_ANCHORS_DIR=/etc/grid-security/certificates/
 # X.509 trust anchors refresh interval (in msec)
 X509_TRUST_ANCHORS_REFRESH=14400
 
-# Enable basic authentication 
-CLIENT_ENABLE_BASIC_AUTH=true 
+# Enable basic authentication
+CLIENT_ENABLE_BASIC_AUTH=true
 
 # User name credential requested from clients introspecting tokens
 CLIENT_USER_NAME=user
 
 # Password  credential requested from clients introspecting tokens
-CLIENT_USER_PASSWORD=password 
-``` 
+CLIENT_USER_PASSWORD=password
+
+# Enable information cache
+# To disable the cache usage, set CLIENT_CACHE=none
+CLIENT_CACHE=caffeine
+
+# TLS version
+CLIENT_TLS_VERSION=TLSv1.2
+```
 
 ## Running the service
 
-### Docker 
+### Docker
 
 1. Define the endpoints and credentials for trusted authorization servers in
    an application.yml file as explained above
@@ -106,8 +133,9 @@ CLIENT_USER_PASSWORD=password
   OIDC_CLIENT_JAVA_OPTS=-Dspring.profiles.active=prod
   ```
 3. Run the service with a command like this:
-```console
-docker run --env-file=oidc-client.env -v application.yml:/argus-oidc-client/config/application.yml:ro argus-oidc-client:latest
-```
+  ```console
+  docker run --env-file=oidc-client.env -v application.yml:/argus-oidc-client/config/application.yml:ro argus-oidc-client:latest
+  ```
 
 [rfc7662]: #tbd
+
