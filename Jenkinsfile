@@ -40,7 +40,7 @@ pipeline {
       steps {
         container('maven-runner'){
           sh 'mvn -DskipTests clean package'
-          stash includes: 'oidc-client/target/oidc-client-*.jar', name: 'oidc-client-artifacts'
+          stash includes: 'esaco-app/target/esaco-app-*.jar', name: 'esaco-artifacts'
         }
       }
     }
@@ -107,10 +107,10 @@ pipeline {
       agent { label 'docker' }
       steps {
         container('docker-runner') {
-          unstash 'oidc-client-artifacts'
+          unstash 'esaco-artifacts'
           sh'''
-          /bin/bash oidc-client/docker/build-image.sh
-          /bin/bash oidc-client/docker/push-image.sh
+          /bin/bash esaco-app/docker/build-image.sh
+          /bin/bash esaco-app/docker/push-image.sh
           '''
         }
       }

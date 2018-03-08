@@ -1,6 +1,6 @@
-# ARGUS OIDC client 
+# ESACO 
 
-Argus OIDC client is a daemon that has the responsibility of checking validity
+ESACO is a daemon that has the responsibility of checking validity
 and signatures of OAuth tokens for registered trusted OAuth authorization
 servers.
 
@@ -10,40 +10,40 @@ daemon can only introspect JWT access tokens that contain the `iss` claim.
 
 ## How it works
 
-The OIDC client is registered as a client at one (or more) trusted OAuth
+ESACO is registered as a client at one (or more) trusted OAuth
 authorization servers, and is used by client applications as a gateway for
 token validation and introspection.
 
-OIDC performs local JWT validation checks and leverage the introspection
+ESACO performs local JWT validation checks and leverages the introspection
 endpoints at trusted AS to inspect a submitted token. The result of a token
-introspection is cached, if oidc-client caching is enabled.
+introspection is cached, if caching is enabled.
 
 ## Configuration
 
-Argus OIDC client listens by default on port 8156 and binds on 127.0.0.1. With
-this configuration the oidc client will answer token introspection at this
-plain http endpoint:
+ESACO listens by default on port 8156 and binds on 127.0.0.1. With this
+configuration ESACO will answer token introspection at this plain
+http endpoint:
 
 ```
 http://127.0.0.1/introspect
 ```
 
-To change the port and address, use the `CLIENT_PORT` and `CLIENT_ADDRESS` env
+To change the port and address, use the `ESACO_PORT` and `ESACO_ADDRESS` env
 variables. 
 
-By default oidc client requires client authentication. The default credentials
+By default ESACO requires client authentication. The default credentials
 that client should provide when introspecting a token are:
 
 - username: 'user'
 - password: 'password'
 
-These defaults can be changed by setting the `CLIENT_USER_NAME` and
-`CLIENT_USER_PASSWORD` env variables. Basic authentication can be disabled by
-setting the `CLIENT_ENABLE_BASIC_AUTH` env variables to `false`.
+These defaults can be changed by setting the `ESACO_USER_NAME` and
+`ESACO_USER_PASSWORD` env variables. Basic authentication can be disabled by
+setting the `ESACO_ENABLE_BASIC_AUTH` env variables to `false`.
 
-The oidc client should be deployed behind a reverse proxy used to terminate
+ESACO should be deployed behind a reverse proxy used to terminate
 TLS. When deploying behind a reverse proxy, set the
-`CLIENT_USE_FORWARDED_HEADERS` env variable to true.
+`ESACO_USE_FORWARDED_HEADERS` env variable to true.
 
 #### Authorization server configuration
 
@@ -67,39 +67,39 @@ service with Docker.
 
 #### Cache management
 
-Argus OIDC client uses an internal in-memory cache to cache results of token
+ESACO uses an internal in-memory cache to cache results of token
 introspection and userinfo calls. 
 
 The size and the eviction time for the cache can be set using the
-`CLIENT_CACHE_SPEC` environment variable. 
+`ESACO_CACHE_SPEC` environment variable. 
 
 By default, the cache is setup with a maximum size of 500 elements and the
 records are evicted after 60 seconds, as follows:
 
 ```bash
-CLIENT_CACHE_SPEC=maximumSize=500,expireAfterWrite=60s
+ESACO_CACHE_SPEC=maximumSize=500,expireAfterWrite=60s
 ```
 More configuration options can be found into [caffeine official
 documentation](https://github.com/ben-manes/caffeine/wiki).
 
-The cache can be disabled by setting the `CLIENT_CACHE` environment variable as
+The cache can be disabled by setting the `ESACO_CACHE` environment variable as
 follows:
 
 ```
-CLIENT_CACHE=none
+ESACO_CACHE=none
 ```
 
 ### Configuration reference
 
 ```bash
-# oidc client will bind on this port
-CLIENT_PORT=8156
+# ESACO client will bind on this port
+ESACO_PORT=8156
 
-# oidc client will bind on this address
-CLIENT_ADDRESS=127.0.0.1
+# ESACO client will bind on this address
+ESACO_ADDRESS=127.0.0.1
 
 # Set this to true when deploying behind a reverse proxy (nginx)
-CLIENT_USE_FORWARDED_HEADERS=false
+ESACO_USE_FORWARDED_HEADERS=false
 
 # X.509 trust anchors location
 X509_TRUST_ANCHORS_DIR=/etc/grid-security/certificates/
@@ -108,23 +108,23 @@ X509_TRUST_ANCHORS_DIR=/etc/grid-security/certificates/
 X509_TRUST_ANCHORS_REFRESH=14400
 
 # Enable basic authentication
-CLIENT_ENABLE_BASIC_AUTH=true
+ESACO_ENABLE_BASIC_AUTH=true
 
 # User name credential requested from clients introspecting tokens
-CLIENT_USER_NAME=user
+ESACO_USER_NAME=user
 
 # Password  credential requested from clients introspecting tokens
-CLIENT_USER_PASSWORD=password
+ESACO_USER_PASSWORD=password
 
 # Enables caching of the results of introspection and userinfo calls 
-# To disable the cache set CLIENT_CACHE=none
-CLIENT_CACHE=caffeine
+# To disable the cache set ESACO_CACHE=none
+ESACO_CACHE=caffeine
 
 # The size and eviction time policies for the cache
-CLIENT_CACHE_SPEC=maximumSize=500,expireAfterWrite=60s
+ESACO_CACHE_SPEC=maximumSize=500,expireAfterWrite=60s
 
 # TLS version
-CLIENT_TLS_VERSION=TLSv1.2
+ESACO_TLS_VERSION=TLSv1.2
 ```
 
 ## Running the service
@@ -134,12 +134,12 @@ CLIENT_TLS_VERSION=TLSv1.2
 1. Define the endpoints and credentials for trusted authorization servers in
    an application.yml file as explained above
 
-2. Define an env file containing the configuration for the oidc-client
+2. Define an env file containing the configuration for ESACO
    instance following the instructions above
 
 3. Run the service with a command like this:
   ```console
-  docker run --env-file=oidc-client.env -v application.yml:/argus-oidc-client/config/application.yml:ro argus-oidc-client:latest
+  docker run --env-file=esaco.env -v application.yml:/esaco/config/application.yml:ro esaco:latest
   ```
 
 [rfc7662]: https://tools.ietf.org/html/rfc7662

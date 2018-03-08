@@ -1,0 +1,43 @@
+server:
+  port: ${ESACO_PORT:8156}
+  address: ${ESACO_ADDRESS:127.0.0.1}
+  
+  use-forward-headers: ${ESACO_USE_FORWARD_HEADERS:false}
+
+spring:
+  profiles:
+    active: prod
+
+  cache:
+    type: ${ESACO_CACHE:caffeine}
+    cache-names: introspect,userinfo
+    caffeine:
+      spec: ${ESACO_CACHE_SPEC:maximumSize=500,expireAfterWrite=60s}
+
+oidc:
+  clients:
+      - issuer-url: http://localhost:8080/
+        client-id: password-grant
+        client-secret: secret
+      - issuer-url: https://iam.local.io/
+        client-id: argus-oidc-client-id
+        client-secret: argus-oidc-client-secret
+      - issuer-url: https://iam-test.indigo-datacloud.eu/
+        client-id: argus-oidc-client-id
+        client-secret: argus-oidc-client-secret
+
+x509:
+  trustAnchorsDir: ${X509_TRUST_ANCHORS_DIR:/etc/grid-security/certificates}
+  trustAnchorsRefreshMsec: ${X509_TRUST_ANCHORS_REFRESH:14400}
+  
+tls:
+  version: ${ESACO_TLS_VERSION:TLSv1.2}
+
+security:
+  basic:
+    enabled: ${ESACO_ENABLE_BASIC_AUTH:true}
+  user:
+    name: ${ESACO_USER_NAME:user}
+    password: ${ESACO_USER_PASSWORD:password}
+  
+  enable-csrf: false
