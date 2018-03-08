@@ -139,7 +139,7 @@ ESACO_TLS_VERSION=TLSv1.2
 
 3. Run the service with a command like this:
   ```console
-  docker run --env-file=esaco.env -v application.yml:/esaco/config/application.yml:ro esaco:latest
+  docker run --env-file=esaco.env -v application.yml:/esaco/config/application.yml:ro indigoiam/esaco:latest
   ```
 
 [rfc7662]: https://tools.ietf.org/html/rfc7662
