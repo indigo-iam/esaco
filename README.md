@@ -67,23 +67,28 @@ service with Docker.
 
 #### Cache management
 
-Argus OIDC client uses an internal in-memory cache to improve the performance
-serving the requests.
-The client save the results of the introspection and userinfo incoming from 
-the IDP.
+Argus OIDC client uses an internal in-memory cache to  cache 
+the results of token introspection and userinfo calls. 
 
-The size and the eviction time are customizable setting the property `spring.cache.caffeine.spec`
-in the `application.yml`.
+The size and the eviction time for the cache can be set using the property
+`spring.cache.caffeine.spec` (in the `application.yml` or via a Java system
+property). 
 
-By default, the cache is setup with a maximum size of 500 elements and the records 
-are evicted after 60 seconds:
+By default, the cache is setup with a maximum size of 500 elements and the
+records are evicted after 60 seconds:
 
 ```yaml
 spring.cache.caffeine.spec: maximumSize=500,expireAfterWrite=60s
 ```
 
-More configuration options can be found into 
-[caffeine official documentation](https://github.com/ben-manes/caffeine/wiki).
+More configuration options can be found into [caffeine official
+documentation](https://github.com/ben-manes/caffeine/wiki).
+
+The cache can be disabled by setting the `CLIENT_CACHE` as follows:
+
+```
+CLIENT_CACHE=none
+```
 
 ### Configuration reference
 
@@ -137,5 +142,5 @@ CLIENT_TLS_VERSION=TLSv1.2
   docker run --env-file=oidc-client.env -v application.yml:/argus-oidc-client/config/application.yml:ro argus-oidc-client:latest
   ```
 
-[rfc7662]: #tbd
+[rfc7662]: https://tools.ietf.org/html/rfc7662
 
