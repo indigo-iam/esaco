@@ -10,6 +10,7 @@ pipeline {
   }
   
   stages {
+
     stage('build') {
       steps {
         container('maven-runner'){
@@ -35,6 +36,15 @@ pipeline {
       }
     }
     
+    stage('package') {
+      steps {
+        container('maven-runner'){
+          sh 'mvn -DskipTests clean package'
+          stash includes: 'esaco-app/target/esaco-app-*.jar', name: 'esaco-artifacts'
+        }
+      }
+    }
+
     stage('PR analysis'){
       when{
         not {
@@ -88,11 +98,24 @@ pipeline {
     stage('deploy') {
       steps {
         container('maven-runner'){
-          sh "mvn clean -U -B deploy"
+          sh "mvn clean -DskipTests -U -B deploy"
         }
       }
     }
     
+    stage('docker-images') {
+      agent { label 'docker' }
+      steps {
+        container('docker-runner') {
+          unstash 'esaco-artifacts'
+          sh'''
+          /bin/bash esaco-app/docker/build-image.sh
+          /bin/bash esaco-app/docker/push-image.sh
+          '''
+        }
+      }
+    }
+
     stage('result'){
       steps {
         script { currentBuild.result = 'SUCCESS' }
