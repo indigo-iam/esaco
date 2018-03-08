@@ -25,7 +25,7 @@ this configuration the oidc client will answer token introspection at this
 plain http endpoint:
 
 ```
-http://127.0.0.1/argus-oidc-client/introspect
+http://127.0.0.1/introspect
 ```
 
 To change the port and address, use the `CLIENT_PORT` and `CLIENT_ADDRESS` env
