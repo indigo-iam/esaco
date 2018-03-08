@@ -38,7 +38,7 @@ import it.infn.mw.esaco.model.IamIntrospection;
 import it.infn.mw.esaco.model.IamUser;
 import it.infn.mw.esaco.service.TokenInfoService;
 import it.infn.mw.esaco.service.impl.DefaultTokenIntrospectionService;
-import it.infn.mw.esaco.test.utils.ClientTestUtils;
+import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 import it.infn.mw.esaco.test.utils.MockTimeProvider;
 import it.infn.mw.esaco.test.utils.TestConfig;
 
@@ -46,7 +46,7 @@ import it.infn.mw.esaco.test.utils.TestConfig;
 @ContextConfiguration(classes = {EsacoApplication.class, TestConfig.class})
 @SpringBootTest
 @ActiveProfiles("test")
-public class TokenInfoServiceTests extends ClientTestUtils {
+public class TokenInfoServiceTests extends EsacoTestUtils {
 
   private static final String NOT_JWT_TOKEN = "any.notjwt.token";
 

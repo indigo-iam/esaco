@@ -43,6 +43,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
+import it.infn.mw.esaco.exception.SSLContextInitializationError;
 import it.infn.mw.esaco.service.TimeProvider;
 import it.infn.mw.esaco.service.impl.IamDynamicServerConfigurationService;
 import it.infn.mw.esaco.service.impl.SystemTimeProvider;
@@ -135,7 +136,7 @@ public class EsacoConfiguration {
       return context;
 
     } catch (NoSuchAlgorithmException | KeyManagementException e) {
-      throw new RuntimeException(e);
+      throw new SSLContextInitializationError(e.getMessage(), e);
     }
   }
 

@@ -23,11 +23,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import it.infn.mw.esaco.EsacoApplication;
 import it.infn.mw.esaco.service.TokenInfoService;
-import it.infn.mw.esaco.test.utils.ClientTestUtils;
+import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 import it.infn.mw.esaco.test.utils.TestConfig;
 
 @RunWith(SpringRunner.class)
@@ -36,15 +34,12 @@ import it.infn.mw.esaco.test.utils.TestConfig;
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @WithMockUser(username="test", roles="USER")
-public class IntrospectIntegrationTests  extends ClientTestUtils{
+public class IntrospectIntegrationTests  extends EsacoTestUtils{
   
   final static String ENDPOINT = "/introspect";
 
   @Autowired
   private MockMvc mvc;
-
-  @Autowired
-  private ObjectMapper mapper;
   
   @MockBean
   TokenInfoService tokenInfoService;

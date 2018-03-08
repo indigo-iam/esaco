@@ -43,7 +43,7 @@ import it.infn.mw.esaco.model.IamIntrospection;
 import it.infn.mw.esaco.model.IamUser;
 import it.infn.mw.esaco.model.TokenInfo;
 import it.infn.mw.esaco.service.impl.DefaultTokenInfoService;
-import it.infn.mw.esaco.test.utils.ClientTestUtils;
+import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 import it.infn.mw.esaco.test.utils.TestConfig;
 
 @RunWith(SpringRunner.class)
@@ -52,7 +52,7 @@ import it.infn.mw.esaco.test.utils.TestConfig;
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @WithMockUser(username="test", roles="USER")
-public class TokenInfoControllerTests extends ClientTestUtils {
+public class TokenInfoControllerTests extends EsacoTestUtils {
 
   final static String ENDPOINT = "/tokeninfo";
 

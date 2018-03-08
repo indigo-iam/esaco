@@ -3,7 +3,7 @@ package it.infn.mw.esaco.test.utils;
 import it.infn.mw.esaco.model.IamIntrospection;
 import it.infn.mw.esaco.model.IamUser;
 
-public class ClientTestUtils {
+public class EsacoTestUtils {
 
   protected final String CLIENT_ID = "password-grant";
   protected final String CLIENT_SECRET = "secret";

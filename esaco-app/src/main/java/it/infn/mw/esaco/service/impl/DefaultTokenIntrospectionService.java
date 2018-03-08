@@ -40,7 +40,7 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
   public static final Logger LOGGER =
       LoggerFactory.getLogger(DefaultTokenIntrospectionService.class);
 
-  private static final Set<Integer> ACCEPTED_HTTP_CODES =
+  private static final Set<Integer> AUTH_ERROR_HTTP_CODES =
       Sets.newLinkedHashSet(Lists.newArrayList(FORBIDDEN.value(), UNAUTHORIZED.value()));
 
   @Autowired
@@ -115,8 +115,12 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
     try {
       result = Optional.ofNullable(restTemplate.postForObject(endpoint, request, String.class));
     } catch (HttpClientErrorException httpex) {
-      if (ACCEPTED_HTTP_CODES.contains(httpex.getRawStatusCode())) {
+      if (AUTH_ERROR_HTTP_CODES.contains(httpex.getRawStatusCode())) {
         LOGGER.warn("Invalid authorization: '{}' '{}'", endpoint, httpex.getMessage());
+      } else {
+        LOGGER.error("HTTP error executing post request: '{}': {} {}", endpoint, 
+            httpex.getStatusCode(), 
+            httpex.getMessage());
       }
     } catch (RestClientException e) {
       LOGGER.error("Error connecting to endpoint: '{}' {}", endpoint, e.getMessage());

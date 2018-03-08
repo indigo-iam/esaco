@@ -30,14 +30,14 @@ import it.infn.mw.esaco.EsacoApplication;
 import it.infn.mw.esaco.exception.HttpConnectionException;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 import it.infn.mw.esaco.service.TokenIntrospectionService;
-import it.infn.mw.esaco.test.utils.ClientTestUtils;
+import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 import it.infn.mw.esaco.test.utils.TestConfig;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {EsacoApplication.class, TestConfig.class})
 @SpringBootTest
 @ActiveProfiles("test")
-public class TokenIntrospectionServiceTests extends ClientTestUtils {
+public class TokenIntrospectionServiceTests extends EsacoTestUtils {
 
   @Autowired
   private ObjectMapper mapper;
