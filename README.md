@@ -67,25 +67,23 @@ service with Docker.
 
 #### Cache management
 
-Argus OIDC client uses an internal in-memory cache to  cache 
-the results of token introspection and userinfo calls. 
+Argus OIDC client uses an internal in-memory cache to cache results of token
+introspection and userinfo calls. 
 
-The size and the eviction time for the cache can be set using the property
-`spring.cache.caffeine.spec` (in the `application.yml` or via a Java system
-property). 
+The size and the eviction time for the cache can be set using the
+`CLIENT_CACHE_SPEC` environment variable. 
 
 By default, the cache is setup with a maximum size of 500 elements and the
-records are evicted after 60 seconds:
+records are evicted after 60 seconds, as follows:
 
-```yaml
-spring.cache.caffeine.spec: maximumSize=500,expireAfterWrite=60s
+```bash
+CLIENT_CACHE_SPEC=maximumSize=500,expireAfterWrite=60s
 ```
-
 More configuration options can be found into [caffeine official
 documentation](https://github.com/ben-manes/caffeine/wiki).
 
-The cache can be disabled by setting the `CLIENT_CACHE` environment 
-variable as follows:
+The cache can be disabled by setting the `CLIENT_CACHE` environment variable as
+follows:
 
 ```
 CLIENT_CACHE=none
@@ -118,9 +116,12 @@ CLIENT_USER_NAME=user
 # Password  credential requested from clients introspecting tokens
 CLIENT_USER_PASSWORD=password
 
-# Enable information cache
-# To disable the cache usage, set CLIENT_CACHE=none
+# Enables caching of the results of introspection and userinfo calls 
+# To disable the cache set CLIENT_CACHE=none
 CLIENT_CACHE=caffeine
+
+# The size and eviction time policies for the cache
+CLIENT_CACHE_SPEC=maximumSize=500,expireAfterWrite=60s
 
 # TLS version
 CLIENT_TLS_VERSION=TLSv1.2
@@ -134,10 +135,8 @@ CLIENT_TLS_VERSION=TLSv1.2
    an application.yml file as explained above
 
 2. Define an env file containing the configuration for the oidc-client
-   instance following the instructions above, where you also set the running profile for the client as follows:
-  ```bash
-  OIDC_CLIENT_JAVA_OPTS=-Dspring.profiles.active=prod
-  ```
+   instance following the instructions above
+
 3. Run the service with a command like this:
   ```console
   docker run --env-file=oidc-client.env -v application.yml:/argus-oidc-client/config/application.yml:ro argus-oidc-client:latest

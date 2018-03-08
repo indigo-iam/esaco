@@ -1,5 +1,4 @@
 server:
-  context-path: /argus-oidc-client
   port: ${CLIENT_PORT:8156}
   address: ${CLIENT_ADDRESS:127.0.0.1}
   
@@ -7,13 +6,13 @@ server:
 
 spring:
   profiles:
-    active: test
+    active: prod
 
   cache:
     type: ${CLIENT_CACHE:caffeine}
     cache-names: introspect,userinfo
     caffeine:
-      spec: maximumSize=500,expireAfterWrite=60s
+      spec: ${CLIENT_CACHE_SPEC:maximumSize=500,expireAfterWrite=60s}
 
 oidc:
   clients:
