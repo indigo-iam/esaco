@@ -84,7 +84,8 @@ spring.cache.caffeine.spec: maximumSize=500,expireAfterWrite=60s
 More configuration options can be found into [caffeine official
 documentation](https://github.com/ben-manes/caffeine/wiki).
 
-The cache can be disabled by setting the `CLIENT_CACHE` as follows:
+The cache can be disabled by setting the `CLIENT_CACHE` environment 
+variable as follows:
 
 ```
 CLIENT_CACHE=none
