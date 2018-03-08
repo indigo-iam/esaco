@@ -1,6 +1,6 @@
 server:
-  port: ${ESACO_PORT:8156}
-  address: ${ESACO_ADDRESS:0.0.0.0}
+  port: ${ESACO_BIND_PORT:8156}
+  address: ${ESACO_BIND_ADDRESS:0.0.0.0}
   
   use-forward-headers: ${ESACO_USE_FORWARD_HEADERS:false}
 

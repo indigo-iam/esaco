@@ -20,16 +20,16 @@ introspection is cached, if caching is enabled.
 
 ## Configuration
 
-ESACO listens by default on port 8156 and binds on 127.0.0.1. With this
-configuration ESACO will answer token introspection at this plain
-http endpoint:
+ESACO listens by default on port 8156 on all interfaces. 
+
+The intropection endpoint answers at `/introspect`:
 
 ```
-http://127.0.0.1/introspect
+http://esaco.example/introspect
 ```
 
-To change the port and address, use the `ESACO_PORT` and `ESACO_ADDRESS` env
-variables. 
+To change the port and address, use the `ESACO_BIND_PORT` and
+`ESACO_BIND_ADDRESS` environment variables. 
 
 By default ESACO requires client authentication. The default credentials
 that client should provide when introspecting a token are:
@@ -38,12 +38,12 @@ that client should provide when introspecting a token are:
 - password: 'password'
 
 These defaults can be changed by setting the `ESACO_USER_NAME` and
-`ESACO_USER_PASSWORD` env variables. Basic authentication can be disabled by
-setting the `ESACO_ENABLE_BASIC_AUTH` env variables to `false`.
+`ESACO_USER_PASSWORD` environment variables. Basic authentication can be disabled by
+setting the `ESACO_ENABLE_BASIC_AUTH` environment variables to `false`.
 
 ESACO should be deployed behind a reverse proxy used to terminate
 TLS. When deploying behind a reverse proxy, set the
-`ESACO_USE_FORWARDED_HEADERS` env variable to true.
+`ESACO_USE_FORWARD_HEADERS` environment variable to true.
 
 #### Authorization server configuration
 
@@ -93,13 +93,13 @@ ESACO_CACHE=none
 
 ```bash
 # ESACO client will bind on this port
-ESACO_PORT=8156
+ESACO_BIND_PORT=8156
 
 # ESACO client will bind on this address
-ESACO_ADDRESS=127.0.0.1
+ESACO_BIND_ADDRESS=0.0.0.0
 
 # Set this to true when deploying behind a reverse proxy (nginx)
-ESACO_USE_FORWARDED_HEADERS=false
+ESACO_USE_FORWARD_HEADERS=false
 
 # X.509 trust anchors location
 X509_TRUST_ANCHORS_DIR=/etc/grid-security/certificates/
@@ -134,7 +134,7 @@ ESACO_TLS_VERSION=TLSv1.2
 1. Define the endpoints and credentials for trusted authorization servers in
    an application.yml file as explained above
 
-2. Define an env file containing the configuration for ESACO
+2. Define an environment file containing the configuration for ESACO
    instance following the instructions above
 
 3. Run the service with a command like this:
