@@ -115,6 +115,11 @@ pipeline {
           POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/build-image.sh
           POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/push-image.sh
           '''
+          if (env.BRANCH_NAME == 'master') {
+            withDockerRegistry([ credentialsId: "a7eccf79-d4a0-4554-89ae-474dd7ce566f", url: ""]){
+              sh 'POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/push-image.sh'
+            }
+          }
         }
       }
     }
