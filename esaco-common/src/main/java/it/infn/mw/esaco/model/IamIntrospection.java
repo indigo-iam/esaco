@@ -8,8 +8,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonInclude(Include.NON_EMPTY)
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class IamIntrospection {
 
   private final boolean active;
@@ -24,6 +27,8 @@ public class IamIntrospection {
   private final String[] groups;
   private final String preferredUsername;
   private final String organisationName;
+  private final String name;
+  private final String email;
 
   @JsonCreator
   public IamIntrospection(@JsonProperty("active") boolean active,
@@ -32,7 +37,9 @@ public class IamIntrospection {
       @JsonProperty("user_id") String userId, @JsonProperty("client_id") String clientId,
       @JsonProperty("token_type") String tokenType, @JsonProperty("groups") String[] groups,
       @JsonProperty("preferred_username") String preferredUsername,
-      @JsonProperty("organisation_name") String organisationName) {
+      @JsonProperty("organisation_name") String organisationName,
+      @JsonProperty("name") String name,
+      @JsonProperty("email") String email) {
 
     this.active = active;
     this.scope = scope;
@@ -46,6 +53,8 @@ public class IamIntrospection {
     this.groups = groups;
     this.preferredUsername = preferredUsername;
     this.organisationName = organisationName;
+    this.name = name;
+    this.email = email;
   }
 
   public IamIntrospection(IamIntrospectionBuilder builder) {
@@ -61,6 +70,8 @@ public class IamIntrospection {
     this.groups = builder.groups;
     this.preferredUsername = builder.preferredUsername;
     this.organisationName = builder.organisationName;
+    this.name = builder.name;
+    this.email = builder.email;
   }
 
   public static IamIntrospectionBuilder getBuilder() {
@@ -73,58 +84,79 @@ public class IamIntrospection {
     return active;
   }
 
+
   public String getScope() {
 
     return scope;
   }
+
 
   public String getExpiresAt() {
 
     return expiresAt;
   }
 
+
   public Long getExp() {
 
     return exp;
   }
 
+  
   public String getIss() {
     return iss;
   }
+  
   
   public String getSub() {
 
     return sub;
   }
 
+  
   public String getUserId() {
 
     return userId;
   }
 
+  
   public String getClientId() {
 
     return clientId;
   }
 
+  
   public String getTokenType() {
 
     return tokenType;
   }
 
+  
   public String[] getGroups() {
 
     return groups;
   }
 
+  
   public String getPreferredUsername() {
 
     return preferredUsername;
   }
-
+  
+  
   public String getOrganisationName() {
 
     return organisationName;
+  }
+  
+  
+  public String getName() {
+    return name;
+  }
+
+  
+  public String getEmail() {
+    return email;
   }
 
   @Generated("auto-generated method")
@@ -134,10 +166,12 @@ public class IamIntrospection {
     int result = 1;
     result = prime * result + (active ? 1231 : 1237);
     result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
+    result = prime * result + ((email == null) ? 0 : email.hashCode());
     result = prime * result + ((exp == null) ? 0 : exp.hashCode());
     result = prime * result + ((expiresAt == null) ? 0 : expiresAt.hashCode());
     result = prime * result + Arrays.hashCode(groups);
     result = prime * result + ((iss == null) ? 0 : iss.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((organisationName == null) ? 0 : organisationName.hashCode());
     result = prime * result + ((preferredUsername == null) ? 0 : preferredUsername.hashCode());
     result = prime * result + ((scope == null) ? 0 : scope.hashCode());
@@ -147,7 +181,6 @@ public class IamIntrospection {
     return result;
   }
 
-  
   @Generated("auto-generated method")
   @Override
   public boolean equals(Object obj) {
@@ -165,6 +198,11 @@ public class IamIntrospection {
         return false;
     } else if (!clientId.equals(other.clientId))
       return false;
+    if (email == null) {
+      if (other.email != null)
+        return false;
+    } else if (!email.equals(other.email))
+      return false;
     if (exp == null) {
       if (other.exp != null)
         return false;
@@ -181,6 +219,11 @@ public class IamIntrospection {
       if (other.iss != null)
         return false;
     } else if (!iss.equals(other.iss))
+      return false;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
       return false;
     if (organisationName == null) {
       if (other.organisationName != null)
@@ -214,5 +257,7 @@ public class IamIntrospection {
       return false;
     return true;
   }
+
+  
 
 }

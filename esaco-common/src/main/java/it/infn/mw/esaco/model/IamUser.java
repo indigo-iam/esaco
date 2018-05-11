@@ -8,8 +8,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonInclude(Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class IamUser {
 
   private final String sub;
@@ -103,26 +106,31 @@ public class IamUser {
     return new IamUserBuilder();
   }
 
+  
   public String getSub() {
 
     return sub;
   }
 
+  
   public String getPreferredUsername() {
 
     return preferredUsername;
   }
 
+  
   public String getName() {
 
     return name;
   }
-
+  
+  
   public String getGivenName() {
 
     return givenName;
   }
-
+  
+  
   public String getFamilyName() {
 
     return familyName;

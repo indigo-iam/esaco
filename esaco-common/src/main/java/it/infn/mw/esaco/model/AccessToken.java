@@ -28,31 +28,37 @@ public class AccessToken {
     this.jwtTokenId = jwtTokenId;
   }
 
+  @JsonProperty("alg") 
   public String getAlgorithm() {
 
     return algorithm;
   }
 
+  @JsonProperty("sub") 
   public String getSubject() {
 
     return subject;
   }
 
+  @JsonProperty("iss")
   public String getIssuer() {
 
     return issuer;
   }
 
+  @JsonProperty("exp")
   public Long getExpireAt() {
 
     return expireAt;
   }
 
+  @JsonProperty("iat")
   public Long getIssuedAt() {
 
     return issuedAt;
   }
 
+  @JsonProperty("jti")
   public String getJwtTokenId() {
 
     return jwtTokenId;

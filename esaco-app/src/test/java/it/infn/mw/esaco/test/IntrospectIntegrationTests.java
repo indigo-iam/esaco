@@ -1,6 +1,8 @@
 package it.infn.mw.esaco.test;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -99,10 +101,16 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.active").value("true"))
         .andExpect(jsonPath("$.iss").value(ISS))
-        .andExpect(jsonPath("$.sub").value("73f16d93-2441-4a50-88ff-85360d78c6b5"));
+        .andExpect(jsonPath("$.sub").value("73f16d93-2441-4a50-88ff-85360d78c6b5"))
+        .andExpect(jsonPath("$.preferred_username").value("admin"))
+        .andExpect(jsonPath("$.organisation_name").value("indigo-dc"))
+        .andExpect(jsonPath("$.email").value("admin@example.org"))
+        .andExpect(jsonPath("$.groups", hasItems("Production", "Analysis")))
+        .andExpect(jsonPath("$.token_type", is("Bearer")))
+        .andExpect(jsonPath("$.expires_at").exists());
+        
     
     verify(tokenInfoService).introspectToken(Mockito.eq(VALID_JWT));
         
   }
-  
 }

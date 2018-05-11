@@ -41,6 +41,8 @@ public class EsacoTestUtils {
     .groups(new String[] {"Production", "Analysis"})
     .preferredUsername("admin")
     .organisationName("indigo-dc")
+    .name("Admin User")
+    .email("admin@example.org")
     .build();
 
   protected final IamUser VALID_USERINFO = IamUser.getBuilder()
@@ -49,6 +51,7 @@ public class EsacoTestUtils {
     .preferredUsername("admin")
     .givenName("Admin")
     .familyName("User")
+    .email("admin@example.org")
     .gender("M")
     .updatedAt("Mon Sep 04 15:08:36 CEST 2017")
     .groups(new String[] {"Production", "Analysis"})

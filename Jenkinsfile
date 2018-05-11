@@ -41,6 +41,8 @@ pipeline {
         container('maven-runner'){
           sh 'mvn -DskipTests clean package'
           stash includes: 'esaco-app/target/esaco-app-*.jar', name: 'esaco-artifacts'
+          sh 'sh utils/print-pom-version.sh > esaco-version'
+          stash includes: 'esaco-version', name: 'esaco-version'
         }
       }
     }
@@ -108,10 +110,18 @@ pipeline {
       steps {
         container('docker-runner') {
           unstash 'esaco-artifacts'
+          unstash 'esaco-version'
           sh'''
-          /bin/bash esaco-app/docker/build-image.sh
-          /bin/bash esaco-app/docker/push-image.sh
+          POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/build-image.sh
+          POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/push-image.sh
           '''
+          script {
+            if (env.BRANCH_NAME == 'master') {
+              withDockerRegistry([ credentialsId: "a7eccf79-d4a0-4554-89ae-474dd7ce566f", url: ""]){
+                sh 'POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/push-image.sh'
+              }
+            }
+          }
         }
       }
     }

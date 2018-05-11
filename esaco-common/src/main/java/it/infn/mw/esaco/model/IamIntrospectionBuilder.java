@@ -13,6 +13,8 @@ public class IamIntrospectionBuilder {
   String[] groups;
   String preferredUsername;
   String organisationName;
+  String name;
+  String email;
 
   public IamIntrospectionBuilder isActive(boolean active) {
     this.active = active;
@@ -74,6 +76,16 @@ public class IamIntrospectionBuilder {
     return this;
   }
 
+  public IamIntrospectionBuilder name(String name) {
+    this.name = name;
+    return this;
+  }
+  
+  public IamIntrospectionBuilder email(String email) {
+    this.email = email;
+    return this;
+  }
+  
   public IamIntrospection build() {
     return new IamIntrospection(this);
   }
