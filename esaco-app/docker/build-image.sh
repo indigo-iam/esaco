@@ -18,7 +18,7 @@ echo "Building image using jar from ${ESACO_JAR}"
 
 ESACO_IMAGE=${ESACO_IMAGE:-indigoiam/esaco}
 
-cd ../../
+cd ${DIR}/../../
 
 POM_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\[')
 GIT_COMMIT_SHA=$(git rev-parse --short HEAD)

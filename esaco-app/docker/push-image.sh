@@ -1,7 +1,9 @@
 #!/bin/bash
 ESACO_IMAGE=${ESACO_IMAGE:-indigoiam/esaco}
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" && pwd  )"
 
-cd ../../
+cd ${DIR}/../../
+
 POM_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\[')
 GIT_COMMIT_SHA=$(git rev-parse --short HEAD)
 GIT_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD | sed 's#/#_#g')
