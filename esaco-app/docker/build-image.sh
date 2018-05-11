@@ -18,8 +18,19 @@ echo "Building image using jar from ${ESACO_JAR}"
 
 ESACO_IMAGE=${ESACO_IMAGE:-indigoiam/esaco}
 
+cd ../../
+
+POM_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\[')
+GIT_COMMIT_SHA=$(git rev-parse --short HEAD)
+GIT_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD | sed 's#/#_#g')
+
 cd ${DIR}
 cp ${ESACO_JAR} esaco-app.jar
 
 docker build --rm=true -t ${ESACO_IMAGE} .
+
+docker tag ${ESACO_IMAGE} ${ESACO_IMAGE}:${POM_VERSION}-${GIT_COMMIT_SHA}
+docker tag ${ESACO_IMAGE} ${ESACO_IMAGE}:${POM_VERSION}-latest
+docker tag ${ESACO_IMAGE} ${ESACO_IMAGE}:${GIT_BRANCH_NAME}-latest
+
 rm esaco-app.jar
