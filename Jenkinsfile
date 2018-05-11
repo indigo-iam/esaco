@@ -41,6 +41,8 @@ pipeline {
         container('maven-runner'){
           sh 'mvn -DskipTests clean package'
           stash includes: 'esaco-app/target/esaco-app-*.jar', name: 'esaco-artifacts'
+          sh 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version |  grep -v "\[" > esaco-version'
+          stash includes: 'esaco-version', name: 'esaco-version'
         }
       }
     }
@@ -108,9 +110,10 @@ pipeline {
       steps {
         container('docker-runner') {
           unstash 'esaco-artifacts'
+          unstash 'esaco-version'
           sh'''
-          /bin/bash esaco-app/docker/build-image.sh
-          /bin/bash esaco-app/docker/push-image.sh
+          POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/build-image.sh
+          POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/push-image.sh
           '''
         }
       }
