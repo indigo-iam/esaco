@@ -15,6 +15,9 @@ public class IamIntrospectionBuilder {
   String organisationName;
   String name;
   String email;
+  String[] groupNames;
+  String[] eduPersonEntitlements;
+  String acr;
 
   public IamIntrospectionBuilder isActive(boolean active) {
     this.active = active;
@@ -40,7 +43,7 @@ public class IamIntrospectionBuilder {
     this.iss = iss;
     return this;
   }
-  
+
   public IamIntrospectionBuilder sub(String sub) {
     this.sub = sub;
     return this;
@@ -80,12 +83,27 @@ public class IamIntrospectionBuilder {
     this.name = name;
     return this;
   }
-  
+
   public IamIntrospectionBuilder email(String email) {
     this.email = email;
     return this;
   }
-  
+
+  public IamIntrospectionBuilder groupNames(String[] groupNames) {
+    this.groupNames = groupNames;
+    return this;
+  }
+
+  public IamIntrospectionBuilder eduPersonEntitlements(String[] eduPersonEntitlements) {
+    this.eduPersonEntitlements = eduPersonEntitlements;
+    return this;
+  }
+
+  public IamIntrospectionBuilder acr(String acr) {
+    this.acr = acr;
+    return this;
+  }
+
   public IamIntrospection build() {
     return new IamIntrospection(this);
   }

@@ -29,6 +29,9 @@ public class IamIntrospection {
   private final String organisationName;
   private final String name;
   private final String email;
+  private final String[] groupNames;
+  private final String[] eduPersonEntitlements;
+  private final String acr;
 
   @JsonCreator
   public IamIntrospection(@JsonProperty("active") boolean active,
@@ -39,7 +42,10 @@ public class IamIntrospection {
       @JsonProperty("preferred_username") String preferredUsername,
       @JsonProperty("organisation_name") String organisationName,
       @JsonProperty("name") String name,
-      @JsonProperty("email") String email) {
+      @JsonProperty("email") String email,
+      @JsonProperty("groupNames") String[] groupNames,
+      @JsonProperty("edu_person_entitlements") String[] eduPersonEntitlements,
+      @JsonProperty("acr") String acr) {
 
     this.active = active;
     this.scope = scope;
@@ -55,6 +61,9 @@ public class IamIntrospection {
     this.organisationName = organisationName;
     this.name = name;
     this.email = email;
+    this.groupNames = groupNames;
+    this.eduPersonEntitlements = eduPersonEntitlements;
+    this.acr = acr;
   }
 
   public IamIntrospection(IamIntrospectionBuilder builder) {
@@ -72,6 +81,9 @@ public class IamIntrospection {
     this.organisationName = builder.organisationName;
     this.name = builder.name;
     this.email = builder.email;
+    this.groupNames = builder.groupNames;
+    this.eduPersonEntitlements = builder.eduPersonEntitlements;
+    this.acr = builder.acr;
   }
 
   public static IamIntrospectionBuilder getBuilder() {
@@ -102,62 +114,79 @@ public class IamIntrospection {
     return exp;
   }
 
-  
+
   public String getIss() {
     return iss;
   }
-  
-  
+
+
   public String getSub() {
 
     return sub;
   }
 
-  
+
   public String getUserId() {
 
     return userId;
   }
 
-  
+
   public String getClientId() {
 
     return clientId;
   }
 
-  
+
   public String getTokenType() {
 
     return tokenType;
   }
 
-  
+
   public String[] getGroups() {
 
     return groups;
   }
 
-  
+
   public String getPreferredUsername() {
 
     return preferredUsername;
   }
-  
-  
+
+
   public String getOrganisationName() {
 
     return organisationName;
   }
-  
-  
+
+
   public String getName() {
     return name;
   }
 
-  
+
   public String getEmail() {
     return email;
   }
+
+
+  @JsonProperty("groupNames")
+  public String[] getGroupNames() {
+    return groupNames;
+  }
+
+
+  public String[] getEduPersonEntitlements() {
+    return eduPersonEntitlements;
+  }
+
+
+  public String getAcr() {
+    return acr;
+  }
+
 
   @Generated("auto-generated method")
   @Override
@@ -178,6 +207,9 @@ public class IamIntrospection {
     result = prime * result + ((sub == null) ? 0 : sub.hashCode());
     result = prime * result + ((tokenType == null) ? 0 : tokenType.hashCode());
     result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+    result = prime * result + Arrays.hashCode(groupNames);
+    result = prime * result + Arrays.hashCode(eduPersonEntitlements);
+    result = prime * result + ((acr == null) ? 0 : acr.hashCode());
     return result;
   }
 
@@ -255,9 +287,18 @@ public class IamIntrospection {
         return false;
     } else if (!userId.equals(other.userId))
       return false;
+    if (!Arrays.equals(groupNames, other.groupNames))
+      return false;
+    if (!Arrays.equals(eduPersonEntitlements, other.eduPersonEntitlements))
+      return false;
+    if (acr == null) {
+      if (other.acr != null)
+        return false;
+    } else if (!acr.equals(other.acr))
+      return false;
     return true;
   }
 
-  
+
 
 }

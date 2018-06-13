@@ -23,6 +23,9 @@ public class IamUserBuilder {
   String birthdate;
   String[] groups;
   String organisationName;
+  String[] groupNames;
+  String[] eduPersonEntitlements;
+  String acr;
 
   public IamUserBuilder sub(String sub) {
     this.sub = sub;
@@ -131,6 +134,21 @@ public class IamUserBuilder {
 
   public IamUserBuilder organisationName(String organisationName) {
     this.organisationName = organisationName;
+    return this;
+  }
+
+  public IamUserBuilder groupNames(String[] groupNames) {
+    this.groupNames = groupNames;
+    return this;
+  }
+
+  public IamUserBuilder eduPersonEntitlements(String[] eduPersonEntitlements) {
+    this.eduPersonEntitlements = eduPersonEntitlements;
+    return this;
+  }
+
+  public IamUserBuilder acr(String acr) {
+    this.acr = acr;
     return this;
   }
 

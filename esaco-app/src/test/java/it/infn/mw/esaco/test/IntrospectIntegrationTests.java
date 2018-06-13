@@ -37,15 +37,15 @@ import it.infn.mw.esaco.test.utils.TestConfig;
 @AutoConfigureMockMvc
 @WithMockUser(username="test", roles="USER")
 public class IntrospectIntegrationTests  extends EsacoTestUtils{
-  
+
   final static String ENDPOINT = "/introspect";
 
   @Autowired
   private MockMvc mvc;
-  
+
   @MockBean
   TokenInfoService tokenInfoService;
-  
+
   @Test
   @WithAnonymousUser
   public void introspectEndpointRequiresAuthenticatedUser() throws Exception {
@@ -53,7 +53,7 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
     .andDo(print())
     .andExpect(status().isUnauthorized());
   }
-  
+
   @Test
   public void testIntrospectWithoutToken() throws Exception {
 
@@ -63,7 +63,7 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
       .andExpect(jsonPath("$.status", equalTo(BAD_REQUEST.value())))
       .andExpect(jsonPath("$.error", equalTo(BAD_REQUEST.getReasonPhrase())));
   }
-  
+
   @Test
   public void testUnreadableToken() throws Exception {
     String token = "abcdefghilmnopqrstuvz";
@@ -76,26 +76,26 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
       .andExpect(jsonPath("$.error", equalTo(BAD_REQUEST.getReasonPhrase())))
       .andExpect(jsonPath("$.message", equalTo("Malformed JWT token string")));
   }
-  
+
   @Test
   public void testIntrospectionWithInvalidToken() throws Exception {
-    
+
     when(tokenInfoService.isAccessTokenActive(Mockito.any())).thenReturn(false);
-    
+
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.active").value("false"));
-    
-    
+
+
   }
-  
+
   @Test
   public void testIntrospectionWithValidToken() throws Exception {
-    
+
     when(tokenInfoService.isAccessTokenActive(Mockito.any())).thenReturn(true);
     when(tokenInfoService.introspectToken(VALID_JWT)).thenReturn(VALID_INTROSPECTION);
-    
+
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
         .andDo(print())
         .andExpect(status().isOk())
@@ -107,10 +107,13 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
         .andExpect(jsonPath("$.email").value("admin@example.org"))
         .andExpect(jsonPath("$.groups", hasItems("Production", "Analysis")))
         .andExpect(jsonPath("$.token_type", is("Bearer")))
-        .andExpect(jsonPath("$.expires_at").exists());
-        
-    
+        .andExpect(jsonPath("$.expires_at").exists())
+        .andExpect(jsonPath("$.groupNames", hasItems("Production", "Analysis")))
+        .andExpect(jsonPath("$.edu_person_entitlements", hasItems("urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
+        .andExpect(jsonPath("$.acr").value("https://aai.egi.eu/LoA#Substantial"));
+
+
     verify(tokenInfoService).introspectToken(Mockito.eq(VALID_JWT));
-        
+
   }
 }

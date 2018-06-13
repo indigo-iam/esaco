@@ -43,6 +43,9 @@ public class EsacoTestUtils {
     .organisationName("indigo-dc")
     .name("Admin User")
     .email("admin@example.org")
+    .groupNames(new String[] {"Production", "Analysis"})
+    .eduPersonEntitlements(new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
+    .acr("https://aai.egi.eu/LoA#Substantial")
     .build();
 
   protected final IamUser VALID_USERINFO = IamUser.getBuilder()
@@ -56,6 +59,9 @@ public class EsacoTestUtils {
     .updatedAt("Mon Sep 04 15:08:36 CEST 2017")
     .groups(new String[] {"Production", "Analysis"})
     .organisationName("indigo-dc")
+    .groupNames(new String[] {"Production", "Analysis"})
+    .eduPersonEntitlements(new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
+    .acr("https://aai.egi.eu/LoA#Substantial")
     .build();
 
   protected final IamIntrospection EXPIRED_INTROSPECTION =
