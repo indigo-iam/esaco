@@ -1,4 +1,4 @@
-# ESACO 
+# ESACO
 
 ESACO is a daemon that has the responsibility of checking validity
 and signatures of OAuth tokens for registered trusted OAuth authorization
@@ -20,7 +20,7 @@ introspection is cached, if caching is enabled.
 
 ## Configuration
 
-ESACO listens by default on port 8156 on all interfaces. 
+ESACO listens by default on port 8156 on all interfaces.
 
 The intropection endpoint answers at `/introspect`:
 
@@ -29,7 +29,7 @@ http://esaco.example/introspect
 ```
 
 To change the port and address, use the `ESACO_BIND_PORT` and
-`ESACO_BIND_ADDRESS` environment variables. 
+`ESACO_BIND_ADDRESS` environment variables.
 
 By default ESACO requires client authentication. The default credentials
 that client should provide when introspecting a token are:
@@ -68,10 +68,10 @@ service with Docker.
 #### Cache management
 
 ESACO uses an internal in-memory cache to cache results of token
-introspection and userinfo calls. 
+introspection and userinfo calls.
 
 The size and the eviction time for the cache can be set using the
-`ESACO_CACHE_SPEC` environment variable. 
+`ESACO_CACHE_SPEC` environment variable.
 
 By default, the cache is setup with a maximum size of 500 elements and the
 records are evicted after 60 seconds, as follows:
@@ -107,6 +107,10 @@ X509_TRUST_ANCHORS_DIR=/etc/grid-security/certificates/
 # X.509 trust anchors refresh interval (in msec)
 X509_TRUST_ANCHORS_REFRESH=14400
 
+# or use a single-file CA bundle without CRLs
+#X509_TRUST_ANCHORS_BUNDLE=/etc/ssl/certs/ca-bundle.crt
+#X509_TRUST_ANCHORS_TYPE=bundle
+
 # Enable basic authentication
 ESACO_ENABLE_BASIC_AUTH=true
 
@@ -116,7 +120,7 @@ ESACO_USER_NAME=user
 # Password  credential requested from clients introspecting tokens
 ESACO_USER_PASSWORD=password
 
-# Enables caching of the results of introspection and userinfo calls 
+# Enables caching of the results of introspection and userinfo calls
 # To disable the cache set ESACO_CACHE=none
 ESACO_CACHE=caffeine
 
@@ -143,4 +147,3 @@ ESACO_TLS_VERSION=TLSv1.2
   ```
 
 [rfc7662]: https://tools.ietf.org/html/rfc7662
-

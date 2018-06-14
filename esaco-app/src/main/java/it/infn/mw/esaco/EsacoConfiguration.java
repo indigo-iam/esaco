@@ -2,6 +2,7 @@ package it.infn.mw.esaco;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.SecureRandom;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -47,14 +48,24 @@ import it.infn.mw.esaco.exception.SSLContextInitializationError;
 import it.infn.mw.esaco.service.TimeProvider;
 import it.infn.mw.esaco.service.impl.IamDynamicServerConfigurationService;
 import it.infn.mw.esaco.service.impl.SystemTimeProvider;
+import it.infn.mw.esaco.util.x509.X509BlindTrustManager;
+import it.infn.mw.esaco.util.x509.X509BundleTrustManager;
 
 @Configuration
 @EnableAutoConfiguration
 @EnableConfigurationProperties
 public class EsacoConfiguration {
 
+  public enum TrustAnchorsType {dir, bundle, none};
+
   @Value("${x509.trustAnchorsDir}")
   private String trustAnchorsDir;
+
+  @Value("${x509.trustAnchorsBundle}")
+  private String trustAnchorsBundle;
+
+  @Value("${x509.trustAnchorsType}")
+  private TrustAnchorsType trustAnchorsType;
 
   @Value("${x509.trustAnchorsRefreshMsec}")
   private Long trustAnchorsRefreshInterval;
@@ -124,18 +135,34 @@ public class EsacoConfiguration {
   }
 
   @Bean
+  public X509TrustManager trustManager() throws KeyManagementException, CertificateException {
+
+    switch(trustAnchorsType) {
+      case dir:
+        // reading trust anchors from a grid-style PEM directory
+        return SocketFactoryCreator.getSSLTrustManager(certificateValidator());
+      case bundle:
+        // reading trust anchors from PEMs in a bundle, no CRLs
+        return new X509BundleTrustManager(trustAnchorsBundle);
+      case none:
+        // blind & trusting, not for production use
+        return new X509BlindTrustManager();
+      default:
+        throw new CertificateException("Unsupported trust anchors type: " + trustAnchorsType);
+    }
+  }
+
+  @Bean
   public SSLContext sslContext() {
 
     try {
       SSLContext context = SSLContext.getInstance(tlsVersion);
-
-      X509TrustManager tm = SocketFactoryCreator.getSSLTrustManager(certificateValidator());
       SecureRandom r = new SecureRandom();
-      context.init(null, new TrustManager[] {tm}, r);
+      context.init(null, new TrustManager[] { trustManager() }, r);
 
       return context;
 
-    } catch (NoSuchAlgorithmException | KeyManagementException e) {
+    } catch (NoSuchAlgorithmException | CertificateException | KeyManagementException e) {
       throw new SSLContextInitializationError(e.getMessage(), e);
     }
   }

@@ -1,7 +1,7 @@
 server:
   port: ${ESACO_BIND_PORT:8156}
   address: ${ESACO_BIND_ADDRESS:0.0.0.0}
-  
+
   use-forward-headers: ${ESACO_USE_FORWARD_HEADERS:false}
 
 spring:
@@ -28,8 +28,10 @@ oidc:
 
 x509:
   trustAnchorsDir: ${X509_TRUST_ANCHORS_DIR:/etc/grid-security/certificates}
+  trustAnchorsBundle: ${X509_TRUST_ANCHORS_BUNDLE:/etc/ssl/certs/ca-bundle.crt}
+  trustAnchorsType: ${X509_TRUST_ANCHORS_TYPE:dir}
   trustAnchorsRefreshMsec: ${X509_TRUST_ANCHORS_REFRESH:14400}
-  
+
 tls:
   version: ${ESACO_TLS_VERSION:TLSv1.2}
 
@@ -39,5 +41,5 @@ security:
   user:
     name: ${ESACO_USER_NAME:user}
     password: ${ESACO_USER_PASSWORD:password}
-  
+
   enable-csrf: false
