@@ -109,7 +109,7 @@ X509_TRUST_ANCHORS_REFRESH=14400
 
 # or use a single-file CA bundle without CRLs
 #X509_TRUST_ANCHORS_BUNDLE=/etc/ssl/certs/ca-bundle.crt
-#X509_TRUST_ANCHORS_TYPE=bundle
+#X509_TRUST_ANCHORS_TYPE=BUNDLE
 
 # Enable basic authentication
 ESACO_ENABLE_BASIC_AUTH=true

@@ -29,7 +29,7 @@ oidc:
 x509:
   trustAnchorsDir: ${X509_TRUST_ANCHORS_DIR:/etc/grid-security/certificates}
   trustAnchorsBundle: ${X509_TRUST_ANCHORS_BUNDLE:/etc/ssl/certs/ca-bundle.crt}
-  trustAnchorsType: ${X509_TRUST_ANCHORS_TYPE:dir}
+  trustAnchorsType: ${X509_TRUST_ANCHORS_TYPE:DIR}
   trustAnchorsRefreshMsec: ${X509_TRUST_ANCHORS_REFRESH:14400}
 
 tls:

@@ -56,7 +56,7 @@ import it.infn.mw.esaco.util.x509.X509BundleTrustManager;
 @EnableConfigurationProperties
 public class EsacoConfiguration {
 
-  public enum TrustAnchorsType {dir, bundle, none};
+  public enum TrustAnchorsType {DIR, BUNDLE, NONE}
 
   @Value("${x509.trustAnchorsDir}")
   private String trustAnchorsDir;
@@ -138,13 +138,13 @@ public class EsacoConfiguration {
   public X509TrustManager trustManager() throws CertificateException {
 
     switch(trustAnchorsType) {
-      case dir:
+      case DIR:
         // reading trust anchors from a grid-style PEM directory
         return SocketFactoryCreator.getSSLTrustManager(certificateValidator());
-      case bundle:
+      case BUNDLE:
         // reading trust anchors from PEMs in a bundle, no CRLs
         return new X509BundleTrustManager(trustAnchorsBundle);
-      case none:
+      case NONE:
         // blind & trusting, not for production use
         return new X509BlindTrustManager();
       default:
