@@ -3,7 +3,6 @@ package it.infn.mw.esaco.util.x509;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertPath;
@@ -69,31 +68,29 @@ public class X509BundleTrustManager implements X509TrustManager {
     try {
       certPathValidator.validate(certPath, validationParameters);
     } catch (CertPathValidatorException | InvalidAlgorithmParameterException e) {
-      Throwable t = e;
-      while (t.getCause() != null) t = t.getCause(); // get root exception, more convenient
-      throw new CertificateException(t.getMessage(), e);
+      throw new CertificateException(e.getMessage(), e);
     }
   }
 
-  static private List<TrustAnchor> buildAnchors(String caBundlePath, CertificateFactory certificateFactory) throws
-    CertificateException, UnsupportedEncodingException, IOException {
+  private static List<TrustAnchor> buildAnchors(String caBundlePath, CertificateFactory certificateFactory) throws
+    CertificateException, IOException {
 
     List<TrustAnchor> anchors = new ArrayList<>();
-    FileInputStream fisCaBundle = new FileInputStream(caBundlePath);
-    BufferedInputStream bisCaBundle = new BufferedInputStream(fisCaBundle);
 
-    // each call to generateCertificate consumes only one certificate, and the read position
-    // of the input stream is positioned to the next certificate in the file
-    while (bisCaBundle.available() > 0) {
-      X509Certificate caCert = (X509Certificate) certificateFactory.generateCertificate(bisCaBundle);
-      TrustAnchor ca = new TrustAnchor(caCert, null);
-      anchors.add(ca);
+    try(BufferedInputStream bisCaBundle = new BufferedInputStream(new FileInputStream(caBundlePath))){
+      // each call to generateCertificate consumes only one certificate, and the read position
+      // of the input stream is positioned to the next certificate in the file
+      while (bisCaBundle.available() > 0) {
+        X509Certificate caCert = (X509Certificate) certificateFactory.generateCertificate(bisCaBundle);
+        TrustAnchor ca = new TrustAnchor(caCert, null);
+        anchors.add(ca);
+      }
     }
 
     return anchors;
   }
 
-  static private PKIXParameters buildValidationParameters(List<TrustAnchor> bundleCAs) throws
+  private static PKIXParameters buildValidationParameters(List<TrustAnchor> bundleCAs) throws
     InvalidAlgorithmParameterException {
 
     PKIXParameters params = new PKIXParameters(new HashSet<>(bundleCAs));

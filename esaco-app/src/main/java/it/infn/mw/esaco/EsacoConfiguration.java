@@ -135,7 +135,7 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  public X509TrustManager trustManager() throws KeyManagementException, CertificateException {
+  public X509TrustManager trustManager() throws CertificateException {
 
     switch(trustAnchorsType) {
       case dir:
