@@ -6,6 +6,9 @@ import java.security.cert.CertificateException;
 import java.security.SecureRandom;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.util.Collections;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -42,14 +45,18 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
+import eu.emi.security.authn.x509.ProxySupport;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import eu.emi.security.authn.x509.impl.DirectoryCertChainValidator;
+import eu.emi.security.authn.x509.impl.RevocationParametersExt;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
+import eu.emi.security.authn.x509.impl.ValidatorParamsExt;
 import it.infn.mw.esaco.exception.SSLContextInitializationError;
 import it.infn.mw.esaco.service.TimeProvider;
 import it.infn.mw.esaco.service.impl.IamDynamicServerConfigurationService;
 import it.infn.mw.esaco.service.impl.SystemTimeProvider;
 import it.infn.mw.esaco.util.x509.X509BlindTrustManager;
-import it.infn.mw.esaco.util.x509.X509BundleTrustManager;
 
 @Configuration
 @EnableAutoConfiguration
@@ -57,6 +64,7 @@ import it.infn.mw.esaco.util.x509.X509BundleTrustManager;
 public class EsacoConfiguration {
 
   public enum TrustAnchorsType {DIR, BUNDLE, NONE}
+  private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA = 5000;
 
   @Value("${x509.trustAnchorsDir}")
   private String trustAnchorsDir;
@@ -135,6 +143,28 @@ public class EsacoConfiguration {
   }
 
   @Bean
+  public X509CertChainValidatorExt bundleValidator() throws CertificateException {
+
+    ValidatorParamsExt validatorParams = new ValidatorParamsExt(
+      RevocationParametersExt.IGNORE,
+      ProxySupport.DENY
+    );
+
+    try {
+      return new DirectoryCertChainValidator(
+        Collections.singletonList(trustAnchorsBundle),
+        Encoding.PEM,
+        trustAnchorsRefreshInterval,
+        TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA,
+        null,
+        validatorParams
+      );
+    } catch (KeyStoreException | IOException e) {
+      throw new CertificateException(e.getMessage(), e);
+    }
+  }
+
+  @Bean
   public X509TrustManager trustManager() throws CertificateException {
 
     switch(trustAnchorsType) {
@@ -142,8 +172,8 @@ public class EsacoConfiguration {
         // reading trust anchors from a grid-style PEM directory
         return SocketFactoryCreator.getSSLTrustManager(certificateValidator());
       case BUNDLE:
-        // reading trust anchors from PEMs in a bundle, no CRLs
-        return new X509BundleTrustManager(trustAnchorsBundle);
+        // reading trust anchors from PEMs in a bundle, no CRLs, no proxies
+        return SocketFactoryCreator.getSSLTrustManager(bundleValidator());
       case NONE:
         // blind & trusting, not for production use
         return new X509BlindTrustManager();
