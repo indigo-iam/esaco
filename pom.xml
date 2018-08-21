@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 
-		<mitreid.version>1.3.2.cnaf.rc0</mitreid.version>
+		<mitreid.version>1.3.2</mitreid.version>
 		<voms.version>3.3.0</voms.version>
 		<caffeine.version>2.6.2</caffeine.version>
 		<httpclient.version>4.5.3</httpclient.version>
