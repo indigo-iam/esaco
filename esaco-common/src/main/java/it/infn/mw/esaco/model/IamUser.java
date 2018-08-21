@@ -37,6 +37,9 @@ public class IamUser {
   private final String birthdate;
   private final String[] groups;
   private final String organisationName;
+  private final String[] groupNames;
+  private final String[] eduPersonEntitlements;
+  private final String acr;
 
   @JsonCreator
   public IamUser(@JsonProperty("sub") String sub, @JsonProperty("name") String name,
@@ -51,7 +54,10 @@ public class IamUser {
       @JsonProperty("phone_number_verified") Boolean phoneNumberVerified,
       @JsonProperty("address") String address, @JsonProperty("updated_at") String updatedAt,
       @JsonProperty("birthdate") String birthdate, @JsonProperty("groups") String[] groups,
-      @JsonProperty("organisation_name") String organisationName) {
+      @JsonProperty("organisation_name") String organisationName,
+      @JsonProperty("groupNames") String[] groupNames,
+      @JsonProperty("edu_person_entitlements") String[] eduPersonEntitlements,
+      @JsonProperty("acr") String acr) {
 
     this.sub = sub;
     this.name = name;
@@ -75,6 +81,9 @@ public class IamUser {
     this.birthdate = birthdate;
     this.groups = groups;
     this.organisationName = organisationName;
+    this.groupNames = groupNames;
+    this.eduPersonEntitlements = eduPersonEntitlements;
+    this.acr = acr;
   }
 
   public IamUser(IamUserBuilder builder) {
@@ -100,37 +109,40 @@ public class IamUser {
     this.birthdate = builder.birthdate;
     this.groups = builder.groups;
     this.organisationName = builder.organisationName;
+    this.groupNames = builder.groupNames;
+    this.eduPersonEntitlements = builder.eduPersonEntitlements;
+    this.acr = builder.acr;
   }
 
   public static IamUserBuilder getBuilder() {
     return new IamUserBuilder();
   }
 
-  
+
   public String getSub() {
 
     return sub;
   }
 
-  
+
   public String getPreferredUsername() {
 
     return preferredUsername;
   }
 
-  
+
   public String getName() {
 
     return name;
   }
-  
-  
+
+
   public String getGivenName() {
 
     return givenName;
   }
-  
-  
+
+
   public String getFamilyName() {
 
     return familyName;
@@ -221,6 +233,22 @@ public class IamUser {
     return organisationName;
   }
 
+  @JsonProperty("groupNames")
+  public String[] getGroupNames() {
+
+    return groupNames;
+  }
+
+  public String[] getEduPersonEntitlements() {
+
+    return eduPersonEntitlements;
+  }
+
+  public String getAcr() {
+
+    return acr;
+  }
+
   @Override
   @Generated("auto-generated method")
   public int hashCode() {
@@ -249,6 +277,9 @@ public class IamUser {
     result = prime * result + ((updatedAt == null) ? 0 : updatedAt.hashCode());
     result = prime * result + ((website == null) ? 0 : website.hashCode());
     result = prime * result + ((zoneinfo == null) ? 0 : zoneinfo.hashCode());
+    result = prime * result + Arrays.hashCode(groupNames);
+    result = prime * result + Arrays.hashCode(eduPersonEntitlements);
+    result = prime * result + ((acr == null) ? 0 : acr.hashCode());
     return result;
   }
 
@@ -369,6 +400,15 @@ public class IamUser {
       if (other.zoneinfo != null)
         return false;
     } else if (!zoneinfo.equals(other.zoneinfo))
+      return false;
+    if (!Arrays.equals(groupNames, other.groupNames))
+      return false;
+    if (!Arrays.equals(eduPersonEntitlements, other.eduPersonEntitlements))
+      return false;
+    if (acr == null) {
+      if (other.acr != null)
+        return false;
+    } else if (!acr.equals(other.acr))
       return false;
     return true;
   }
