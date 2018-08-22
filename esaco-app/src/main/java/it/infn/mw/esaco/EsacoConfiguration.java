@@ -2,9 +2,13 @@ package it.infn.mw.esaco;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.SecureRandom;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.util.Collections;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -41,20 +45,35 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
+import eu.emi.security.authn.x509.ProxySupport;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import eu.emi.security.authn.x509.impl.DirectoryCertChainValidator;
+import eu.emi.security.authn.x509.impl.RevocationParametersExt;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
+import eu.emi.security.authn.x509.impl.ValidatorParamsExt;
 import it.infn.mw.esaco.exception.SSLContextInitializationError;
 import it.infn.mw.esaco.service.TimeProvider;
 import it.infn.mw.esaco.service.impl.IamDynamicServerConfigurationService;
 import it.infn.mw.esaco.service.impl.SystemTimeProvider;
+import it.infn.mw.esaco.util.x509.X509BlindTrustManager;
 
 @Configuration
 @EnableAutoConfiguration
 @EnableConfigurationProperties
 public class EsacoConfiguration {
 
+  public enum TrustAnchorsType {DIR, BUNDLE, NONE}
+  private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC = 0;
+
   @Value("${x509.trustAnchorsDir}")
   private String trustAnchorsDir;
+
+  @Value("${x509.trustAnchorsBundle}")
+  private String trustAnchorsBundle;
+
+  @Value("${x509.trustAnchorsType}")
+  private TrustAnchorsType trustAnchorsType;
 
   @Value("${x509.trustAnchorsRefreshMsec}")
   private Long trustAnchorsRefreshInterval;
@@ -124,18 +143,56 @@ public class EsacoConfiguration {
   }
 
   @Bean
+  public X509CertChainValidatorExt bundleValidator() throws CertificateException {
+
+    ValidatorParamsExt validatorParams = new ValidatorParamsExt(
+      RevocationParametersExt.IGNORE,
+      ProxySupport.DENY
+    );
+
+    try {
+      return new DirectoryCertChainValidator(
+        Collections.singletonList(trustAnchorsBundle),
+        Encoding.PEM,
+        trustAnchorsRefreshInterval,
+        TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC,
+        null,
+        validatorParams
+      );
+    } catch (KeyStoreException | IOException e) {
+      throw new CertificateException(e.getMessage(), e);
+    }
+  }
+
+  @Bean
+  public X509TrustManager trustManager() throws CertificateException {
+
+    switch(trustAnchorsType) {
+      case DIR:
+        // reading trust anchors from a grid-style PEM directory
+        return SocketFactoryCreator.getSSLTrustManager(certificateValidator());
+      case BUNDLE:
+        // reading trust anchors from PEMs in a bundle, no CRLs, no proxies
+        return SocketFactoryCreator.getSSLTrustManager(bundleValidator());
+      case NONE:
+        // blind & trusting, not for production use
+        return new X509BlindTrustManager();
+      default:
+        throw new CertificateException("Unsupported trust anchors type: " + trustAnchorsType);
+    }
+  }
+
+  @Bean
   public SSLContext sslContext() {
 
     try {
       SSLContext context = SSLContext.getInstance(tlsVersion);
-
-      X509TrustManager tm = SocketFactoryCreator.getSSLTrustManager(certificateValidator());
       SecureRandom r = new SecureRandom();
-      context.init(null, new TrustManager[] {tm}, r);
+      context.init(null, new TrustManager[] { trustManager() }, r);
 
       return context;
 
-    } catch (NoSuchAlgorithmException | KeyManagementException e) {
+    } catch (NoSuchAlgorithmException | CertificateException | KeyManagementException e) {
       throw new SSLContextInitializationError(e.getMessage(), e);
     }
   }
