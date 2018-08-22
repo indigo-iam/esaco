@@ -64,7 +64,7 @@ import it.infn.mw.esaco.util.x509.X509BlindTrustManager;
 public class EsacoConfiguration {
 
   public enum TrustAnchorsType {DIR, BUNDLE, NONE}
-  private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA = 5000;
+  private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC = 0;
 
   @Value("${x509.trustAnchorsDir}")
   private String trustAnchorsDir;
@@ -155,7 +155,7 @@ public class EsacoConfiguration {
         Collections.singletonList(trustAnchorsBundle),
         Encoding.PEM,
         trustAnchorsRefreshInterval,
-        TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA,
+        TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC,
         null,
         validatorParams
       );
