@@ -17,6 +17,7 @@ public class IamIntrospectionBuilder {
   String email;
   String[] groupNames;
   String[] eduPersonEntitlements;
+  String[] eduPersonEntitlement;
   String acr;
 
   public IamIntrospectionBuilder isActive(boolean active) {
@@ -96,6 +97,11 @@ public class IamIntrospectionBuilder {
 
   public IamIntrospectionBuilder eduPersonEntitlements(String[] eduPersonEntitlements) {
     this.eduPersonEntitlements = eduPersonEntitlements;
+    return this;
+  }
+
+  public IamIntrospectionBuilder eduPersonEntitlement(String[] eduPersonEntitlement) {
+    this.eduPersonEntitlement = eduPersonEntitlement;
     return this;
   }
 

@@ -52,6 +52,7 @@ public class EsacoTestUtils {
     .email("admin@example.org")
     .groupNames(new String[] {"Production", "Analysis"})
     .eduPersonEntitlements(new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
+    .eduPersonEntitlement(new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
     .acr("https://aai.egi.eu/LoA#Substantial")
     .build();
 
@@ -68,6 +69,7 @@ public class EsacoTestUtils {
     .organisationName("indigo-dc")
     .groupNames(new String[] {"Production", "Analysis"})
     .eduPersonEntitlements(new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
+    .eduPersonEntitlement(new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
     .acr("https://aai.egi.eu/LoA#Substantial")
     .build();
 

@@ -122,6 +122,8 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
     assertThat(userinfo.getGroupNames(), not(emptyArray()));
     assertThat(userinfo.getEduPersonEntitlements(), isA(String[].class));
     assertThat(userinfo.getEduPersonEntitlements(), not(emptyArray()));
+    assertThat(userinfo.getEduPersonEntitlement(), isA(String[].class));
+    assertThat(userinfo.getEduPersonEntitlement(), not(emptyArray()));
     assertThat(userinfo.getAcr(), not(isEmptyOrNullString()));
   }
 
