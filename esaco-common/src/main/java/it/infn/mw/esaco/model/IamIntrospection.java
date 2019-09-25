@@ -31,6 +31,7 @@ public class IamIntrospection {
   private final String email;
   private final String[] groupNames;
   private final String[] eduPersonEntitlements;
+  private final String[] eduPersonEntitlement;
   private final String acr;
 
   @JsonCreator
@@ -45,6 +46,7 @@ public class IamIntrospection {
       @JsonProperty("email") String email,
       @JsonProperty("groupNames") String[] groupNames,
       @JsonProperty("edu_person_entitlements") String[] eduPersonEntitlements,
+      @JsonProperty("eduperson_entitlement") String[] eduPersonEntitlement,
       @JsonProperty("acr") String acr) {
 
     this.active = active;
@@ -63,6 +65,7 @@ public class IamIntrospection {
     this.email = email;
     this.groupNames = groupNames;
     this.eduPersonEntitlements = eduPersonEntitlements;
+    this.eduPersonEntitlement = eduPersonEntitlement;
     this.acr = acr;
   }
 
@@ -83,6 +86,7 @@ public class IamIntrospection {
     this.email = builder.email;
     this.groupNames = builder.groupNames;
     this.eduPersonEntitlements = builder.eduPersonEntitlements;
+    this.eduPersonEntitlement = builder.eduPersonEntitlement;
     this.acr = builder.acr;
   }
 
@@ -182,6 +186,11 @@ public class IamIntrospection {
     return eduPersonEntitlements;
   }
 
+  @JsonProperty("eduperson_entitlement")
+  public String[] getEduPersonEntitlement() {
+    return eduPersonEntitlement;
+  }
+
 
   public String getAcr() {
     return acr;
@@ -209,6 +218,7 @@ public class IamIntrospection {
     result = prime * result + ((userId == null) ? 0 : userId.hashCode());
     result = prime * result + Arrays.hashCode(groupNames);
     result = prime * result + Arrays.hashCode(eduPersonEntitlements);
+    result = prime * result + Arrays.hashCode(eduPersonEntitlement);
     result = prime * result + ((acr == null) ? 0 : acr.hashCode());
     return result;
   }
@@ -290,6 +300,8 @@ public class IamIntrospection {
     if (!Arrays.equals(groupNames, other.groupNames))
       return false;
     if (!Arrays.equals(eduPersonEntitlements, other.eduPersonEntitlements))
+      return false;
+    if (!Arrays.equals(eduPersonEntitlement, other.eduPersonEntitlement))
       return false;
     if (acr == null) {
       if (other.acr != null)
