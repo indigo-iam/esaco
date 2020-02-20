@@ -25,6 +25,7 @@ public class IamUserBuilder {
   String organisationName;
   String[] groupNames;
   String[] eduPersonEntitlements;
+  String[] eduPersonEntitlement;
   String acr;
 
   public IamUserBuilder sub(String sub) {
@@ -144,6 +145,11 @@ public class IamUserBuilder {
 
   public IamUserBuilder eduPersonEntitlements(String[] eduPersonEntitlements) {
     this.eduPersonEntitlements = eduPersonEntitlements;
+    return this;
+  }
+
+  public IamUserBuilder eduPersonEntitlement(String[] eduPersonEntitlement) {
+    this.eduPersonEntitlement = eduPersonEntitlement;
     return this;
   }
 

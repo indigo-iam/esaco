@@ -147,6 +147,8 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
     assertThat(introspection.getGroupNames(), isA(String[].class));
     assertThat(introspection.getGroupNames(), not(emptyArray()));
     assertThat(introspection.getEduPersonEntitlements(), isA(String[].class));
+    assertThat(introspection.getEduPersonEntitlement(), not(emptyArray()));
+    assertThat(introspection.getEduPersonEntitlement(), isA(String[].class));
     assertThat(introspection.getEduPersonEntitlements(), not(emptyArray()));
     assertThat(introspection.getAcr(), not(isEmptyOrNullString()));
 
@@ -158,6 +160,8 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
     assertThat(userinfo.getGroupNames(), not(emptyArray()));
     assertThat(userinfo.getEduPersonEntitlements(), isA(String[].class));
     assertThat(userinfo.getEduPersonEntitlements(), not(emptyArray()));
+    assertThat(userinfo.getEduPersonEntitlement(), isA(String[].class));
+    assertThat(userinfo.getEduPersonEntitlement(), not(emptyArray()));
     assertThat(userinfo.getAcr(), not(isEmptyOrNullString()));
   }
 
