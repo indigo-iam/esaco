@@ -9,17 +9,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class TokenInfo {
 
   private final AccessToken accessToken;
-  private final IamIntrospection introspection;
+  private final String introspection;
   private final IamUser userinfo;
 
   @JsonCreator
   public TokenInfo(@JsonProperty("access_token") AccessToken accessToken,
-      @JsonProperty("introspection") IamIntrospection introspection,
+      @JsonProperty("introspection") String introspection2,
       @JsonProperty("userinfo") IamUser userinfo) {
 
     super();
     this.accessToken = accessToken;
-    this.introspection = introspection;
+    this.introspection = introspection2;
     this.userinfo = userinfo;
   }
 
@@ -28,7 +28,7 @@ public class TokenInfo {
     return accessToken;
   }
 
-  public IamIntrospection getIntrospection() {
+  public String getIntrospection() {
 
     return introspection;
   }

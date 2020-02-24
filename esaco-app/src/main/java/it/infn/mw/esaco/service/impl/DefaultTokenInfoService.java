@@ -17,7 +17,7 @@ import it.infn.mw.esaco.exception.HttpConnectionException;
 import it.infn.mw.esaco.exception.TokenIntrospectionException;
 import it.infn.mw.esaco.exception.TokenValidationException;
 import it.infn.mw.esaco.model.AccessToken;
-import it.infn.mw.esaco.model.IamIntrospection;
+//import it.infn.mw.esaco.model.IamIntrospection;
 import it.infn.mw.esaco.model.IamUser;
 import it.infn.mw.esaco.service.TimeProvider;
 import it.infn.mw.esaco.service.TokenInfoService;
@@ -59,13 +59,13 @@ public class DefaultTokenInfoService implements TokenInfoService {
 
   @Override
   @Cacheable("introspect")
-  public IamIntrospection introspectToken(String accessToken) {
+  public String introspectToken(String accessToken) {
 
     Optional<String> response = tokenIntrospectionService.introspectToken(accessToken);
 
     if (response.isPresent()) {
       try {
-        return mapper.readValue(response.get(), IamIntrospection.class);
+        return accessToken;
       } catch (Exception e) {
         String msg = "Error decoding information from introspection endpoint";
         LOGGER.error(msg, e);
