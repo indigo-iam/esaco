@@ -1,9 +1,10 @@
 package it.infn.mw.esaco.test;
 
 import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+//import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
@@ -47,11 +48,11 @@ import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 import it.infn.mw.esaco.test.utils.TestConfig;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {EsacoApplication.class, TestConfig.class})
+@ContextConfiguration(classes = { EsacoApplication.class, TestConfig.class })
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@WithMockUser(username="test", roles="USER")
+@WithMockUser(username = "test", roles = "USER")
 public class TokenInfoControllerTests extends EsacoTestUtils {
 
   final static String ENDPOINT = "/tokeninfo";
@@ -67,27 +68,35 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
 
   @Before
   public void setup() {
+
     given(tokenInfoService.isAccessTokenActive(Mockito.any())).willReturn(true);
 
-    given(tokenInfoService.parseJWTAccessToken(Mockito.anyString())).willCallRealMethod();
+    given(tokenInfoService.parseJWTAccessToken(Mockito.anyString()))
+      .willCallRealMethod();
 
-    given(tokenInfoService.introspectToken(VALID_JWT)).willReturn(VALID_JWT);
-    given(tokenInfoService.decodeUserInfo(VALID_JWT)).willReturn(VALID_USERINFO);
+    given(tokenInfoService.introspectToken(VALID_JWT))
+      .willReturn(VALID_INTROSPECTION);
+    given(tokenInfoService.decodeUserInfo(VALID_JWT))
+      .willReturn(VALID_USERINFO);
 
-    given(tokenInfoService.introspectToken(EXPIRED_JWT)).willReturn(EXPIRED_JWT);
+    given(tokenInfoService.introspectToken(EXPIRED_JWT))
+      .willReturn(EXPIRED_JWT);
 
-    given(tokenInfoService.introspectToken(CLIENT_CRED_JWT)).willReturn(CLIENT_CRED_JWT);
+    given(tokenInfoService.introspectToken(CLIENT_CRED_JWT))
+      .willReturn(CLIENT_CRED_JWT);
     given(tokenInfoService.decodeUserInfo(CLIENT_CRED_JWT)).willReturn(null);
 
-    given(tokenInfoService.introspectToken(TOKEN_WITH_PARSING_ERR)).willThrow(
-        new TokenIntrospectionException("Error decoding information from introspection endpoint"));
+    given(tokenInfoService.introspectToken(TOKEN_WITH_PARSING_ERR))
+      .willThrow(new TokenIntrospectionException(
+        "Error decoding information from introspection endpoint"));
 
-    given(tokenInfoService.introspectToken(TOKEN_WITH_CONNECTION_ERR)).willThrow(
-        new HttpConnectionException(String.format("Error connecting to endpoint: '%s'", "foo")));
+    given(tokenInfoService.introspectToken(TOKEN_WITH_CONNECTION_ERR))
+      .willThrow(new HttpConnectionException(
+        String.format("Error connecting to endpoint: '%s'", "foo")));
 
     given(tokenInfoService.introspectToken(TOKEN_FROM_UNKNOWN_ISSUER))
       .willThrow(new UnsupportedIssuerException(
-          String.format("Issuer '%s' not supported", UNSUPPORTED_ISSUER)));
+        String.format("Issuer '%s' not supported", UNSUPPORTED_ISSUER)));
   }
 
   @Test
@@ -135,23 +144,25 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
     assertNotNull(introspection);
     assertNotNull(userinfo);
 
+    IamIntrospection iamIntrospection = mapper.readValue(introspection,
+      IamIntrospection.class);
+
     assertThat(accessToken.getAlgorithm(), equalTo(ALG));
     assertThat(accessToken.getIssuer(), equalTo(ISS));
     assertThat(accessToken.getSubject(), equalTo(SUB));
 
-    /*
-     * assertThat(introspection.isActive(), is(true));
-     * assertThat(introspection.getUserId(), equalTo(USERNAME));
-     * assertThat(introspection.getClientId(), equalTo(CLIENT_ID));
-     * assertThat(introspection.getTokenType(), equalTo(TOKEN_TYPE));
-     * assertThat(introspection.getOrganisationName(),
-     * not(isEmptyOrNullString())); assertThat(introspection.getGroupNames(),
-     * isA(String[].class)); assertThat(introspection.getGroupNames(),
-     * not(emptyArray())); assertThat(introspection.getEduPersonEntitlements(),
-     * isA(String[].class));
-     * assertThat(introspection.getEduPersonEntitlements(), not(emptyArray()));
-     * assertThat(introspection.getAcr(), not(isEmptyOrNullString()));
-     */
+    assertThat(iamIntrospection.isActive(), is(true));
+    assertThat(iamIntrospection.getUserId(), equalTo(USERNAME));
+    assertThat(iamIntrospection.getClientId(), equalTo(CLIENT_ID));
+    assertThat(iamIntrospection.getTokenType(), equalTo(TOKEN_TYPE));
+    assertThat(iamIntrospection.getOrganisationName(),
+      not(isEmptyOrNullString()));
+    assertThat(iamIntrospection.getGroupNames(), isA(String[].class));
+    assertThat(iamIntrospection.getGroupNames(), not(emptyArray()));
+    assertThat(iamIntrospection.getEduPersonEntitlements(),
+      isA(String[].class));
+    assertThat(iamIntrospection.getEduPersonEntitlements(), not(emptyArray()));
+    assertThat(iamIntrospection.getAcr(), not(isEmptyOrNullString()));
 
     assertThat(userinfo.getPreferredUsername(), equalTo(USERNAME));
     assertThat(userinfo.getGroups(), isA(String[].class));
@@ -166,19 +177,22 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
 
   @Test
   public void testGetInfoWithExpiredToken() throws Exception {
-    given(tokenInfoService.isAccessTokenActive(Mockito.any())).willReturn(false);
+
+    given(tokenInfoService.isAccessTokenActive(Mockito.any()))
+      .willReturn(false);
 
     mvc.perform(post(ENDPOINT).param("token", EXPIRED_JWT))
       .andDo(print())
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.introspection").exists());
-//      .andExpect(jsonPath("$.introspection.active", is(false)));
+      .andExpect(jsonPath("$.introspection").exists())
+      .andExpect(jsonPath("$.introspection.active", is(false)));
   }
 
   @Test
   public void testGetInfoWithoutUserinfo() throws Exception {
 
-    String response = mvc.perform(post(ENDPOINT).param("token", CLIENT_CRED_JWT))
+    String response = mvc
+      .perform(post(ENDPOINT).param("token", CLIENT_CRED_JWT))
       .andDo(print())
       .andExpect(status().isOk())
       .andReturn()
@@ -200,9 +214,14 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
     String introspection = tokenInfo.getIntrospection();
 
     /*
-     * assertThat(introspection.isActive(), is(true));
-     * assertThat(introspection.getClientId(), equalTo("client-cred"));
-     * assertThat(introspection.getTokenType(), equalTo(TOKEN_TYPE));
+     * IamIntrospection introspectionDisserialization = mapper
+     * .readValue(introspection, IamIntrospection.class);
+     * 
+     * assertThat(introspectionDisserialization.isActive(), is(true));
+     * assertThat(introspectionDisserialization.getClientId(),
+     * equalTo("client-cred"));
+     * assertThat(introspectionDisserialization.getTokenType(),
+     * equalTo(TOKEN_TYPE));
      */
   }
 
@@ -214,8 +233,8 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.status", equalTo(BAD_REQUEST.value())))
       .andExpect(jsonPath("$.error", equalTo(BAD_REQUEST.getReasonPhrase())))
-      .andExpect(
-          jsonPath("$.message", equalTo("Error decoding information from introspection endpoint")));
+      .andExpect(jsonPath("$.message",
+        equalTo("Error decoding information from introspection endpoint")));
   }
 
   @Test
@@ -225,9 +244,10 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
       .andDo(print())
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.status", equalTo(INTERNAL_SERVER_ERROR.value())))
-      .andExpect(jsonPath("$.error", equalTo(INTERNAL_SERVER_ERROR.getReasonPhrase())))
       .andExpect(
-          jsonPath("$.message", equalTo(format("Error connecting to endpoint: '%s'", "foo"))));
+        jsonPath("$.error", equalTo(INTERNAL_SERVER_ERROR.getReasonPhrase())))
+      .andExpect(jsonPath("$.message",
+        equalTo(format("Error connecting to endpoint: '%s'", "foo"))));
   }
 
   @Test
@@ -238,7 +258,7 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.status", equalTo(BAD_REQUEST.value())))
       .andExpect(jsonPath("$.error", equalTo(BAD_REQUEST.getReasonPhrase())))
-      .andExpect(
-          jsonPath("$.message", equalTo(format("Issuer '%s' not supported", UNSUPPORTED_ISSUER))));
+      .andExpect(jsonPath("$.message",
+        equalTo(format("Issuer '%s' not supported", UNSUPPORTED_ISSUER))));
   }
 }

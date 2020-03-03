@@ -1,7 +1,6 @@
 package it.infn.mw.esaco.service;
 
 import it.infn.mw.esaco.model.AccessToken;
-//import it.infn.mw.esaco.model.IamIntrospection;
 import it.infn.mw.esaco.model.IamUser;
 
 /***
@@ -22,8 +21,9 @@ public interface TokenInfoService {
   /***
    * Given a JWT access token, parse it and return introspection information
    * 
-   * @param accessToken JWT access token
-   * @return Token introspection information
+   * @param accessToken
+   *          JWT access token
+   * @return Token introspection String
    */
   String introspectToken(String accessToken);
 

@@ -34,7 +34,6 @@ import it.infn.mw.esaco.exception.TokenIntrospectionException;
 import it.infn.mw.esaco.exception.TokenValidationException;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 import it.infn.mw.esaco.model.AccessToken;
-import it.infn.mw.esaco.model.IamIntrospection;
 import it.infn.mw.esaco.model.IamUser;
 import it.infn.mw.esaco.service.TokenInfoService;
 import it.infn.mw.esaco.service.impl.DefaultTokenIntrospectionService;
