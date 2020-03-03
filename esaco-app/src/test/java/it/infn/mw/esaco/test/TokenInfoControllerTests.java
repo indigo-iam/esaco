@@ -213,16 +213,13 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
 
     String introspection = tokenInfo.getIntrospection();
 
-    /*
-     * IamIntrospection introspectionDisserialization = mapper
-     * .readValue(introspection, IamIntrospection.class);
-     * 
-     * assertThat(introspectionDisserialization.isActive(), is(true));
-     * assertThat(introspectionDisserialization.getClientId(),
-     * equalTo("client-cred"));
-     * assertThat(introspectionDisserialization.getTokenType(),
-     * equalTo(TOKEN_TYPE));
-     */
+    IamIntrospection iamIntrospection = mapper.readValue(introspection,
+      IamIntrospection.class);
+
+    assertThat(iamIntrospection.isActive(), is(true));
+    assertThat(iamIntrospection.getClientId(), equalTo("client-cred"));
+    assertThat(iamIntrospection.getTokenType(), equalTo(TOKEN_TYPE));
+
   }
 
   @Test
