@@ -10,20 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
 import it.infn.mw.esaco.service.TokenIntrospectionService;
 
 @RestController
-public class TokenIntrospectController extends TokenControllerSanityChecks{
+public class TokenIntrospectController extends TokenControllerUtils {
 
   @Autowired
   private TokenIntrospectionService tokenIntrospectionService;
     
-  private static final String INACTIVE_TOKEN_RESPONSE = "{\"active\":false\"}";
-
   @RequestMapping(value = "/introspect", method = RequestMethod.POST,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public String introspectToken(
       @RequestParam(name = "token", required = false) String accessToken) {
     accessTokenSanityChecks(accessToken);
     
-    return tokenIntrospectionService.introspectToken(accessToken).orElse(INACTIVE_TOKEN_RESPONSE);
+    return tokenIntrospectionService.introspectToken(accessToken)
+      .orElse(INACTIVE_TOKEN_RESPONSE);
 
   }
 

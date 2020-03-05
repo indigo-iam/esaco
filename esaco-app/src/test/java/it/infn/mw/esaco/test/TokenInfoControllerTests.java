@@ -80,10 +80,10 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
       .willReturn(VALID_USERINFO);
 
     given(tokenInfoService.introspectToken(EXPIRED_JWT))
-      .willReturn(EXPIRED_JWT);
+      .willReturn(EXPIRED_INTROSPECTION);
 
     given(tokenInfoService.introspectToken(CLIENT_CRED_JWT))
-      .willReturn(CLIENT_CRED_JWT);
+      .willReturn(CLIENT_CRED_INTROSPECTION);
     given(tokenInfoService.decodeUserInfo(CLIENT_CRED_JWT)).willReturn(null);
 
     given(tokenInfoService.introspectToken(TOKEN_WITH_PARSING_ERR))
@@ -185,7 +185,30 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
       .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.introspection").exists())
-      .andExpect(jsonPath("$.introspection.active", is(false)));
+      .andExpect(jsonPath("$.accessToken.alg", equalTo(format("RS256"))))
+      .andExpect(
+        jsonPath("$.introspection", equalTo(format("{\"active\":false}"))));
+
+
+    // Actual approach
+    // .andExpect(jsonPath("$.introspection.active", is(false)));
+
+    /*
+     * proposed approach
+     * 
+     * .andReturn() .getResponse() .getContentAsString();
+     * 
+     * TokenInfo tokenInfo = mapper.readValue(response, TokenInfo.class);
+     * 
+     * String introspection = tokenInfo.getIntrospection();
+     * 
+     * IamIntrospection iamIntrospection = mapper.readValue(introspection,
+     * IamIntrospection.class);
+     * 
+     * assertThat(iamIntrospection.isActive(), is(false));
+     */
+
+
   }
 
   @Test

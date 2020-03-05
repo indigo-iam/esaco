@@ -13,13 +13,11 @@ import it.infn.mw.esaco.model.TokenInfo;
 import it.infn.mw.esaco.service.TokenInfoService;
 
 @RestController
-public class TokenInfoController extends TokenControllerSanityChecks {
+public class TokenInfoController extends TokenControllerUtils {
   
   @Autowired
   private TokenInfoService tokenInfoService;
   
-  private static final String INACTIVE_TOKEN_RESPONSE = "{\"active\":false\"}";
-
   @RequestMapping(value = "/tokeninfo", method = RequestMethod.POST,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public TokenInfo getUserInfo(@RequestParam(name = "token", required = false) String accessToken) {

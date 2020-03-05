@@ -30,7 +30,9 @@ public class EsacoTestUtils {
 
   protected final String VALID_INTROSPECTION = "{\"active\":true,\"scope\":\"openid profile\",\"expires_at\":\"2017-09-04T16:09:03+0200\",\"exp\":1504534143,\"iss\":\"http://localhost:8080/\",\"sub\":\"73f16d93-2441-4a50-88ff-85360d78c6b5\",\"user_id\":\"admin\",\"client_id\":\"password-grant\",\"token_type\":\"Bearer\",\"groups\":[\"Production\",\"Analysis\"],\"preferred_username\":\"admin\",\"organisation_name\":\"indigo-dc\",\"name\":\"Admin User\",\"email\":\"admin@example.org\",\"groupNames\":[\"Production\",\"Analysis\"],\"edu_person_entitlements\":[\"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu\"],\"acr\":\"https://aai.egi.eu/LoA#Substantial\"}";
 
-  private static final String INACTIVE_TOKEN_INTROSPECTION = "{\"active\":false\"}";
+  protected final String CLIENT_CRED_INTROSPECTION = "{\"active\":true,\"scope\":\"read-tasks write-tasks\",\"expires_at\":\"2017-09-05T15:57:22+0200\",\"exp\":1504619842,\"iss\":\"http://localhost:8080/\",\"sub\":\"client-cred\",\"user_id\":\"client-cred\",\"client_id\":\"client-cred\",\"token_type\":\"Bearer\"}";
+
+  protected final String EXPIRED_INTROSPECTION = "{\"active\":false}";
 
   protected final IamIntrospection VALID_IAM_INTROSPECTION = IamIntrospection
     .getBuilder()
@@ -69,10 +71,11 @@ public class EsacoTestUtils {
     .acr("https://aai.egi.eu/LoA#Substantial")
     .build();
 
-  protected final IamIntrospection EXPIRED_INTROSPECTION =
+  protected final IamIntrospection EXPIRED_IAMINTROSPECTION =
       IamIntrospection.getBuilder().isActive(false).build();
 
-  protected final IamIntrospection CLIENT_CRED_INTROSPECTION = IamIntrospection.getBuilder()
+  protected final IamIntrospection CLIENT_CRED_IAMINTROSPECTION = IamIntrospection
+    .getBuilder()
     .isActive(true)
     .scope("read-tasks write-tasks")
     .expiresAt("2017-09-05T15:57:22+0200")

@@ -10,7 +10,9 @@ import com.nimbusds.jwt.JWTParser;
 import it.infn.mw.esaco.exception.TokenValidationException;
 
 @RestController
-public class TokenControllerSanityChecks {
+public class TokenControllerUtils {
+
+  protected final String INACTIVE_TOKEN_RESPONSE = "{\"active\":false}";
 
   protected void accessTokenSanityChecks(String accessToken) {
 

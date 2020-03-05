@@ -34,6 +34,7 @@ import it.infn.mw.esaco.exception.TokenIntrospectionException;
 import it.infn.mw.esaco.exception.TokenValidationException;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 import it.infn.mw.esaco.model.AccessToken;
+import it.infn.mw.esaco.model.IamIntrospection;
 import it.infn.mw.esaco.model.IamUser;
 import it.infn.mw.esaco.service.TokenInfoService;
 import it.infn.mw.esaco.service.impl.DefaultTokenIntrospectionService;
@@ -60,13 +61,14 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   private DefaultTokenIntrospectionService introspectionService;
 
   @Autowired
-  private TokenInfoService tokenService;
+  private TokenInfoService tokenInfoService;
 
   @Before
   public void setup() throws Exception {
 
     when(introspectionService.introspectToken(VALID_JWT))
-      .thenReturn(Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
+      .thenReturn(Optional.of(VALID_INTROSPECTION));
+    // .thenReturn(Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
     when(introspectionService.getUserInfoForToken(VALID_JWT))
       .thenReturn(Optional.of(mapper.writeValueAsString(VALID_USERINFO)));
 
@@ -84,29 +86,32 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   @Test
   public void testIntrospectWithValidToken() throws Exception {
 
-    String introspection = tokenService.introspectToken(VALID_JWT);
+    String introspection = tokenInfoService.introspectToken(VALID_JWT);
 
     assertNotNull(introspection);
 
-    /*
-     * assertThat(introspection.isActive(), is(true));
-     * assertThat(introspection.getUserId(), equalTo(USERNAME));
-     * assertThat(introspection.getClientId(), equalTo(CLIENT_ID));
-     * assertThat(introspection.getTokenType(), equalTo(TOKEN_TYPE));
-     * assertThat(introspection.getOrganisationName(),
-     * not(isEmptyOrNullString())); assertThat(introspection.getGroupNames(),
-     * isA(String[].class)); assertThat(introspection.getGroupNames(),
-     * not(emptyArray())); assertThat(introspection.getEduPersonEntitlements(),
-     * isA(String[].class));
-     * assertThat(introspection.getEduPersonEntitlements(), not(emptyArray()));
-     * assertThat(introspection.getAcr(), not(isEmptyOrNullString()));
-     */
+    IamIntrospection iamIntrospection = mapper.readValue(introspection,
+      IamIntrospection.class);
+
+    assertThat(iamIntrospection.isActive(), is(true));
+    assertThat(iamIntrospection.getUserId(), equalTo(USERNAME));
+    assertThat(iamIntrospection.getClientId(), equalTo(CLIENT_ID));
+    assertThat(iamIntrospection.getTokenType(), equalTo(TOKEN_TYPE));
+    assertThat(iamIntrospection.getOrganisationName(),
+      not(isEmptyOrNullString()));
+    assertThat(iamIntrospection.getGroupNames(), isA(String[].class));
+    assertThat(iamIntrospection.getGroupNames(), not(emptyArray()));
+    assertThat(iamIntrospection.getEduPersonEntitlements(),
+      isA(String[].class));
+    assertThat(iamIntrospection.getEduPersonEntitlements(), not(emptyArray()));
+    assertThat(iamIntrospection.getAcr(), not(isEmptyOrNullString()));
+
   }
 
   @Test
   public void testUserInfoWithValidToken() throws Exception {
 
-    IamUser userinfo = tokenService.decodeUserInfo(VALID_JWT);
+    IamUser userinfo = tokenInfoService.decodeUserInfo(VALID_JWT);
 
     assertNotNull(userinfo);
 
@@ -127,7 +132,7 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
     when(introspectionService.introspectToken(Mockito.anyString())).thenReturn(Optional.empty());
 
     try {
-      String introspection = tokenService.introspectToken(VALID_JWT);
+      String introspection = tokenInfoService.introspectToken(VALID_JWT);
       assertNull(introspection);
     } catch (Exception e) {
       throw e;
@@ -141,27 +146,30 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
       .thenThrow(new HttpConnectionException(format("Error connecting to endpoint '%s'", "foo")));
 
     try {
-      IamUser userInfo = tokenService.decodeUserInfo(VALID_JWT);
+      IamUser userInfo = tokenInfoService.decodeUserInfo(VALID_JWT);
       assertNull(userInfo);
     } catch (Exception e) {
       throw e;
     }
   }
 
-  /*This test makes no sense if token is not being Serialized
-   * @Test(expected = TokenIntrospectionException.class) public void
-   * testIntrospectionParsingError() {
-   * 
-   * when(introspectionService.introspectToken(Mockito.anyString())).thenReturn(
-   * Optional .of(
-   * "random_String}_that-isNot-a_JSON-representation_of:aIAM-.Introspection_object"
-   * ));
-   * 
-   * try { String introspection = tokenService.introspectToken(VALID_JWT);
-   * assertNull(introspection); } catch (Exception e) { throw e; }
-   * 
-   * }
-   */
+    @Test(expected = TokenIntrospectionException.class) public void
+    testIntrospectionParsingError() {
+    
+    when(introspectionService.introspectToken(Mockito.anyString())).thenReturn(
+    Optional .of(
+    "random_String}_that-isNot-a_JSON-representation_of:aIAM-.Introspection_object"
+    ));
+    
+    try {
+      String introspection = tokenInfoService.introspectToken(VALID_JWT);
+      assertNull(introspection);
+    } catch (Exception e) { 
+      throw e; 
+    }
+
+  }
+   
 
   @Test(expected = TokenIntrospectionException.class)
   public void testUserinfoParsingError() {
@@ -170,7 +178,7 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
         Optional.of("Invalid_String}_that-isNot-a_JSON-representation_of:aIAM-.user^info_object"));
 
     try {
-      IamUser userinfo = tokenService.decodeUserInfo(VALID_JWT);
+      IamUser userinfo = tokenInfoService.decodeUserInfo(VALID_JWT);
       assertNull(userinfo);
     } catch (Exception e) {
       throw e;
@@ -180,7 +188,7 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   @Test(expected = TokenValidationException.class)
   public void testParseNotJwtToken() {
     try {
-      tokenService.parseJWTAccessToken("any.notjwt.token");
+      tokenInfoService.parseJWTAccessToken("any.notjwt.token");
     } catch (Exception e) {
       throw e;
     }
@@ -189,7 +197,7 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   @Test(expected = TokenValidationException.class)
   public void testIntrospectionWithNotJwtToken() {
     try {
-      tokenService.introspectToken("any.notjwt.token");
+      tokenInfoService.introspectToken("any.notjwt.token");
     } catch (Exception e) {
       throw e;
     }
@@ -198,7 +206,7 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   @Test(expected = TokenValidationException.class)
   public void testuserInfoWithNotJwtToken() {
     try {
-      tokenService.decodeUserInfo("any.notjwt.token");
+      tokenInfoService.decodeUserInfo("any.notjwt.token");
     } catch (Exception e) {
       throw e;
     }
@@ -207,26 +215,26 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   @Test
   public void testAccessTokenIsActive() {
 
-    AccessToken token = tokenService.parseJWTAccessToken(VALID_JWT);
+    AccessToken token = tokenInfoService.parseJWTAccessToken(VALID_JWT);
     assertNotNull(token);
 
     timeProvider.setTime(token.getIssuedAt());
-    assertThat(tokenService.isAccessTokenActive(token), is(true));
+    assertThat(tokenInfoService.isAccessTokenActive(token), is(true));
 
     timeProvider.setTime(token.getIssuedAt() + 1);
-    assertThat(tokenService.isAccessTokenActive(token), is(true));
+    assertThat(tokenInfoService.isAccessTokenActive(token), is(true));
 
     timeProvider.setTime(token.getIssuedAt() - 1);
-    assertThat(tokenService.isAccessTokenActive(token), is(false));
+    assertThat(tokenInfoService.isAccessTokenActive(token), is(false));
 
     timeProvider.setTime(token.getExpireAt() - 1);
-    assertThat(tokenService.isAccessTokenActive(token), is(true));
+    assertThat(tokenInfoService.isAccessTokenActive(token), is(true));
 
     timeProvider.setTime(token.getExpireAt());
-    assertThat(tokenService.isAccessTokenActive(token), is(false));
+    assertThat(tokenInfoService.isAccessTokenActive(token), is(false));
 
     timeProvider.setTime(token.getExpireAt() + 1);
-    assertThat(tokenService.isAccessTokenActive(token), is(false));
+    assertThat(tokenInfoService.isAccessTokenActive(token), is(false));
   }
 
 }
