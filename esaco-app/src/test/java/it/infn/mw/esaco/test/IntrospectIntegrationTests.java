@@ -3,6 +3,7 @@ package it.infn.mw.esaco.test;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -12,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Optional;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -52,7 +52,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   @MockBean
   DefaultTokenIntrospectionService defaultTokenIntrospectionService;
 
-  @Ignore@Test
+  @Test
   @WithAnonymousUser
   public void introspectEndpointRequiresAuthenticatedUser() throws Exception {
 
@@ -61,7 +61,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
       .andExpect(status().isUnauthorized());
   }
 
-  @Ignore@Test
+  @Test
   public void testIntrospectWithoutToken() throws Exception {
 
     mvc.perform(post(ENDPOINT))
@@ -71,7 +71,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
       .andExpect(jsonPath("$.error", equalTo(BAD_REQUEST.getReasonPhrase())));
   }
 
-  @Ignore@Test
+  @Test
   public void testUnreadableToken() throws Exception {
 
     String token = "abcdefghilmnopqrstuvz";
@@ -85,7 +85,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
       .andExpect(jsonPath("$.message", equalTo("Malformed JWT token string")));
   }
 
-  @Ignore@Test
+  @Test
   public void testIntrospectionWithInvalidToken() throws Exception {
 
     when(tokenInfoService.isAccessTokenActive(Mockito.any())).thenReturn(false);
@@ -125,7 +125,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
       .andExpect(jsonPath("$.acr").value("https://aai.egi.eu/LoA#Substantial"))
     ;
       
-    // verify(tokenInfoService).introspectToken(Mockito.eq(VALID_JWT));
+    verify(tokenInfoService).introspectToken(Mockito.eq(VALID_JWT));
      
 
   }
