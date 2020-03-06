@@ -185,29 +185,8 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
       .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.introspection").exists())
-      .andExpect(jsonPath("$.accessToken.alg", equalTo(format("RS256"))))
       .andExpect(
         jsonPath("$.introspection", equalTo(format("{\"active\":false}"))));
-
-
-    // Actual approach
-    // .andExpect(jsonPath("$.introspection.active", is(false)));
-
-    /*
-     * proposed approach
-     * 
-     * .andReturn() .getResponse() .getContentAsString();
-     * 
-     * TokenInfo tokenInfo = mapper.readValue(response, TokenInfo.class);
-     * 
-     * String introspection = tokenInfo.getIntrospection();
-     * 
-     * IamIntrospection iamIntrospection = mapper.readValue(introspection,
-     * IamIntrospection.class);
-     * 
-     * assertThat(iamIntrospection.isActive(), is(false));
-     */
-
 
   }
 

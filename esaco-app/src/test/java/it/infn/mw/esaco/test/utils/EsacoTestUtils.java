@@ -71,10 +71,10 @@ public class EsacoTestUtils {
     .acr("https://aai.egi.eu/LoA#Substantial")
     .build();
 
-  protected final IamIntrospection EXPIRED_IAMINTROSPECTION =
+  protected final IamIntrospection EXPIRED_IAM_INTROSPECTION =
       IamIntrospection.getBuilder().isActive(false).build();
 
-  protected final IamIntrospection CLIENT_CRED_IAMINTROSPECTION = IamIntrospection
+  protected final IamIntrospection CLIENT_CRED_IAM_INTROSPECTION = IamIntrospection
     .getBuilder()
     .isActive(true)
     .scope("read-tasks write-tasks")

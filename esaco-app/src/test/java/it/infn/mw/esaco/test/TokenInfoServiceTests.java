@@ -68,7 +68,6 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
 
     when(introspectionService.introspectToken(VALID_JWT))
       .thenReturn(Optional.of(VALID_INTROSPECTION));
-    // .thenReturn(Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
     when(introspectionService.getUserInfoForToken(VALID_JWT))
       .thenReturn(Optional.of(mapper.writeValueAsString(VALID_USERINFO)));
 

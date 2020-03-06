@@ -11,8 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Optional;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -29,7 +27,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import it.infn.mw.esaco.EsacoApplication;
 import it.infn.mw.esaco.service.TokenInfoService;
-import it.infn.mw.esaco.service.impl.DefaultTokenIntrospectionService;
 import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 import it.infn.mw.esaco.test.utils.TestConfig;
 
@@ -48,9 +45,6 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
 
   @MockBean
   TokenInfoService tokenInfoService;
-
-  @MockBean
-  DefaultTokenIntrospectionService defaultTokenIntrospectionService;
 
   @Test
   @WithAnonymousUser
@@ -103,9 +97,6 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
     when(tokenInfoService.isAccessTokenActive(Mockito.any())).thenReturn(true);
     when(tokenInfoService.introspectToken(VALID_JWT))
       .thenReturn(VALID_INTROSPECTION);
-
-    when(defaultTokenIntrospectionService.introspectToken(VALID_JWT))
-      .thenReturn(Optional.of(VALID_INTROSPECTION));
 
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
       .andDo(print())
