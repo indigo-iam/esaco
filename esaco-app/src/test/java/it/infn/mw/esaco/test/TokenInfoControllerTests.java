@@ -1,10 +1,9 @@
 package it.infn.mw.esaco.test;
 
 import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
-//import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
