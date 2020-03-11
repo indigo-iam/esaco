@@ -28,7 +28,8 @@ public class EsacoTestUtils {
   protected final String TOKEN_FROM_UNKNOWN_ISSUER =
       "eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI3M2YxNmQ5My0yNDQxLTRhNTAtODhmZi04NTM2MGQ3OGM2YjUiLCJpc3MiOiJodHRwczpcL1wvaWFtLmxvY2FsLmlvXC8iLCJleHAiOjE1MTA1Nzg1NDksImlhdCI6MTUxMDU3NDk0OSwianRpIjoiMWNiMDYxMWItNGZlYS00NjRhLWJiNDktMzllNzE1MzFkMmJjIn0.cFXl8zJQUqLEF2kuaxx_w4znm4rMGlGguN_01cs5CSKV6FMPCVGLzDeDXg068uQWtExINBOzdtRlzOgFR5-s-9XFlaQBBmsjsuZBMwPlQvh-ceQGmAuEZt-QmU-kh7zarAsa2N4wkExFdP7iB6Mz8RFjBN3OPA5puMOpDumCQSQ";
 
-  protected final IamIntrospection VALID_INTROSPECTION = IamIntrospection.getBuilder()
+  protected final IamIntrospection VALID_INTROSPECTION = IamIntrospection
+    .getBuilder()
     .isActive(true)
     .scope("openid profile")
     .expiresAt("2017-09-04T16:09:03+0200")
@@ -69,7 +70,8 @@ public class EsacoTestUtils {
   protected final IamIntrospection EXPIRED_INTROSPECTION =
       IamIntrospection.getBuilder().isActive(false).build();
 
-  protected final IamIntrospection CLIENT_CRED_INTROSPECTION = IamIntrospection.getBuilder()
+  protected final IamIntrospection CLIENT_CRED_INTROSPECTION = IamIntrospection
+    .getBuilder()
     .isActive(true)
     .scope("read-tasks write-tasks")
     .expiresAt("2017-09-05T15:57:22+0200")
