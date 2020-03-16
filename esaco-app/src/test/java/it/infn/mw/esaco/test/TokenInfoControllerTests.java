@@ -73,6 +73,7 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
 
     given(tokenInfoService.introspectToken(VALID_JWT))
       .willReturn(mapper.writeValueAsString(VALID_INTROSPECTION));
+
     given(tokenInfoService.decodeUserInfo(VALID_JWT)).willReturn(VALID_USERINFO);
 
     given(tokenInfoService.introspectToken(EXPIRED_JWT))
