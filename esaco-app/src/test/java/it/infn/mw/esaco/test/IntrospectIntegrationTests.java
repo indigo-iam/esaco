@@ -14,7 +14,6 @@ import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -86,7 +85,7 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
   @Test
   public void testIntrospectionWithInvalidToken() throws Exception {
 
-    when(tokenIntrospectionService.introspectToken(Mockito.anyString()))
+    when(tokenIntrospectionService.introspectToken(VALID_JWT))
       .thenReturn(
         Optional.of(mapper.writeValueAsString(EXPIRED_INTROSPECTION)));
 
@@ -95,6 +94,22 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.active").value("false"));
 
+
+  }
+
+  @Test
+  public void testIntrospectionWithExtraInformationValidToken()
+    throws Exception {
+
+    when(tokenIntrospectionService.introspectToken(EXTRA_INFORMATION_JWT))
+      .thenReturn(Optional
+        .of(EXTRA_INFORMATION_INTROSPECTION));
+
+    mvc.perform(post(ENDPOINT).param("token", EXTRA_INFORMATION_JWT))
+      .andDo(print())
+      .andExpect(status().isOk())
+      .andExpect(
+        jsonPath("$.unecessary_field").value("unecessary_information"));
 
   }
 

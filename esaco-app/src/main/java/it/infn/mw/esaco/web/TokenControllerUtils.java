@@ -2,14 +2,11 @@ package it.infn.mw.esaco.web;
 
 import java.text.ParseException;
 
-import org.springframework.web.bind.annotation.RestController;
-
 import com.google.common.base.Strings;
 import com.nimbusds.jwt.JWTParser;
 
 import it.infn.mw.esaco.exception.TokenValidationException;
 
-@RestController
 public class TokenControllerUtils {
 
   protected static final String INACTIVE_TOKEN_RESPONSE = "{\"active\":false}";
