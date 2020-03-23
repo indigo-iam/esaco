@@ -3,7 +3,6 @@ package it.infn.mw.esaco.test;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -11,9 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,8 +25,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import it.infn.mw.esaco.EsacoApplication;
-import it.infn.mw.esaco.service.TokenInfoService;
+import it.infn.mw.esaco.service.TokenIntrospectionService;
 import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 import it.infn.mw.esaco.test.utils.TestConfig;
 
@@ -43,8 +45,11 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
   @Autowired
   private MockMvc mvc;
 
+  @Autowired
+  private ObjectMapper mapper;
+
   @MockBean
-  TokenInfoService tokenInfoService;
+  TokenIntrospectionService tokenIntrospectionService;
 
   @Test
   @WithAnonymousUser
@@ -80,7 +85,9 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
   @Test
   public void testIntrospectionWithInvalidToken() throws Exception {
 
-    when(tokenInfoService.isAccessTokenActive(Mockito.any())).thenReturn(false);
+    when(tokenIntrospectionService.introspectToken(VALID_JWT))
+      .thenReturn(
+        Optional.of(mapper.writeValueAsString(EXPIRED_INTROSPECTION)));
 
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
         .andDo(print())
@@ -91,10 +98,26 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
   }
 
   @Test
+  public void testIntrospectionWithExtraInformationValidToken()
+    throws Exception {
+
+    when(tokenIntrospectionService.introspectToken(EXTRA_INFORMATION_JWT))
+      .thenReturn(Optional
+        .of(EXTRA_INFORMATION_INTROSPECTION));
+
+    mvc.perform(post(ENDPOINT).param("token", EXTRA_INFORMATION_JWT))
+      .andDo(print())
+      .andExpect(status().isOk())
+      .andExpect(
+        jsonPath("$.unecessary_field").value("unecessary_information"));
+
+  }
+
+  @Test
   public void testIntrospectionWithValidToken() throws Exception {
 
-    when(tokenInfoService.isAccessTokenActive(Mockito.any())).thenReturn(true);
-    when(tokenInfoService.introspectToken(VALID_JWT)).thenReturn(VALID_INTROSPECTION);
+    when(tokenIntrospectionService.introspectToken(VALID_JWT))
+      .thenReturn(Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
 
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
         .andDo(print())
@@ -110,11 +133,10 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
         .andExpect(jsonPath("$.expires_at").exists())
         .andExpect(jsonPath("$.groupNames", hasItems("Production", "Analysis")))
         .andExpect(jsonPath("$.edu_person_entitlements", hasItems("urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
-        .andExpect(jsonPath("$.eduperson_entitlement", hasItems("urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
+      .andExpect(jsonPath("$.eduperson_entitlement",
+        hasItems(
+          "urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
         .andExpect(jsonPath("$.acr").value("https://aai.egi.eu/LoA#Substantial"));
-
-
-    verify(tokenInfoService).introspectToken(Mockito.eq(VALID_JWT));
 
   }
 }
