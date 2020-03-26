@@ -4,7 +4,7 @@
 
 	<groupId>it.infn.mw</groupId>
 	<artifactId>esaco</artifactId>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.4-issue-13-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>ESACO</name>

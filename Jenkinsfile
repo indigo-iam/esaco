@@ -65,7 +65,7 @@ pipeline {
               def repo = tokens[tokens.size()-3]
         
               withCredentials([string(credentialsId: '630f8e6c-0d31-4f96-8d82-a1ef536ef059', variable: 'GITHUB_ACCESS_TOKEN')]) {
-                withSonarQubeEnv {
+                withSonarQubeEnv('sonarcloud.io') {
                   sh """
                      mvn -B -U clean package -DskipTests sonar:sonar \\
                      -Dsonar.analysis.mode=preview \\
@@ -91,7 +91,7 @@ pipeline {
               def opts = '-Dmaven.test.failure.ignore -DfailIfNoTests=false -DskipTests'
               def checkstyle_opts = 'checkstyle:check -Dcheckstyle.config.location=google_checks.xml'
 
-              withSonarQubeEnv{
+              withSonarQubeEnv('sonarcloud.io') {
                 sh "mvn clean package -U ${opts} ${checkstyle_opts} ${SONAR_MAVEN_GOAL} -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_AUTH_TOKEN}"
               }
             }
