@@ -30,10 +30,10 @@ public class BasicAuthnTests {
   public static final String INTROSPECT_ENDPOINT = "/introspect";
   public static final String TOKENINFO_ENDPOINT = "/tokeninfo";
   
-  @Value("${security.user.name}")
+  @Value("${esaco.username}")
   String username;
   
-  @Value("${security.user.password}")
+  @Value("${esaco.password}")
   String password;
   
   @Autowired

@@ -5,6 +5,9 @@ server:
   use-forward-headers: ${ESACO_USE_FORWARD_HEADERS:false}
 
 spring:
+  main:
+    allow-bean-definition-overriding: TRUE
+    
   profiles:
     active: prod
 
@@ -13,7 +16,11 @@ spring:
     cache-names: introspect,userinfo
     caffeine:
       spec: ${ESACO_CACHE_SPEC:maximumSize=500,expireAfterWrite=60s}
-
+      
+esaco:
+  username: ${ESACO_USER_NAME:user}
+  password: ${ESACO_USER_PASSWORD:password}
+        
 oidc:
   clients:
       - issuer-url: http://localhost:8080/
@@ -34,12 +41,3 @@ x509:
 
 tls:
   version: ${ESACO_TLS_VERSION:TLSv1.2}
-
-security:
-  basic:
-    enabled: ${ESACO_ENABLE_BASIC_AUTH:true}
-  user:
-    name: ${ESACO_USER_NAME:user}
-    password: ${ESACO_USER_PASSWORD:password}
-
-  enable-csrf: false

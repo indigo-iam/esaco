@@ -5,7 +5,7 @@
   <parent>
     <groupId>it.infn.mw</groupId>
     <artifactId>esaco</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.4-issue-20-SNAPSHOT</version>
   </parent>
 
   <artifactId>esaco-app</artifactId>
@@ -18,7 +18,7 @@
     <dependency>
       <groupId>it.infn.mw</groupId>
       <artifactId>esaco-common</artifactId>
-      <version>0.0.4-SNAPSHOT</version>
+      <version>0.0.4-issue-20-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -67,9 +67,20 @@
       <artifactId>caffeine</artifactId>
     </dependency>
 
+
     <dependency>
-      <groupId>org.springframework.security.oauth</groupId>
-      <artifactId>spring-security-oauth2</artifactId>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-resource-server</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-jose</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security.oauth.boot</groupId>
+      <artifactId>spring-security-oauth2-autoconfigure</artifactId>
     </dependency>
 
     <dependency>
