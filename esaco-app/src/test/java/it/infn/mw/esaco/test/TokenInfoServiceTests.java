@@ -2,10 +2,10 @@ package it.infn.mw.esaco.test;
 
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -98,7 +98,7 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
     assertThat(iamIntrospection.getClientId(), equalTo(CLIENT_ID));
     assertThat(iamIntrospection.getTokenType(), equalTo(TOKEN_TYPE));
     assertThat(iamIntrospection.getOrganisationName(),
-      not(isEmptyOrNullString()));
+        not(is(emptyOrNullString())));
     assertThat(iamIntrospection.getGroupNames(), isA(String[].class));
     assertThat(iamIntrospection.getGroupNames(), not(emptyArray()));
     assertThat(iamIntrospection.getEduPersonEntitlements(),
@@ -106,7 +106,7 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
     assertThat(iamIntrospection.getEduPersonEntitlements(), not(emptyArray()));
     assertThat(iamIntrospection.getEduPersonEntitlement(), isA(String[].class));
     assertThat(iamIntrospection.getEduPersonEntitlement(), not(emptyArray()));
-    assertThat(iamIntrospection.getAcr(), not(isEmptyOrNullString()));
+    assertThat(iamIntrospection.getAcr(), not(is(emptyOrNullString())));
   }
 
   @Test
@@ -119,14 +119,14 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
     assertThat(userinfo.getPreferredUsername(), equalTo(USERNAME));
     assertThat(userinfo.getGroups(), isA(String[].class));
     assertThat(userinfo.getGroups(), not(emptyArray()));
-    assertThat(userinfo.getOrganisationName(), not(isEmptyOrNullString()));
+    assertThat(userinfo.getOrganisationName(), not(is(emptyOrNullString())));
     assertThat(userinfo.getGroupNames(), isA(String[].class));
     assertThat(userinfo.getGroupNames(), not(emptyArray()));
     assertThat(userinfo.getEduPersonEntitlements(), isA(String[].class));
     assertThat(userinfo.getEduPersonEntitlements(), not(emptyArray()));
     assertThat(userinfo.getEduPersonEntitlement(), isA(String[].class));
     assertThat(userinfo.getEduPersonEntitlement(), not(emptyArray()));
-    assertThat(userinfo.getAcr(), not(isEmptyOrNullString()));
+    assertThat(userinfo.getAcr(), not(is(emptyOrNullString())));
   }
 
   @Test(expected = HttpConnectionException.class)

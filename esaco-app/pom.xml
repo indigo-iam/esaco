@@ -141,7 +141,6 @@
       <plugin>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-maven-plugin</artifactId>
-        <version>${jib-maven-plugin.version}</version>
         <configuration>
           <!-- Uncomment the following to bootstrap from the debug image (provides 
             a shell in /busybox/sh) <from> <image>gcr.io/distroless/java:debug</image> 
@@ -161,7 +160,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.7.9</version>
+        <version>0.8.6</version>
 
         <configuration>
           <instrumentation>

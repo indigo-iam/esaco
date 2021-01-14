@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
 
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -43,6 +43,7 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
   private static final Set<Integer> AUTH_ERROR_HTTP_CODES =
       Sets.newLinkedHashSet(Lists.newArrayList(FORBIDDEN.value(), UNAUTHORIZED.value()));
 
+
   @Autowired
   private RestTemplate restTemplate;
 
@@ -66,7 +67,7 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
 
     String plainCreds =
         String.format("%s:%s", clientConfig.getClientId(), clientConfig.getClientSecret());
-    String base64Creds = new String(Base64.encode(plainCreds.getBytes()));
+    String base64Creds = new String(Base64.getEncoder().encode(plainCreds.getBytes()));
 
     HttpEntity<?> request = buildRequest("Basic " + base64Creds, body);
 

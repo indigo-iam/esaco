@@ -1,8 +1,8 @@
 package it.infn.mw.esaco.test;
 
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -59,7 +59,7 @@ public class TokenIntrospectionServiceTests extends EsacoTestUtils {
     Optional<String> response = tokenIntrospectionService.introspectToken(VALID_JWT);
 
     assertThat(response.isPresent(), is(true));
-    assertThat(response.get(), not(isEmptyOrNullString()));
+    assertThat(response.get(), not(is(emptyOrNullString())));
     assertThat(response.get(), equalTo(expected));
   }
 
@@ -74,7 +74,7 @@ public class TokenIntrospectionServiceTests extends EsacoTestUtils {
     Optional<String> response = tokenIntrospectionService.getUserInfoForToken(VALID_JWT);
 
     assertThat(response.isPresent(), is(true));
-    assertThat(response.get(), not(isEmptyOrNullString()));
+    assertThat(response.get(), not(is(emptyOrNullString())));
     assertThat(response.get(), equalTo(expected));
   }
 
