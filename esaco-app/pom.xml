@@ -149,7 +149,6 @@
             <image>indigoiam/esaco</image>
             <tags>
               <tag>${project.version}</tag>
-              <tag>latest</tag>
               <tag>${git.commit.id.abbrev}</tag>
               <tag>${git.branch}</tag>
             </tags>
