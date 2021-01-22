@@ -1,6 +1,7 @@
 package it.infn.mw.esaco.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,6 +36,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
 
     http.authorizeRequests()
+      .requestMatchers(EndpointRequest.to("health", "info"))
+      .permitAll();
+    
+    http.authorizeRequests()
       .anyRequest()
       .authenticated()
       .and()
@@ -42,6 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       .and()
       .csrf()
       .disable();
+
 
   }
 
