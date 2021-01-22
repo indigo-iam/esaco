@@ -1,14 +1,14 @@
 package it.infn.mw.esaco;
 
+import java.io.IOException;
 import java.security.KeyManagementException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.io.IOException;
-import java.security.KeyStoreException;
-import java.util.Collections;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -32,7 +32,6 @@ import org.mitre.openid.connect.client.service.ClientConfigurationService;
 import org.mitre.openid.connect.client.service.ServerConfigurationService;
 import org.mitre.openid.connect.client.service.impl.StaticClientConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -63,24 +62,14 @@ import it.infn.mw.esaco.util.x509.X509BlindTrustManager;
 @EnableConfigurationProperties
 public class EsacoConfiguration {
 
-  public enum TrustAnchorsType {DIR, BUNDLE, NONE}
+  private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC = 0; // 0 means no
+  // timeout
 
-  private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC = 0; // 0 means no timeout
+  @Autowired
+  private X509TrustProperties x509Properties;
 
-  @Value("${x509.trustAnchorsDir}")
-  private String trustAnchorsDir;
-
-  @Value("${x509.trustAnchorsBundle}")
-  private String trustAnchorsBundle;
-
-  @Value("${x509.trustAnchorsType}")
-  private TrustAnchorsType trustAnchorsType;
-
-  @Value("${x509.trustAnchorsRefreshMsec}")
-  private Long trustAnchorsRefreshInterval;
-
-  @Value("${tls.version}")
-  private String tlsVersion;
+  @Autowired
+  private TlsProperties tlsProperties;
 
   @Autowired
   private OidcClientProperties oidcConfig;
@@ -138,28 +127,22 @@ public class EsacoConfiguration {
   public X509CertChainValidatorExt certificateValidator() {
 
     return new CertificateValidatorBuilder().lazyAnchorsLoading(false)
-      .trustAnchorsDir(trustAnchorsDir)
-      .trustAnchorsUpdateInterval(trustAnchorsRefreshInterval)
+      .trustAnchorsDir(x509Properties.getTrustAnchorsDir())
+      .trustAnchorsUpdateInterval(x509Properties.getTrustAnchorsRefreshMsec())
       .build();
   }
 
   @Bean
   public X509CertChainValidatorExt bundleValidator() throws CertificateException {
 
-    ValidatorParamsExt validatorParams = new ValidatorParamsExt(
-      RevocationParametersExt.IGNORE,
-      ProxySupport.DENY
-    );
+    ValidatorParamsExt validatorParams =
+        new ValidatorParamsExt(RevocationParametersExt.IGNORE, ProxySupport.DENY);
 
     try {
       return new DirectoryCertChainValidator(
-        Collections.singletonList(trustAnchorsBundle),
-        Encoding.PEM,
-        trustAnchorsRefreshInterval,
-        TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC,
-        null,
-        validatorParams
-      );
+          Collections.singletonList(x509Properties.getTrustAnchorsBundle()), Encoding.PEM,
+          x509Properties.getTrustAnchorsRefreshMsec(),
+          TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC, null, validatorParams);
     } catch (KeyStoreException | IOException e) {
       throw new CertificateException(e.getMessage(), e);
     }
@@ -168,7 +151,7 @@ public class EsacoConfiguration {
   @Bean
   public X509TrustManager trustManager() throws CertificateException {
 
-    switch(trustAnchorsType) {
+    switch (x509Properties.getTrustAnchorsType()) {
       case DIR:
         // reading trust anchors from a grid-style PEM directory
         return SocketFactoryCreator.getSSLTrustManager(certificateValidator());
@@ -179,7 +162,8 @@ public class EsacoConfiguration {
         // blind & trusting, not for production use
         return new X509BlindTrustManager();
       default:
-        throw new CertificateException("Unsupported trust anchors type: " + trustAnchorsType);
+        throw new CertificateException(
+            "Unsupported trust anchors type: " + x509Properties.getTrustAnchorsType());
     }
   }
 
@@ -187,9 +171,14 @@ public class EsacoConfiguration {
   public SSLContext sslContext() {
 
     try {
-      SSLContext context = SSLContext.getInstance(tlsVersion);
+      SSLContext context = SSLContext.getInstance(tlsProperties.getVersion());
       SecureRandom r = new SecureRandom();
-      context.init(null, new TrustManager[] { trustManager() }, r);
+
+      if (x509Properties.isUseJvmTrustAnchors()) {
+        context.init(null, null, r);
+      } else {
+        context.init(null, new TrustManager[] {trustManager()}, r);
+      }
 
       return context;
 
