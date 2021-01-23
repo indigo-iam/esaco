@@ -1,8 +1,7 @@
 # ESACO
 
-ESACO is a daemon that has the responsibility of checking validity
-and signatures of OAuth tokens for registered trusted OAuth authorization
-servers.
+ESACO is a daemon that has the responsibility of checking validity and
+signatures of OAuth tokens for registered trusted OAuth authorization servers.
 
 The daemon exposes an OAuth token introspection endpoint compliant with [RFC
 7662][rfc7662] that can be used by authenticated clients to inspect tokens. The
@@ -10,9 +9,9 @@ daemon can only introspect JWT access tokens that contain the `iss` claim.
 
 ## How it works
 
-ESACO is registered as a client at one (or more) trusted OAuth
-authorization servers, and is used by client applications as a gateway for
-token validation and introspection.
+ESACO is registered as a client at one (or more) trusted OAuth authorization
+servers, and is used by client applications as a gateway for token validation
+and introspection.
 
 ESACO performs local JWT validation checks and leverages the introspection
 endpoints at trusted AS to inspect a submitted token. The result of a token
@@ -31,19 +30,18 @@ http://esaco.example/introspect
 To change the port and address, use the `ESACO_BIND_PORT` and
 `ESACO_BIND_ADDRESS` environment variables.
 
-By default ESACO requires client authentication. The default credentials
-that client should provide when introspecting a token are:
+ESACO requires client authentication. The default credentials that client
+should provide when introspecting a token are:
 
 - username: 'user'
 - password: 'password'
 
 These defaults can be changed by setting the `ESACO_USER_NAME` and
-`ESACO_USER_PASSWORD` environment variables. Basic authentication can be disabled by
-setting the `ESACO_ENABLE_BASIC_AUTH` environment variables to `false`.
+`ESACO_USER_PASSWORD` environment variables. 
 
-ESACO should be deployed behind a reverse proxy used to terminate
-TLS. When deploying behind a reverse proxy, set the
-`ESACO_USE_FORWARD_HEADERS` environment variable to true.
+ESACO should be deployed behind a reverse proxy used to terminate TLS. When
+deploying behind a reverse proxy, set the `ESACO_USE_FORWARD_HEADERS`
+environment variable to true.
 
 #### Authorization server configuration
 
@@ -110,9 +108,6 @@ X509_TRUST_ANCHORS_REFRESH=14400
 # or use a single-file CA bundle without CRLs
 #X509_TRUST_ANCHORS_BUNDLE=/etc/ssl/certs/ca-bundle.crt
 #X509_TRUST_ANCHORS_TYPE=BUNDLE
-
-# Enable basic authentication
-ESACO_ENABLE_BASIC_AUTH=true
 
 # User name credential requested from clients introspecting tokens
 ESACO_USER_NAME=user

@@ -2,7 +2,7 @@ package it.infn.mw.esaco.model;
 
 import java.util.Arrays;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
