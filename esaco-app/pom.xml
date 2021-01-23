@@ -6,7 +6,7 @@
   <parent>
     <groupId>it.infn.mw</groupId>
     <artifactId>esaco</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
   </parent>
 
   <artifactId>esaco-app</artifactId>
@@ -19,7 +19,7 @@
     <dependency>
       <groupId>it.infn.mw</groupId>
       <artifactId>esaco-common</artifactId>
-      <version>0.0.6</version>
+      <version>0.0.7</version>
     </dependency>
 
     <dependency>
