@@ -12,3 +12,5 @@
   introducing any intermediate parsing (#12)
 
 - ESACO now requires basic authentication
+
+[jib]: https://github.com/GoogleContainerTools/jib
