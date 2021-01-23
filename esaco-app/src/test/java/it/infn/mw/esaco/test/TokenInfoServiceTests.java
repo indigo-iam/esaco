@@ -67,8 +67,7 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   public void setup() throws Exception {
 
     when(introspectionService.introspectToken(VALID_JWT))
-      .thenReturn(
-        Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
+      .thenReturn(Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
     when(introspectionService.getUserInfoForToken(VALID_JWT))
       .thenReturn(Optional.of(mapper.writeValueAsString(VALID_USERINFO)));
 
@@ -90,19 +89,16 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
 
     assertNotNull(introspection);
 
-    IamIntrospection iamIntrospection = mapper.readValue(introspection,
-      IamIntrospection.class);
+    IamIntrospection iamIntrospection = mapper.readValue(introspection, IamIntrospection.class);
 
     assertThat(iamIntrospection.isActive(), is(true));
     assertThat(iamIntrospection.getUserId(), equalTo(USERNAME));
     assertThat(iamIntrospection.getClientId(), equalTo(CLIENT_ID));
     assertThat(iamIntrospection.getTokenType(), equalTo(TOKEN_TYPE));
-    assertThat(iamIntrospection.getOrganisationName(),
-        not(is(emptyOrNullString())));
+    assertThat(iamIntrospection.getOrganisationName(), not(is(emptyOrNullString())));
     assertThat(iamIntrospection.getGroupNames(), isA(String[].class));
     assertThat(iamIntrospection.getGroupNames(), not(emptyArray()));
-    assertThat(iamIntrospection.getEduPersonEntitlements(),
-      isA(String[].class));
+    assertThat(iamIntrospection.getEduPersonEntitlements(), isA(String[].class));
     assertThat(iamIntrospection.getEduPersonEntitlements(), not(emptyArray()));
     assertThat(iamIntrospection.getEduPersonEntitlement(), isA(String[].class));
     assertThat(iamIntrospection.getEduPersonEntitlement(), not(emptyArray()));
@@ -189,24 +185,6 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   public void testParseNotJwtToken() {
     try {
       tokenService.parseJWTAccessToken("any.notjwt.token");
-    } catch (Exception e) {
-      throw e;
-    }
-  }
-
-  @Test(expected = TokenValidationException.class)
-  public void testIntrospectionWithNotJwtToken() {
-    try {
-      tokenService.introspectToken("any.notjwt.token");
-    } catch (Exception e) {
-      throw e;
-    }
-  }
-
-  @Test(expected = TokenValidationException.class)
-  public void testuserInfoWithNotJwtToken() {
-    try {
-      tokenService.decodeUserInfo("any.notjwt.token");
     } catch (Exception e) {
       throw e;
     }

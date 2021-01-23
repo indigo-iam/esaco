@@ -56,11 +56,14 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
   @Override
   public Optional<String> introspectToken(String accessToken) {
 
-    String issuer = getIssuerFromAccessToken(accessToken);
-    String endpoint = getServerConfiguration(issuer).getIntrospectionEndpointUri();
+    RegisteredClient clientConfig;
 
-    RegisteredClient clientConfig =
-        introspectionConfigurationService.getClientConfiguration(accessToken);
+    try {
+      clientConfig = introspectionConfigurationService.getClientConfiguration(accessToken);
+    } catch (IllegalArgumentException e) {
+      LOGGER.warn("Error resolving client configuration: {}", e.getMessage());
+      return Optional.empty();
+    }
 
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("token", accessToken);
@@ -70,6 +73,8 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
     String base64Creds = new String(Base64.getEncoder().encode(plainCreds.getBytes()));
 
     HttpEntity<?> request = buildRequest("Basic " + base64Creds, body);
+
+    String endpoint = introspectionConfigurationService.getIntrospectionUrl(accessToken);
 
     return postHttpRequest(request, endpoint);
   }
@@ -119,9 +124,8 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
       if (AUTH_ERROR_HTTP_CODES.contains(httpex.getRawStatusCode())) {
         LOGGER.warn("Invalid authorization: '{}' '{}'", endpoint, httpex.getMessage());
       } else {
-        LOGGER.error("HTTP error executing post request: '{}': {} {}", endpoint, 
-            httpex.getStatusCode(), 
-            httpex.getMessage());
+        LOGGER.error("HTTP error executing post request: '{}': {} {}", endpoint,
+            httpex.getStatusCode(), httpex.getMessage());
       }
     } catch (RestClientException e) {
       LOGGER.error("Error connecting to endpoint: '{}' {}", endpoint, e.getMessage());

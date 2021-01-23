@@ -109,23 +109,20 @@ public class TokenIntrospectionServiceTests extends EsacoTestUtils {
     assertThat(response.isPresent(), is(false));
   }
 
-  @Test(expected = UnsupportedIssuerException.class)
+  @Test
   public void testIntrospectionWithUnsupportedIssuer() {
-    try {
-      tokenIntrospectionService.introspectToken(TOKEN_FROM_UNKNOWN_ISSUER);
-    } catch (Exception e) {
-      throw e;
-    }
+
+    assertThat(tokenIntrospectionService.introspectToken(TOKEN_FROM_UNKNOWN_ISSUER).isEmpty(),
+        is(true));
+
   }
 
   @Test(expected = UnsupportedIssuerException.class)
   public void testuserInfoWithUnsupportedIssuer() {
 
-    try {
+
       tokenIntrospectionService.getUserInfoForToken(TOKEN_FROM_UNKNOWN_ISSUER);
-    } catch (Exception e) {
-      throw e;
-    }
+
   }
 
 }

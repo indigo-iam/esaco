@@ -29,9 +29,6 @@ oidc:
       - issuer-url: https://iam.local.io/
         client-id: argus-oidc-client-id
         client-secret: argus-oidc-client-secret
-      - issuer-url: https://iam-test.indigo-datacloud.eu/
-        client-id: argus-oidc-client-id
-        client-secret: argus-oidc-client-secret
 
 x509:
   use-jvm-trust-anchors:  ${X509_USE_JVM_TRUST_ANCHORS:true}

@@ -73,11 +73,13 @@ public class IamDynamicServerConfigurationService extends DynamicServerConfigura
     @Override
     public ServerConfiguration load(String issuer) throws Exception {
 
+      logger.info("Fetching configuration for issuer {}", issuer);
       RestTemplate restTemplate = new RestTemplate(factory);
       ServerConfiguration conf = new ServerConfiguration();
       String url = issuer + "/.well-known/openid-configuration";
       String jsonString = restTemplate.getForObject(url, String.class);
       JsonElement parsed = JsonParser.parseString(jsonString);
+
       if (parsed.isJsonObject()) {
 
         JsonObject o = parsed.getAsJsonObject();
