@@ -27,7 +27,7 @@ import com.google.gson.JsonParser;
 
 public class IamDynamicServerConfigurationService extends DynamicServerConfigurationService {
 
-  private static final Logger logger =
+  private static final Logger LOG =
       LoggerFactory.getLogger(IamDynamicServerConfigurationService.class);
 
   private static final String ISSUER_CLAIM = "issuer";
@@ -53,7 +53,7 @@ public class IamDynamicServerConfigurationService extends DynamicServerConfigura
 
       return servers.get(issuer);
     } catch (UncheckedExecutionException | ExecutionException e) {
-      logger.warn("Couldn't load configuration for " + issuer + ": " + e);
+      LOG.warn("Couldn't load configuration for {}: {}", issuer, e.getMessage());
       return null;
     }
 
@@ -64,7 +64,7 @@ public class IamDynamicServerConfigurationService extends DynamicServerConfigura
     private static final Logger logger = LoggerFactory.getLogger(Fetcher.class);
 
     private ClientHttpRequestFactory factory;
-    private JsonParser parser = new JsonParser();
+
 
     public Fetcher(ClientHttpRequestFactory factory) {
       this.factory = factory;
@@ -73,11 +73,13 @@ public class IamDynamicServerConfigurationService extends DynamicServerConfigura
     @Override
     public ServerConfiguration load(String issuer) throws Exception {
 
+      logger.info("Fetching configuration for issuer {}", issuer);
       RestTemplate restTemplate = new RestTemplate(factory);
       ServerConfiguration conf = new ServerConfiguration();
       String url = issuer + "/.well-known/openid-configuration";
       String jsonString = restTemplate.getForObject(url, String.class);
-      JsonElement parsed = parser.parse(jsonString);
+      JsonElement parsed = JsonParser.parseString(jsonString);
+
       if (parsed.isJsonObject()) {
 
         JsonObject o = parsed.getAsJsonObject();

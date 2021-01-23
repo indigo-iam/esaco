@@ -2,10 +2,10 @@ package it.infn.mw.esaco.test;
 
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -51,7 +51,7 @@ import it.infn.mw.esaco.test.utils.TestConfig;
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@WithMockUser(username="test", roles="USER")
+@WithMockUser(username = "test", roles = "USER")
 public class TokenInfoControllerTests extends EsacoTestUtils {
 
   final static String ENDPOINT = "/tokeninfo";
@@ -143,35 +143,32 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
     assertThat(accessToken.getIssuer(), equalTo(ISS));
     assertThat(accessToken.getSubject(), equalTo(SUB));
 
-    IamIntrospection iamIntrospection = mapper.readValue(introspection,
-      IamIntrospection.class);
+    IamIntrospection iamIntrospection = mapper.readValue(introspection, IamIntrospection.class);
 
     assertThat(iamIntrospection.isActive(), is(true));
     assertThat(iamIntrospection.getUserId(), equalTo(USERNAME));
     assertThat(iamIntrospection.getClientId(), equalTo(CLIENT_ID));
     assertThat(iamIntrospection.getTokenType(), equalTo(TOKEN_TYPE));
-    assertThat(iamIntrospection.getOrganisationName(),
-      not(isEmptyOrNullString()));
+    assertThat(iamIntrospection.getOrganisationName(), not(is(emptyOrNullString())));
     assertThat(iamIntrospection.getGroupNames(), isA(String[].class));
     assertThat(iamIntrospection.getGroupNames(), not(emptyArray()));
-    assertThat(iamIntrospection.getEduPersonEntitlements(),
-      isA(String[].class));
+    assertThat(iamIntrospection.getEduPersonEntitlements(), isA(String[].class));
     assertThat(iamIntrospection.getEduPersonEntitlement(), not(emptyArray()));
     assertThat(iamIntrospection.getEduPersonEntitlement(), isA(String[].class));
     assertThat(iamIntrospection.getEduPersonEntitlements(), not(emptyArray()));
-    assertThat(iamIntrospection.getAcr(), not(isEmptyOrNullString()));
+    assertThat(iamIntrospection.getAcr(), not(is(emptyOrNullString())));
 
     assertThat(userinfo.getPreferredUsername(), equalTo(USERNAME));
     assertThat(userinfo.getGroups(), isA(String[].class));
     assertThat(userinfo.getGroups(), not(emptyArray()));
-    assertThat(userinfo.getOrganisationName(), not(isEmptyOrNullString()));
+    assertThat(userinfo.getOrganisationName(), not(is(emptyOrNullString())));
     assertThat(userinfo.getGroupNames(), isA(String[].class));
     assertThat(userinfo.getGroupNames(), not(emptyArray()));
     assertThat(userinfo.getEduPersonEntitlements(), isA(String[].class));
     assertThat(userinfo.getEduPersonEntitlements(), not(emptyArray()));
     assertThat(userinfo.getEduPersonEntitlement(), isA(String[].class));
     assertThat(userinfo.getEduPersonEntitlement(), not(emptyArray()));
-    assertThat(userinfo.getAcr(), not(isEmptyOrNullString()));
+    assertThat(userinfo.getAcr(), not(is(emptyOrNullString())));
   }
 
   @Test
@@ -182,8 +179,7 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
       .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.introspection").exists())
-      .andExpect(
-        jsonPath("$.introspection", equalTo(format("{\"active\":false}"))));
+      .andExpect(jsonPath("$.introspection", equalTo(format("{\"active\":false}"))));
   }
 
   @Test
@@ -210,8 +206,7 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
 
     String introspection = tokenInfo.getIntrospection();
 
-    IamIntrospection iamIntrospection = mapper.readValue(introspection,
-      IamIntrospection.class);
+    IamIntrospection iamIntrospection = mapper.readValue(introspection, IamIntrospection.class);
 
     assertThat(iamIntrospection.isActive(), is(true));
     assertThat(iamIntrospection.getClientId(), equalTo("client-cred"));

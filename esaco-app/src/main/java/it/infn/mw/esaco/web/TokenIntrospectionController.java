@@ -26,5 +26,4 @@ public class TokenIntrospectionController extends TokenControllerUtils {
       .orElse(INACTIVE_TOKEN_RESPONSE);
 
   }
-
 }
