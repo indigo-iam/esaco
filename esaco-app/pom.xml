@@ -1,11 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>it.infn.mw</groupId>
     <artifactId>esaco</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.6</version>
   </parent>
 
   <artifactId>esaco-app</artifactId>
@@ -18,7 +19,7 @@
     <dependency>
       <groupId>it.infn.mw</groupId>
       <artifactId>esaco-common</artifactId>
-      <version>0.0.4-SNAPSHOT</version>
+      <version>0.0.6</version>
     </dependency>
 
     <dependency>
@@ -59,17 +60,28 @@
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
-	  <artifactId>spring-boot-starter-actuator</artifactId>
-	</dependency>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
     </dependency>
 
+
     <dependency>
-      <groupId>org.springframework.security.oauth</groupId>
-      <artifactId>spring-security-oauth2</artifactId>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-resource-server</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-jose</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security.oauth.boot</groupId>
+      <artifactId>spring-security-oauth2-autoconfigure</artifactId>
     </dependency>
 
     <dependency>
@@ -93,6 +105,7 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-devtools</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
@@ -121,15 +134,63 @@
 
   <build>
     <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+          <encoding>UTF-8</encoding>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-configuration-processor</artifactId>
+              <version>${spring-boot.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+
+        <executions>
+          <execution>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <configuration>
+          <!-- Uncomment the following to bootstrap from the debug image (provides 
+            a shell in /busybox/sh) <from> <image>gcr.io/distroless/java:debug</image> 
+            </from> <! -->
+          <to>
+            <image>indigoiam/esaco</image>
+            <tags>
+              <tag>${project.version}</tag>
+              <tag>${git.commit.id.abbrev}</tag>
+              <tag>${git.branch}</tag>
+            </tags>
+          </to>
+          <container>
+            <mainClass>it.infn.mw.esaco.EsacoApplication</mainClass>
+            <appRoot>/esaco</appRoot>
+            <workingDirectory>/esaco</workingDirectory>
+          </container>
+        </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.7.9</version>
+        <version>0.8.6</version>
 
         <configuration>
           <instrumentation>

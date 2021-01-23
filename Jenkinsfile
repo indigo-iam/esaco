@@ -81,13 +81,13 @@ pipeline {
       steps {
         unstash 'esaco-artifacts'
         unstash 'esaco-version'
-        sh'''
+        sh'''#!/bin/bash
         POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/build-image.sh
         POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/push-image.sh
         '''
         script {
           if (env.BRANCH_NAME == 'master') {
-            sh '''
+            sh '''#!/bin/bash
             unset DOCKER_REGISTRY_HOST
             POM_VERSION=$(cat esaco-version) /bin/bash esaco-app/docker/push-image.sh
             '''

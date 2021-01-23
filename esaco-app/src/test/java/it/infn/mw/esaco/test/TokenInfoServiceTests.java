@@ -2,10 +2,10 @@ package it.infn.mw.esaco.test;
 
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -67,8 +67,7 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   public void setup() throws Exception {
 
     when(introspectionService.introspectToken(VALID_JWT))
-      .thenReturn(
-        Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
+      .thenReturn(Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
     when(introspectionService.getUserInfoForToken(VALID_JWT))
       .thenReturn(Optional.of(mapper.writeValueAsString(VALID_USERINFO)));
 
@@ -90,23 +89,20 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
 
     assertNotNull(introspection);
 
-    IamIntrospection iamIntrospection = mapper.readValue(introspection,
-      IamIntrospection.class);
+    IamIntrospection iamIntrospection = mapper.readValue(introspection, IamIntrospection.class);
 
     assertThat(iamIntrospection.isActive(), is(true));
     assertThat(iamIntrospection.getUserId(), equalTo(USERNAME));
     assertThat(iamIntrospection.getClientId(), equalTo(CLIENT_ID));
     assertThat(iamIntrospection.getTokenType(), equalTo(TOKEN_TYPE));
-    assertThat(iamIntrospection.getOrganisationName(),
-      not(isEmptyOrNullString()));
+    assertThat(iamIntrospection.getOrganisationName(), not(is(emptyOrNullString())));
     assertThat(iamIntrospection.getGroupNames(), isA(String[].class));
     assertThat(iamIntrospection.getGroupNames(), not(emptyArray()));
-    assertThat(iamIntrospection.getEduPersonEntitlements(),
-      isA(String[].class));
+    assertThat(iamIntrospection.getEduPersonEntitlements(), isA(String[].class));
     assertThat(iamIntrospection.getEduPersonEntitlements(), not(emptyArray()));
     assertThat(iamIntrospection.getEduPersonEntitlement(), isA(String[].class));
     assertThat(iamIntrospection.getEduPersonEntitlement(), not(emptyArray()));
-    assertThat(iamIntrospection.getAcr(), not(isEmptyOrNullString()));
+    assertThat(iamIntrospection.getAcr(), not(is(emptyOrNullString())));
   }
 
   @Test
@@ -119,14 +115,14 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
     assertThat(userinfo.getPreferredUsername(), equalTo(USERNAME));
     assertThat(userinfo.getGroups(), isA(String[].class));
     assertThat(userinfo.getGroups(), not(emptyArray()));
-    assertThat(userinfo.getOrganisationName(), not(isEmptyOrNullString()));
+    assertThat(userinfo.getOrganisationName(), not(is(emptyOrNullString())));
     assertThat(userinfo.getGroupNames(), isA(String[].class));
     assertThat(userinfo.getGroupNames(), not(emptyArray()));
     assertThat(userinfo.getEduPersonEntitlements(), isA(String[].class));
     assertThat(userinfo.getEduPersonEntitlements(), not(emptyArray()));
     assertThat(userinfo.getEduPersonEntitlement(), isA(String[].class));
     assertThat(userinfo.getEduPersonEntitlement(), not(emptyArray()));
-    assertThat(userinfo.getAcr(), not(isEmptyOrNullString()));
+    assertThat(userinfo.getAcr(), not(is(emptyOrNullString())));
   }
 
   @Test(expected = HttpConnectionException.class)
@@ -189,24 +185,6 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   public void testParseNotJwtToken() {
     try {
       tokenService.parseJWTAccessToken("any.notjwt.token");
-    } catch (Exception e) {
-      throw e;
-    }
-  }
-
-  @Test(expected = TokenValidationException.class)
-  public void testIntrospectionWithNotJwtToken() {
-    try {
-      tokenService.introspectToken("any.notjwt.token");
-    } catch (Exception e) {
-      throw e;
-    }
-  }
-
-  @Test(expected = TokenValidationException.class)
-  public void testuserInfoWithNotJwtToken() {
-    try {
-      tokenService.decodeUserInfo("any.notjwt.token");
     } catch (Exception e) {
       throw e;
     }

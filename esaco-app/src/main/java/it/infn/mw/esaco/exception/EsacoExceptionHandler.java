@@ -7,12 +7,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import it.infn.mw.esaco.exception.ErrorResponse;
-import it.infn.mw.esaco.exception.HttpConnectionException;
-import it.infn.mw.esaco.exception.TokenIntrospectionException;
-import it.infn.mw.esaco.exception.TokenValidationException;
-import it.infn.mw.esaco.exception.UnsupportedIssuerException;
-
 @ControllerAdvice
 public class EsacoExceptionHandler extends ResponseEntityExceptionHandler {
 
