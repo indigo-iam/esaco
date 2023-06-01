@@ -58,9 +58,6 @@ services:
       - /dev/urandom:/dev/random
       - ./application.yml:/esaco/config/application.yml
 
-    ports:
-      - "8156:8156"
-
   apache:
     container_name: apache
     image: ${APACHE_IMAGE}:${APACHE_IMAGE_TAG}
