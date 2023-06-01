@@ -31,7 +31,7 @@ services:
     image: ${IAM_IMAGE}:${IAM_IMAGE_TAG}
 
     env_file:
-      - env-files/iam-be1.env
+      - env-files/iam-be2.env
 
     volumes:
       - cabundle:/etc/pki
@@ -45,6 +45,7 @@ services:
     depends_on:
       - iam-be1
       - iam-be2
+      - trust
 
     dns_search: test.example
 
@@ -68,12 +69,15 @@ services:
 
     depends_on:
       - esaco
+      - trust
 
     env_file:
       - env-files/apache.env
 
     volumes:
       - /dev/urandom:/dev/random
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
       - ./httpd/apache-conf.conf:/etc/httpd/conf.d/apache-conf.conf:ro
       - ./httpd/public-html:/var/www/html
 
@@ -85,7 +89,7 @@ services:
       - iam-be1
       - iam-be2
       - esaco
-      - httpd
+      - apache
 
     # to wait the trust service to finish
     restart: on-failure
