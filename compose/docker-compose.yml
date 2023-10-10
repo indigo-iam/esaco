@@ -1,0 +1,122 @@
+version: "3.7"
+
+volumes:
+  trustanchors:
+  cabundle:
+
+services:
+
+  trust:
+    image: ${TRUST_IMAGE}:${TRUST_IMAGE_TAG}
+    volumes:
+      - trustanchors:/etc/grid-security/certificates
+      - cabundle:/etc/pki
+    environment:
+      - FORCE_TRUST_ANCHORS_UPDATE=1
+
+  iam-be1:
+    container_name: iam-be1
+    image: ${IAM_IMAGE}:${IAM_IMAGE_TAG}
+
+    env_file:
+      - env-files/iam-be1.env
+
+    volumes:
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - /dev/urandom:/dev/random
+
+  iam-be2:
+    container_name: iam-be2
+    image: ${IAM_IMAGE}:${IAM_IMAGE_TAG}
+
+    env_file:
+      - env-files/iam-be2.env
+
+    volumes:
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - /dev/urandom:/dev/random
+
+  esaco:
+    container_name: esaco
+    image: ${ESACO_IMAGE}:${ESACO_IMAGE_TAG}
+
+    depends_on:
+      - iam-be1
+      - iam-be2
+      - trust
+
+    dns_search: test.example
+
+    env_file:
+      - env-files/esaco.env
+
+    volumes:
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - /dev/urandom:/dev/random
+      - ./application.yml:/esaco/config/application.yml
+
+  apache:
+    container_name: apache
+    image: ${APACHE_IMAGE}:${APACHE_IMAGE_TAG}
+    # build:
+    #   context: httpd
+
+    depends_on:
+      - esaco
+      - trust
+
+    env_file:
+      - env-files/apache.env
+
+    volumes:
+      - /dev/urandom:/dev/random
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - ./httpd/apache-conf.conf:/etc/httpd/conf.d/apache-conf.conf:ro
+      - ./httpd/public-html:/var/www/html
+
+  nginx:
+    container_name: nginx
+    image: ${NGINX_IMAGE}:${NGINX_IMAGE_TAG}
+
+    depends_on:
+      - iam-be1
+      - iam-be2
+      - esaco
+      - apache
+
+    # to wait the trust service to finish
+    restart: on-failure
+
+    dns_search: test.example
+
+    environment:
+      TZ: Europe/Rome
+      NGINX_HOST: nginx
+      NGINX_PORT: 443
+      X509_VOMS_DIR: /vomsdir
+
+    ports:
+      - "443:443"
+      - "80:80"
+
+    volumes:
+      - /dev/urandom:/dev/random
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - ./nginx/certs:/certs
+      - ./nginx/iam.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+
+    networks:
+      default:
+        aliases:
+          - iam-fe.test.example
+          - iam1.test.example
+          - iam2.test.example
+          - esaco.test.example
+          - apache.test.example

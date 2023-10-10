@@ -1,0 +1,11 @@
+oidc:
+  clients:
+      - issuer-url: https://iam1.test.example/
+        client-id: password-grant
+        client-secret: secret
+      - issuer-url: https://iam2.test.example/
+        client-id: password-grant
+        client-secret: secret
+
+x509:
+  use-jvm-trust-anchors: false
