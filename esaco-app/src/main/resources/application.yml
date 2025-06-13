@@ -2,11 +2,11 @@ server:
   port: ${ESACO_BIND_PORT:8156}
   address: ${ESACO_BIND_ADDRESS:0.0.0.0}
 
-  use-forward-headers: ${ESACO_USE_FORWARD_HEADERS:false}
+  forward-headers-strategy: ${ESACO_USE_FORWARD_HEADERS:none}
 
 spring:
   main:
-    allow-bean-definition-overriding: TRUE
+    allow-bean-definition-overriding: true
     
   profiles:
     active: prod

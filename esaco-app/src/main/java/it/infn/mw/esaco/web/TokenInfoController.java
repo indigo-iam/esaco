@@ -2,8 +2,7 @@ package it.infn.mw.esaco.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +17,7 @@ public class TokenInfoController extends TokenControllerUtils {
   @Autowired
   private TokenInfoService tokenInfoService;
 
-  @RequestMapping(value = "/tokeninfo", method = RequestMethod.POST,
+  @PostMapping(value = "/tokeninfo",
       produces = MediaType.APPLICATION_JSON_VALUE)
   public TokenInfo getUserInfo(@RequestParam(name = "token", required = false) String accessToken) {
 

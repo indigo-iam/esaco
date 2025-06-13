@@ -14,14 +14,14 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.mitre.oauth2.introspectingfilter.IntrospectingTokenService;
 import org.mitre.oauth2.introspectingfilter.service.IntrospectionConfigurationService;
@@ -80,7 +80,7 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  public IntrospectionConfigurationService introspectionConfigService() {
+  public IntrospectionConfigurationService introspectionConfigService() throws Exception {
 
     JWTParsingIntrospectionConfigurationService cs =
         new JWTParsingIntrospectionConfigurationService();
@@ -92,7 +92,7 @@ public class EsacoConfiguration {
 
   @Bean
   @Primary
-  public IntrospectingTokenService tokenService() {
+  public IntrospectingTokenService tokenService() throws Exception {
 
     IntrospectingTokenService its = new IntrospectingTokenService();
     its.setIntrospectionConfigurationService(introspectionConfigService());
@@ -101,7 +101,7 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  public ServerConfigurationService serverConfiguration() {
+  public ServerConfigurationService serverConfiguration() throws Exception {
 
     return new IamDynamicServerConfigurationService(httpRequestFactory());
   }
@@ -188,35 +188,34 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  public HttpClient httpClient() {
+  public HttpClient httpClient() throws Exception {
+      SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext());
 
-    SSLConnectionSocketFactory sf = new SSLConnectionSocketFactory(sslContext());
-
-    Registry<ConnectionSocketFactory> socketFactoryRegistry =
-        RegistryBuilder.<ConnectionSocketFactory>create()
-          .register("https", sf)
-          .register("http", PlainConnectionSocketFactory.getSocketFactory())
+      PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+          .setSSLSocketFactory(sslSocketFactory)
           .build();
 
-    PoolingHttpClientConnectionManager connectionManager =
-        new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-    connectionManager.setMaxTotal(10);
-    connectionManager.setDefaultMaxPerRoute(10);
+      connectionManager.setMaxTotal(10);
+      connectionManager.setDefaultMaxPerRoute(10);
+      connectionManager.setDefaultSocketConfig(
+          SocketConfig.custom()
+              .setSoTimeout((Timeout) TimeValue.ofSeconds(30))
+              .build());
 
-    return HttpClientBuilder.create()
-      .setConnectionManager(connectionManager)
-      .disableAuthCaching()
-      .build();
+      return HttpClients.custom()
+          .setConnectionManager(connectionManager)
+          .disableAuthCaching()
+          .build();
   }
 
   @Bean
-  public ClientHttpRequestFactory httpRequestFactory() {
+  public ClientHttpRequestFactory httpRequestFactory() throws Exception {
 
     return new HttpComponentsClientHttpRequestFactory(httpClient());
   }
 
   @Bean
-  public RestTemplate restTemplate() {
+  public RestTemplate restTemplate() throws Exception {
 
     return new RestTemplate(httpRequestFactory());
   }

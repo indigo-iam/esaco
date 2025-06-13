@@ -27,20 +27,14 @@
       <artifactId>openid-connect-client</artifactId>
     </dependency>
 
-    <dependency>
+	<dependency>
       <groupId>org.mitre</groupId>
       <artifactId>openid-connect-common</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcprov-jdk15on</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk15on</artifactId>
+      <artifactId>bcpkix-jdk18on</artifactId>
     </dependency>
 
     <dependency>
@@ -68,7 +62,6 @@
       <artifactId>caffeine</artifactId>
     </dependency>
 
-
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-oauth2-resource-server</artifactId>
@@ -77,11 +70,6 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-oauth2-jose</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.security.oauth.boot</groupId>
-      <artifactId>spring-security-oauth2-autoconfigure</artifactId>
     </dependency>
 
     <dependency>
@@ -109,8 +97,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <version>5.3.1</version>
     </dependency>
 
     <dependency>

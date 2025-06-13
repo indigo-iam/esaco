@@ -2,7 +2,6 @@ package it.infn.mw.esaco.web;
 
 import java.text.ParseException;
 
-import com.google.common.base.Strings;
 import com.nimbusds.jwt.JWTParser;
 
 import it.infn.mw.esaco.exception.TokenValidationException;
@@ -13,7 +12,7 @@ public class TokenControllerUtils {
 
   protected void accessTokenSanityChecks(String accessToken) {
 
-    if (Strings.isNullOrEmpty(accessToken)) {
+    if (accessToken.isEmpty() || (accessToken == null)) {
       throw new TokenValidationException(
         "Cannot perform request with empty token");
     }
