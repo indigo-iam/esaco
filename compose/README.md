@@ -71,13 +71,9 @@ Apache exposes three endpoints:
   Hello, this is /iam2
   ```
 
-* `/web`: this is a DEMO web page whose access triggers an OIDC login with `iam-be1`. A client on this IAM instance has been registered already in the IAM db (available with its dump). The necessary parameters of the client configuration are
+* `/web`: this is a DEMO web page whose access triggers an OIDC login with `iam-be1`. A client on this IAM instance has been registered already in the IAM db (available with its dump).
 
-  * _client ID_: demo_client
-  * _redirect URI_: https://apache.test.example/web/redirect_uri
-  * _client secret_: secret
-
-  This step has to be done with any IAM restart. Then, access to this resource is via [https://apache.test.example/web][apache-web].
+  To access to this resource browse the following url: [https://apache.test.example/web][apache-web].
 
 ## ESACO
 
