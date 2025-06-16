@@ -6,15 +6,21 @@ the Apache module [mod-auth-openidc][mod-auth-openidc] and ESACO.
 
 ## Deployment
 
-Run the compose with
+Build the trustanchor with
 
 ```
-$ docker-compose up -d
+$ docker compose build --no-cache trust
+```
+
+and run the compose with
+
+```
+$ docker compose up -d
 ```
 
 which allows to start the following services
 
-* _trust_: volume containing the Test CA certificate, shared with other services
+* _trust_: volume containing the Test CA certificate, shared with other services. The container also populates a `/certs` volume which includes an X.509 server/key certificate
 * _iam-be1_: token issuer hosted at [https://iam1.test.example][iam1]
 * _iam-be2_: token issuer hosted at [https://iam2.test.example][iam2]
 * _esaco_: is the ESACO daemon, registered as a client into `iam-be1` and `iam-be2`

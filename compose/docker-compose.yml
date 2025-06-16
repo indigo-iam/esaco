@@ -1,18 +1,17 @@
-version: "3.7"
-
 volumes:
   trustanchors:
   cabundle:
+  certs:
 
 services:
 
   trust:
-    image: ${TRUST_IMAGE}:${TRUST_IMAGE_TAG}
+    build:
+      context: ./trust
     volumes:
       - trustanchors:/etc/grid-security/certificates
       - cabundle:/etc/pki
-    environment:
-      - FORCE_TRUST_ANCHORS_UPDATE=1
+      - certs:/certs
 
   iam-be1:
     container_name: iam-be1
@@ -61,8 +60,6 @@ services:
   apache:
     container_name: apache
     image: ${APACHE_IMAGE}:${APACHE_IMAGE_TAG}
-    # build:
-    #   context: httpd
 
     depends_on:
       - esaco
@@ -83,13 +80,17 @@ services:
     image: ${NGINX_IMAGE}:${NGINX_IMAGE_TAG}
 
     depends_on:
-      - iam-be1
-      - iam-be2
-      - esaco
-      - apache
+      trust:
+        condition: service_completed_successfully
+      iam-be1:
+        condition: service_started
+      iam-be2:
+        condition: service_started
+      esaco:
+        condition: service_started
+      apache:
+        condition: service_started
 
-    # to wait the trust service to finish
-    restart: on-failure
 
     dns_search: test.example
 
@@ -107,7 +108,7 @@ services:
       - /dev/urandom:/dev/random
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
-      - ./nginx/certs:/certs
+      - certs:/certs
       - ./nginx/iam.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 
