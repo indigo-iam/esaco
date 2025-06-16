@@ -21,6 +21,7 @@ $ docker compose up -d
 which allows to start the following services
 
 * _trust_: volume containing the Test CA certificate, shared with other services. The container also populates a `/certs` volume which includes an X.509 server/key certificate
+* _db_: is the database for the `iam-be1` and `iam-be2` services populated with test clients/users
 * _iam-be1_: token issuer hosted at [https://iam1.test.example][iam1]
 * _iam-be2_: token issuer hosted at [https://iam2.test.example][iam2]
 * _esaco_: is the ESACO daemon, registered as a client into `iam-be1` and `iam-be2`
@@ -70,13 +71,13 @@ Apache exposes three endpoints:
   Hello, this is /iam2
   ```
 
-* `/web`: this is a DEMO web page whose access triggers an OIDC login with `iam-be1`. A client on this IAM instance have to be registered beforehand. The necessary parameters of the client configuration are
+* `/web`: this is a DEMO web page whose access triggers an OIDC login with `iam-be1`. A client on this IAM instance has been registered already in the IAM db (available with its dump). The necessary parameters of the client configuration are
 
   * _client ID_: demo_client
   * _redirect URI_: https://apache.test.example/web/redirect_uri
   * _client secret_: secret
 
-  This step has to be done with any IAM restart. Then, access to this resource is via [https://apace.test.example/web][apache-web].
+  This step has to be done with any IAM restart. Then, access to this resource is via [https://apache.test.example/web][apache-web].
 
 ## ESACO
 
@@ -104,4 +105,4 @@ $ curl -u user:password https://esaco.test.example/introspect -d token=$BT -k -s
 [iam1]: https://iam1.test.example
 [iam2]: https://iam2.test.example
 [apache]: https://apache.test.example
-[apache-web]: https://apace.test.example/web
+[apache-web]: https://apache.test.example/web

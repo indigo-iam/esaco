@@ -13,29 +13,71 @@ services:
       - cabundle:/etc/pki
       - certs:/certs
 
+  db:
+    image: ${DB_IMAGE}:${DB_IMAGE_TAG}
+    container_name: db
+    hostname: db
+    volumes:
+     - ./db/iam-test-dump.sql:/docker-entrypoint-initdb.d/iam-test-dump.sql
+    
+    env_file:
+      - ./env-files/db.env
+
+    ports:
+      - "3307:3307"
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "3307", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 0s
+
   iam-be1:
     container_name: iam-be1
     image: ${IAM_IMAGE}:${IAM_IMAGE_TAG}
 
     env_file:
-      - env-files/iam-be1.env
+      - env-files/iam.env
+
+    environment:
+      IAM_HOST: iam1.test.example
+      IAM_BASE_URL: https://iam1.test.example
+      IAM_ISSUER: https://iam1.test.example/
+      IAM_ORGANISATION_NAME: iam1
 
     volumes:
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
       - /dev/urandom:/dev/random
+      - ./iam/keystore.jwks:/indigo-iam/config/keystore.jwks:ro
+
+    depends_on:
+      db:
+        condition: service_healthy
 
   iam-be2:
     container_name: iam-be2
     image: ${IAM_IMAGE}:${IAM_IMAGE_TAG}
 
     env_file:
-      - env-files/iam-be2.env
+      - env-files/iam.env
+
+    environment:
+      IAM_HOST: iam2.test.example
+      IAM_BASE_URL: https://iam2.test.example
+      IAM_ISSUER: https://iam2.test.example/
+      IAM_ORGANISATION_NAME: iam2
 
     volumes:
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
       - /dev/urandom:/dev/random
+      - ./iam/keystore.jwks:/indigo-iam/config/keystore.jwks:ro
+
+    depends_on:
+      db:
+        condition: service_healthy
 
   esaco:
     container_name: esaco
@@ -116,7 +158,6 @@ services:
     networks:
       default:
         aliases:
-          - iam-fe.test.example
           - iam1.test.example
           - iam2.test.example
           - esaco.test.example
