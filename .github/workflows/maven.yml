@@ -65,5 +65,4 @@ jobs:
         labels: ${{ steps.ls-meta.outputs.labels }}
         context: esaco-app
         platforms: linux/amd64,linux/arm64
-        push: true
-        # push: ${{ startsWith(github.ref, 'refs/tags/') }}
+        push: ${{ startsWith(github.ref, 'refs/tags/') }}
