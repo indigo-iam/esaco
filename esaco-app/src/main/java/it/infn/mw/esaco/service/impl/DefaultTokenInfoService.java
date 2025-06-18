@@ -78,6 +78,7 @@ public class DefaultTokenInfoService implements TokenInfoService {
     }
   }
 
+  // PERCHE' CI SERVE?
   @Override
   @Cacheable("userinfo")
   public IamUser decodeUserInfo(String accessToken) {

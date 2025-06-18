@@ -1,15 +1,10 @@
 package it.infn.mw.esaco.test;
 
 import static java.lang.String.format;
-import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -18,9 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,7 +23,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,10 +37,9 @@ import it.infn.mw.esaco.model.IamUser;
 import it.infn.mw.esaco.model.TokenInfo;
 import it.infn.mw.esaco.service.impl.DefaultTokenInfoService;
 import it.infn.mw.esaco.test.utils.EsacoTestUtils;
-import it.infn.mw.esaco.test.utils.TestConfig;
 
-@RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {EsacoApplication.class, TestConfig.class})
+@SuppressWarnings("removal")
+@ContextConfiguration(classes = {EsacoApplication.class})
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -65,7 +57,7 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
   @MockBean
   private DefaultTokenInfoService tokenInfoService;
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     given(tokenInfoService.isAccessTokenActive(Mockito.any())).willReturn(true);
 
@@ -139,36 +131,32 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
     assertNotNull(introspection);
     assertNotNull(userinfo);
 
-    assertThat(accessToken.getAlgorithm(), equalTo(ALG));
-    assertThat(accessToken.getIssuer(), equalTo(ISS));
-    assertThat(accessToken.getSubject(), equalTo(SUB));
+    assertThat(accessToken.getAlgorithm()).isEqualTo(ALG);
+    assertThat(accessToken.getIssuer()).isEqualTo(ISS);
+    assertThat(accessToken.getSubject()).isEqualTo(SUB);
 
     IamIntrospection iamIntrospection = mapper.readValue(introspection, IamIntrospection.class);
 
-    assertThat(iamIntrospection.isActive(), is(true));
-    assertThat(iamIntrospection.getUserId(), equalTo(USERNAME));
-    assertThat(iamIntrospection.getClientId(), equalTo(CLIENT_ID));
-    assertThat(iamIntrospection.getTokenType(), equalTo(TOKEN_TYPE));
-    assertThat(iamIntrospection.getOrganisationName(), not(is(emptyOrNullString())));
-    assertThat(iamIntrospection.getGroupNames(), isA(String[].class));
-    assertThat(iamIntrospection.getGroupNames(), not(emptyArray()));
-    assertThat(iamIntrospection.getEduPersonEntitlements(), isA(String[].class));
-    assertThat(iamIntrospection.getEduPersonEntitlement(), not(emptyArray()));
-    assertThat(iamIntrospection.getEduPersonEntitlement(), isA(String[].class));
-    assertThat(iamIntrospection.getEduPersonEntitlements(), not(emptyArray()));
-    assertThat(iamIntrospection.getAcr(), not(is(emptyOrNullString())));
+    assertThat(iamIntrospection.isActive()).isTrue();
+    assertThat(iamIntrospection.getUserId()).isEqualTo(USERNAME);
+    assertThat(iamIntrospection.getClientId()).isEqualTo(CLIENT_ID);
+    assertThat(iamIntrospection.getTokenType()).isEqualTo(TOKEN_TYPE);
+    assertThat(iamIntrospection.getOrganisationName()).isNotBlank();
+    assertThat(iamIntrospection.getGroupNames()).isInstanceOf(String[].class).isNotEmpty();
+    assertThat(iamIntrospection.getEduPersonEntitlements()).isInstanceOf(String[].class)
+      .isNotEmpty();
+    assertThat(iamIntrospection.getEduPersonEntitlement()).isInstanceOf(String[].class)
+      .isNotEmpty();
+    assertThat(iamIntrospection.getAcr()).isNotBlank();
 
-    assertThat(userinfo.getPreferredUsername(), equalTo(USERNAME));
-    assertThat(userinfo.getGroups(), isA(String[].class));
-    assertThat(userinfo.getGroups(), not(emptyArray()));
-    assertThat(userinfo.getOrganisationName(), not(is(emptyOrNullString())));
-    assertThat(userinfo.getGroupNames(), isA(String[].class));
-    assertThat(userinfo.getGroupNames(), not(emptyArray()));
-    assertThat(userinfo.getEduPersonEntitlements(), isA(String[].class));
-    assertThat(userinfo.getEduPersonEntitlements(), not(emptyArray()));
-    assertThat(userinfo.getEduPersonEntitlement(), isA(String[].class));
-    assertThat(userinfo.getEduPersonEntitlement(), not(emptyArray()));
-    assertThat(userinfo.getAcr(), not(is(emptyOrNullString())));
+    assertThat(userinfo.getPreferredUsername()).isEqualTo(USERNAME);
+    assertThat(userinfo.getGroups()).isInstanceOf(String[].class).isNotEmpty();
+    assertThat(userinfo.getOrganisationName()).isNotBlank();
+    assertThat(userinfo.getGroupNames()).isInstanceOf(String[].class).isNotEmpty();
+    assertThat(userinfo.getEduPersonEntitlements()).isInstanceOf(String[].class).isNotEmpty();
+    assertThat(userinfo.getEduPersonEntitlement()).isInstanceOf(String[].class).isNotEmpty();
+    assertThat(userinfo.getAcr()).isNotBlank();
+
   }
 
   @Test
@@ -200,17 +188,17 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
 
     AccessToken accessToken = tokenInfo.getAccessToken();
 
-    assertThat(accessToken.getAlgorithm(), equalTo(ALG));
-    assertThat(accessToken.getIssuer(), equalTo(ISS));
-    assertThat(accessToken.getSubject(), equalTo("client-cred"));
+    assertThat(accessToken.getAlgorithm()).isEqualTo(ALG);
+    assertThat(accessToken.getIssuer()).isEqualTo(ISS);
+    assertThat(accessToken.getSubject()).isEqualTo("client-cred");
 
     String introspection = tokenInfo.getIntrospection();
 
     IamIntrospection iamIntrospection = mapper.readValue(introspection, IamIntrospection.class);
 
-    assertThat(iamIntrospection.isActive(), is(true));
-    assertThat(iamIntrospection.getClientId(), equalTo("client-cred"));
-    assertThat(iamIntrospection.getTokenType(), equalTo(TOKEN_TYPE));
+    assertThat(iamIntrospection.isActive()).isTrue();
+    assertThat(iamIntrospection.getClientId()).isEqualTo("client-cred");
+    assertThat(iamIntrospection.getTokenType()).isEqualTo(TOKEN_TYPE);
   }
 
   @Test

@@ -12,8 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +21,6 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,15 +28,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.infn.mw.esaco.EsacoApplication;
 import it.infn.mw.esaco.service.TokenIntrospectionService;
 import it.infn.mw.esaco.test.utils.EsacoTestUtils;
-import it.infn.mw.esaco.test.utils.TestConfig;
 
-@RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {EsacoApplication.class, TestConfig.class})
+@SuppressWarnings("removal")
+@ContextConfiguration(classes = {EsacoApplication.class})
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@WithMockUser(username="test", roles="USER")
-public class IntrospectIntegrationTests  extends EsacoTestUtils{
+@WithMockUser(username = "test", roles = "USER")
+public class IntrospectIntegrationTests extends EsacoTestUtils {
 
   final static String ENDPOINT = "/introspect";
 
@@ -54,9 +51,7 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
   @Test
   @WithAnonymousUser
   public void introspectEndpointRequiresAuthenticatedUser() throws Exception {
-    mvc.perform(post(ENDPOINT))
-    .andDo(print())
-    .andExpect(status().isUnauthorized());
+    mvc.perform(post(ENDPOINT)).andDo(print()).andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -86,30 +81,26 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
   public void testIntrospectionWithInvalidToken() throws Exception {
 
     when(tokenIntrospectionService.introspectToken(VALID_JWT))
-      .thenReturn(
-        Optional.of(mapper.writeValueAsString(EXPIRED_INTROSPECTION)));
+      .thenReturn(Optional.of(mapper.writeValueAsString(EXPIRED_INTROSPECTION)));
 
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.active").value("false"));
+      .andDo(print())
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.active").value("false"));
 
 
   }
 
   @Test
-  public void testIntrospectionWithExtraInformationValidToken()
-    throws Exception {
+  public void testIntrospectionWithExtraInformationValidToken() throws Exception {
 
     when(tokenIntrospectionService.introspectToken(EXTRA_INFORMATION_JWT))
-      .thenReturn(Optional
-        .of(EXTRA_INFORMATION_INTROSPECTION));
+      .thenReturn(Optional.of(EXTRA_INFORMATION_INTROSPECTION));
 
     mvc.perform(post(ENDPOINT).param("token", EXTRA_INFORMATION_JWT))
       .andDo(print())
       .andExpect(status().isOk())
-      .andExpect(
-        jsonPath("$.unecessary_field").value("unecessary_information"));
+      .andExpect(jsonPath("$.unecessary_field").value("unecessary_information"));
 
   }
 
@@ -120,23 +111,23 @@ public class IntrospectIntegrationTests  extends EsacoTestUtils{
       .thenReturn(Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
 
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.active").value("true"))
-        .andExpect(jsonPath("$.iss").value(ISS))
-        .andExpect(jsonPath("$.sub").value("73f16d93-2441-4a50-88ff-85360d78c6b5"))
-        .andExpect(jsonPath("$.preferred_username").value("admin"))
-        .andExpect(jsonPath("$.organisation_name").value("indigo-dc"))
-        .andExpect(jsonPath("$.email").value("admin@example.org"))
-        .andExpect(jsonPath("$.groups", hasItems("Production", "Analysis")))
-        .andExpect(jsonPath("$.token_type", is("Bearer")))
-        .andExpect(jsonPath("$.expires_at").exists())
-        .andExpect(jsonPath("$.groupNames", hasItems("Production", "Analysis")))
-        .andExpect(jsonPath("$.edu_person_entitlements", hasItems("urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
+      .andDo(print())
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.active").value("true"))
+      .andExpect(jsonPath("$.iss").value(ISS))
+      .andExpect(jsonPath("$.sub").value("73f16d93-2441-4a50-88ff-85360d78c6b5"))
+      .andExpect(jsonPath("$.preferred_username").value("admin"))
+      .andExpect(jsonPath("$.organisation_name").value("indigo-dc"))
+      .andExpect(jsonPath("$.email").value("admin@example.org"))
+      .andExpect(jsonPath("$.groups", hasItems("Production", "Analysis")))
+      .andExpect(jsonPath("$.token_type", is("Bearer")))
+      .andExpect(jsonPath("$.expires_at").exists())
+      .andExpect(jsonPath("$.groupNames", hasItems("Production", "Analysis")))
+      .andExpect(jsonPath("$.edu_person_entitlements",
+          hasItems("urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
       .andExpect(jsonPath("$.eduperson_entitlement",
-        hasItems(
-          "urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
-        .andExpect(jsonPath("$.acr").value("https://aai.egi.eu/LoA#Substantial"));
+          hasItems("urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
+      .andExpect(jsonPath("$.acr").value("https://aai.egi.eu/LoA#Substantial"));
 
   }
 }

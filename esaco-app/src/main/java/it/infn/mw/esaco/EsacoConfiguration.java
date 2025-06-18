@@ -7,8 +7,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -20,26 +18,17 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.io.SocketConfig;
-import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
-import org.mitre.oauth2.introspectingfilter.IntrospectingTokenService;
-import org.mitre.oauth2.introspectingfilter.service.IntrospectionConfigurationService;
-import org.mitre.oauth2.introspectingfilter.service.impl.JWTParsingIntrospectionConfigurationService;
-import org.mitre.oauth2.introspectingfilter.service.impl.SimpleIntrospectionAuthorityGranter;
-import org.mitre.oauth2.model.RegisteredClient;
-import org.mitre.openid.connect.client.service.ClientConfigurationService;
-import org.mitre.openid.connect.client.service.ServerConfigurationService;
-import org.mitre.openid.connect.client.service.impl.StaticClientConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -51,15 +40,16 @@ import eu.emi.security.authn.x509.impl.DirectoryCertChainValidator;
 import eu.emi.security.authn.x509.impl.RevocationParametersExt;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 import eu.emi.security.authn.x509.impl.ValidatorParamsExt;
+import it.infn.mw.esaco.config.DelegatingOpaqueTokenIntrospector;
 import it.infn.mw.esaco.exception.SSLContextInitializationError;
 import it.infn.mw.esaco.service.TimeProvider;
-import it.infn.mw.esaco.service.impl.IamDynamicServerConfigurationService;
 import it.infn.mw.esaco.service.impl.SystemTimeProvider;
 import it.infn.mw.esaco.util.x509.X509BlindTrustManager;
 
+@SuppressWarnings("deprecation")
 @Configuration
 @EnableAutoConfiguration
-@EnableConfigurationProperties
+@EnableConfigurationProperties(OidcClientProperties.class)
 public class EsacoConfiguration {
 
   private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC = 0; // 0 means no
@@ -71,60 +61,8 @@ public class EsacoConfiguration {
   @Autowired
   private TlsProperties tlsProperties;
 
-  @Autowired
-  private OidcClientProperties oidcConfig;
-
-  public SimpleIntrospectionAuthorityGranter authorityGranter() {
-
-    return new SimpleIntrospectionAuthorityGranter();
-  }
-
   @Bean
-  public IntrospectionConfigurationService introspectionConfigService() throws Exception {
-
-    JWTParsingIntrospectionConfigurationService cs =
-        new JWTParsingIntrospectionConfigurationService();
-    cs.setServerConfigurationService(serverConfiguration());
-    cs.setClientConfigurationService(oidcClientsConf());
-
-    return cs;
-  }
-
-  @Bean
-  @Primary
-  public IntrospectingTokenService tokenService() throws Exception {
-
-    IntrospectingTokenService its = new IntrospectingTokenService();
-    its.setIntrospectionConfigurationService(introspectionConfigService());
-    its.setIntrospectionAuthorityGranter(authorityGranter());
-    return its;
-  }
-
-  @Bean
-  public ServerConfigurationService serverConfiguration() throws Exception {
-
-    return new IamDynamicServerConfigurationService(httpRequestFactory());
-  }
-
-  @Bean
-  public ClientConfigurationService oidcClientsConf() {
-
-    Map<String, RegisteredClient> clients = new LinkedHashMap<>();
-
-    for (OidcClient client : oidcConfig.getClients()) {
-      RegisteredClient rc = new RegisteredClient();
-      rc.setClientId(client.getClientId());
-      rc.setClientSecret(client.getClientSecret());
-      clients.put(client.getIssuerUrl(), rc);
-    }
-
-    StaticClientConfigurationService conf = new StaticClientConfigurationService();
-    conf.setClients(clients);
-    return conf;
-  }
-
-  @Bean
-  public X509CertChainValidatorExt certificateValidator() {
+  X509CertChainValidatorExt certificateValidator() {
 
     return new CertificateValidatorBuilder().lazyAnchorsLoading(false)
       .trustAnchorsDir(x509Properties.getTrustAnchorsDir())
@@ -133,7 +71,7 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  public X509CertChainValidatorExt bundleValidator() throws CertificateException {
+  X509CertChainValidatorExt bundleValidator() throws CertificateException {
 
     ValidatorParamsExt validatorParams =
         new ValidatorParamsExt(RevocationParametersExt.IGNORE, ProxySupport.DENY);
@@ -149,7 +87,7 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  public X509TrustManager trustManager() throws CertificateException {
+  X509TrustManager trustManager() throws CertificateException {
 
     switch (x509Properties.getTrustAnchorsType()) {
       case DIR:
@@ -168,7 +106,7 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  public SSLContext sslContext() {
+  SSLContext sslContext() {
 
     try {
       SSLContext context = SSLContext.getInstance(tlsProperties.getVersion());
@@ -188,40 +126,37 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  public HttpClient httpClient() throws Exception {
-      SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext());
+  HttpClient httpClient() throws Exception {
+    SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext());
 
-      PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+    PoolingHttpClientConnectionManager connectionManager =
+        PoolingHttpClientConnectionManagerBuilder.create()
           .setSSLSocketFactory(sslSocketFactory)
           .build();
 
-      connectionManager.setMaxTotal(10);
-      connectionManager.setDefaultMaxPerRoute(10);
-      connectionManager.setDefaultSocketConfig(
-          SocketConfig.custom()
-              .setSoTimeout((Timeout) TimeValue.ofSeconds(30))
-              .build());
+    connectionManager.setMaxTotal(10);
+    connectionManager.setDefaultMaxPerRoute(10);
+    connectionManager
+      .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(Timeout.ofSeconds(30)).build());
 
-      return HttpClients.custom()
-          .setConnectionManager(connectionManager)
-          .disableAuthCaching()
-          .build();
+    return HttpClients.custom()
+      .setConnectionManager(connectionManager)
+      .disableAuthCaching()
+      .build();
   }
 
   @Bean
-  public ClientHttpRequestFactory httpRequestFactory() throws Exception {
-
+  ClientHttpRequestFactory httpRequestFactory() throws Exception {
     return new HttpComponentsClientHttpRequestFactory(httpClient());
   }
 
   @Bean
-  public RestTemplate restTemplate() throws Exception {
-
+  RestTemplate restTemplate() throws Exception {
     return new RestTemplate(httpRequestFactory());
   }
 
   @Bean
-  public Jackson2ObjectMapperBuilder jacksonBuilder() {
+  Jackson2ObjectMapperBuilder jacksonBuilder() {
 
     Jackson2ObjectMapperBuilder jacksonBuilder = new Jackson2ObjectMapperBuilder();
     jacksonBuilder.filters(new SimpleFilterProvider().setFailOnUnknownId(false));
@@ -229,7 +164,12 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  public TimeProvider timeProvider() {
+  TimeProvider timeProvider() {
     return new SystemTimeProvider();
+  }
+
+  @Bean
+  OpaqueTokenIntrospector introspector(OidcClientProperties props) {
+    return new DelegatingOpaqueTokenIntrospector(props);
   }
 }

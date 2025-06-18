@@ -16,7 +16,16 @@ spring:
     cache-names: introspect,userinfo
     caffeine:
       spec: ${ESACO_CACHE_SPEC:maximumSize=500,expireAfterWrite=60s}
-      
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    info:
+      access: READ_ONLY
+  
 esaco:
   username: ${ESACO_USER_NAME:user}
   password: ${ESACO_USER_PASSWORD:password}

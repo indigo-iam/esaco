@@ -12,7 +12,7 @@ public class TokenControllerUtils {
 
   protected void accessTokenSanityChecks(String accessToken) {
 
-    if (accessToken.isEmpty() || (accessToken == null)) {
+    if ((accessToken == null) || accessToken.isEmpty()) {
       throw new TokenValidationException(
         "Cannot perform request with empty token");
     }
