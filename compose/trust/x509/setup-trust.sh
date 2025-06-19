@@ -8,7 +8,6 @@ fi
 
 certs_dir=/certs
 ta_dir=/etc/grid-security/certificates
-ca_bundle_prefix=/etc/pki
 
 rm -rf "${certs_dir}"
 mkdir -p "${certs_dir}"
@@ -20,21 +19,24 @@ make_ca.sh
 
 # Create server certificates.
 # This must match the openssl configuration in conf.d/*.conf
-server_name=test_example
-make_cert.sh ${server_name}
+for c in apache_test_example esaco_test_example iam1_test_example iam2_test_example; do
+  make_cert.sh ${c}
+  cp igi_test_ca/certs/${c}.* "${certs_dir}"
+done
 
-cp igi_test_ca/certs/${server_name}.cert.pem "${certs_dir}"/hostcert.pem
-cp igi_test_ca/certs/${server_name}.key.pem "${certs_dir}"/hostkey.pem
-chmod 600 "${certs_dir}"/hostcert.pem
-chmod 400 "${certs_dir}"/hostkey.pem
-
-chown 1000:1000 "${certs_dir}"/*
+chmod 600 "${certs_dir}"/*.cert.pem
+chmod 400 "${certs_dir}"/*.key.pem
+chmod 600 "${certs_dir}"/*.p12
+chown 101:101 "${certs_dir}"/*
 
 make_crl.sh
 install_ca.sh igi_test_ca "${ta_dir}"
 
-# Add igi-test-ca to system certificates
-ca_bundle="${ca_bundle_prefix}"/tls/certs
+# Create a volume for igi-test-ca + system certificates bundle
+system_bundle=/etc/pki/tls/certs/ca-bundle.crt
+buffer_bundle=/debian-ssl/ca-certificates.crt
+mkdir -p /debian-ssl
 
-echo -e "\n# igi-test-ca" >> "${ca_bundle}"/ca-bundle.crt
-cat "${ta_dir}"/igi_test_ca.pem >> "${ca_bundle}"/ca-bundle.crt
+cp "${system_bundle}" "${buffer_bundle}"
+echo -e "\n# igi-test-ca" >> "${buffer_bundle}"
+cat "${ta_dir}"/igi_test_ca.pem >> "${buffer_bundle}"
