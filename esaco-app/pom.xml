@@ -138,29 +138,6 @@
       </plugin>
 
       <plugin>
-        <groupId>com.google.cloud.tools</groupId>
-        <artifactId>jib-maven-plugin</artifactId>
-        <configuration>
-          <!-- Uncomment the following to bootstrap from the debug image (provides 
-            a shell in /busybox/sh) <from> <image>gcr.io/distroless/java:debug</image> 
-            </from> <! -->
-          <to>
-            <image>indigoiam/esaco</image>
-            <tags>
-              <tag>${project.version}</tag>
-              <tag>${git.commit.id.abbrev}</tag>
-              <tag>${git.branch}</tag>
-            </tags>
-          </to>
-          <container>
-            <mainClass>it.infn.mw.esaco.EsacoApplication</mainClass>
-            <appRoot>/esaco</appRoot>
-            <workingDirectory>/esaco</workingDirectory>
-          </container>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.8.12</version>
