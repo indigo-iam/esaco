@@ -9,8 +9,10 @@ import org.springframework.security.oauth2.server.resource.introspection.OAuth2I
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 import it.infn.mw.esaco.service.TokenIntrospectionService;
 
 @Service
@@ -34,9 +36,11 @@ public class SpringTokenIntrospectionAdapter implements TokenIntrospectionServic
     } catch (OAuth2IntrospectionException e) {
       LOGGER.warn("Invalid token during introspection: {}", e.getMessage());
       return Optional.empty();
-    } catch (Exception e) {
-      LOGGER.error("Unexpected error during token introspection", e);
-      throw new RuntimeException("Token introspection failed", e);
+    } catch (UnsupportedIssuerException e) {
+      throw new UnsupportedIssuerException(e.getMessage());
+    } catch (JsonProcessingException e) {
+      LOGGER.error("Failed to serialize token attributes: {}", e.getMessage());
+      return Optional.empty();
     }
   }
 

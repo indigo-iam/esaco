@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
@@ -14,6 +13,7 @@ import com.nimbusds.jwt.JWTParser;
 import it.infn.mw.esaco.OidcClient;
 import it.infn.mw.esaco.OidcClientProperties;
 import it.infn.mw.esaco.exception.TokenValidationException;
+import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 
 @SuppressWarnings("deprecation")
 public class DelegatingOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
@@ -34,7 +34,7 @@ public class DelegatingOpaqueTokenIntrospector implements OpaqueTokenIntrospecto
     String issuer = getIssuerFromAccessToken(token);
     OpaqueTokenIntrospector introspector = introspectors.get(issuer);
     if (introspector == null) {
-      throw new OAuth2AuthenticationException("No introspector for issuer: " + issuer);
+      throw new UnsupportedIssuerException("No introspector for issuer: " + issuer);
     }
     return introspector.introspect(token);
   }

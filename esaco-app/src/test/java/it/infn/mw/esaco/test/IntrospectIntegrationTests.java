@@ -87,8 +87,6 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
       .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.active").value("false"));
-
-
   }
 
   @Test
@@ -101,7 +99,6 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
       .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.unecessary_field").value("unecessary_information"));
-
   }
 
   @Test
@@ -128,6 +125,5 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
       .andExpect(jsonPath("$.eduperson_entitlement",
           hasItems("urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
       .andExpect(jsonPath("$.acr").value("https://aai.egi.eu/LoA#Substantial"));
-
   }
 }
