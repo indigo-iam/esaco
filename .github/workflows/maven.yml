@@ -26,7 +26,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup QEMU
       uses: docker/setup-qemu-action@v3
     - name: Setup Docker Buildx
@@ -46,10 +46,10 @@ jobs:
           type=ref,event=tag
           type=ref,event=branch
     - name: Build & push esaco docker image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         tags: ${{ steps.ls-meta.outputs.tags }}
         labels: ${{ steps.ls-meta.outputs.labels }}
-        context: ./
-        platforms: linux/amd64,linux/arm64
+        context: .
+        #platforms: linux/amd64,linux/arm64
         push: ${{ startsWith(github.ref, 'refs/tags/') }}
