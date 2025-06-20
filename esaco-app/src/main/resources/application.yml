@@ -2,7 +2,7 @@ server:
   port: ${ESACO_BIND_PORT:8156}
   address: ${ESACO_BIND_ADDRESS:0.0.0.0}
 
-  forward-headers-strategy: ${ESACO_USE_FORWARD_HEADERS:none}
+  forward-headers-strategy: ${ESACO_FORWARD_HEADERS_STRATEGY:none}
 
 spring:
   main:
