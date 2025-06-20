@@ -8,7 +8,7 @@ a2enconf openidc
 
 apt install -y curl
 # This is required since the curl installation has overwritten
-# the CA bundle including igi-tes-tca
+# the CA bundle including igi-test-ca
 cp /debian-ssl/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt 
 
 apache2ctl -D FOREGROUND -e debug
