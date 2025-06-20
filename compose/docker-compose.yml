@@ -105,7 +105,8 @@ services:
 
   esaco:
     container_name: esaco
-    image: ${ESACO_IMAGE}:${ESACO_IMAGE_TAG}
+    build:
+      context: ../esaco-app
 
     depends_on:
       - iam-be1
@@ -206,8 +207,6 @@ services:
     volumes:
       - debian-ssl:/debian-ssl
       - ./tests.sh:/script/tests.sh
-
-    entrypoint: /script/tests.sh
 
     networks:
       default:

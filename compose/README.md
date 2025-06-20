@@ -26,7 +26,8 @@ which allows to start the following services
 * _iam-be2_: token issuer hosted at [https://iam2.test.example][iam2]
 * _esaco_: is the ESACO daemon, registered as a client into `iam-be1` and `iam-be2`
 * _apache_: is the Apache daemon hosted at [https://apache.test.example][apache]. It allows access to different resources via IAM tokens. It is not an IAM client: the token validation process is delegated to the `esaco` service
-* _nginx_: used as a reverse proxy for `iam-be1`, `iam-be2`, `esaco` and `apache` services.
+* _nginx_: used as a reverse proxy for `iam-be1`, `iam-be2`, `esaco` and `apache` services
+* _client_: debian container where to run tests.
 
 __Notes:__
 * To resolve the hostname of the services running on localhost please add the following line to your `/etc/hosts` file
