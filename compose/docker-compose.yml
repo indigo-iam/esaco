@@ -63,11 +63,6 @@ services:
       db:
         condition: service_healthy
 
-    networks:
-      default:
-        aliases:
-          - iam1.test.example
-
   iam-be2:
     container_name: iam-be2
     image: ${IAM_IMAGE}:${IAM_IMAGE_TAG}
@@ -98,11 +93,6 @@ services:
       db:
         condition: service_healthy
 
-    networks:
-      default:
-        aliases:
-          - iam2.test.example
-
   esaco:
     container_name: esaco
     build:
@@ -117,17 +107,16 @@ services:
     env_file:
       - env-files/esaco.env
 
+    ports:
+      - "8156:8156"
+
     volumes:
       - /dev/urandom:/dev/random
       - trustanchors:/etc/grid-security/certificates
+      - debian-ssl:/etc/ssl/certs
       - ./application-clients.yml:/app/application-clients.yml
 
-    networks:
-      default:
-        aliases:
-          - iam1.test.example
-          - iam2.test.example
-          - esaco.test.example
+    dns_search: test.example
 
   apache:
     container_name: apache
@@ -148,12 +137,6 @@ services:
       - ./httpd/run.sh:/script/run.sh
 
     entrypoint: /script/run.sh
-
-    networks:
-      default:
-        aliases:
-          - esaco.test.example
-          - apache.test.example
 
   nginx:
     container_name: nginx
@@ -188,6 +171,7 @@ services:
       - ./nginx/iam.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 
+    dns_search: test.example
 
     networks:
       default:
@@ -210,11 +194,3 @@ services:
       - ./tests.sh:/script/tests.sh
 
     entrypoint: sleep infinity
-
-    networks:
-      default:
-        aliases:
-          - iam1.test.example
-          - iam2.test.example
-          - esaco.test.example
-          - apache.test.example
