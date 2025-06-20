@@ -6,4 +6,3 @@ oidc:
       - issuer-url: https://iam2.test.example/
         client-id: password-grant
         client-secret: secret
-

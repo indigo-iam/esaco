@@ -106,7 +106,8 @@ services:
   esaco:
     container_name: esaco
     build:
-      context: ../esaco-app
+      context: ../
+      dockerfile: Dockerfile
 
     depends_on:
       - iam-be1
@@ -119,7 +120,7 @@ services:
     volumes:
       - /dev/urandom:/dev/random
       - trustanchors:/etc/grid-security/certificates
-      - ./application-clients.yml:/esaco/config/application-clients.yml
+      - ./application-clients.yml:/app/application-clients.yml
 
     networks:
       default:
