@@ -3,6 +3,10 @@ volumes:
   debian-ssl:
   certs:
 
+networks:
+  default:
+    name: test.example
+
 services:
 
   trust:
