@@ -1,17 +1,27 @@
 package it.infn.mw.esaco.service.impl;
 
+import java.text.ParseException;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jwt.JWTParser;
 
+import it.infn.mw.esaco.exception.TokenValidationException;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 import it.infn.mw.esaco.service.TokenIntrospectionService;
 
@@ -26,6 +36,9 @@ public class SpringTokenIntrospectionAdapter implements TokenIntrospectionServic
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @Autowired
+  private RestTemplate restTemplate;
 
   @Override
   public Optional<String> introspectToken(String accessToken) {
@@ -46,7 +59,45 @@ public class SpringTokenIntrospectionAdapter implements TokenIntrospectionServic
 
   @Override
   public Optional<String> getUserInfoForToken(String accessToken) {
-    // opzionale
+    try {
+      String issuer = getIssuerFromAccessToken(accessToken);
+
+      String wellKnownUrl = issuer + ".well-known/openid-configuration";
+
+      ResponseEntity<Map<String, Object>> response = restTemplate.exchange(wellKnownUrl,
+          HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, Object>>() {});
+
+      if (!response.getStatusCode().is2xxSuccessful()) {
+        LOGGER.warn("Unable to retrieve OpenID configuration from well-known endpoint");
+        return Optional.empty();
+      }
+
+      String userinfoEndpoint = (String) response.getBody().get("userinfo_endpoint");
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.setBearerAuth(accessToken);
+      HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+      ResponseEntity<String> userinfoResponse =
+          restTemplate.exchange(userinfoEndpoint, HttpMethod.GET, entity, String.class);
+
+      if (userinfoResponse.getStatusCode().is2xxSuccessful()) {
+        return Optional.ofNullable(userinfoResponse.getBody());
+      } else {
+        LOGGER.warn("Call to userinfo endpoint failed with status {}",
+            userinfoResponse.getStatusCode());
+      }
+    } catch (Exception e) {
+      LOGGER.error("Error while retrieving endpoint userinfo", e);
+    }
     return Optional.empty();
+  }
+
+  private String getIssuerFromAccessToken(String accessToken) {
+    try {
+      return JWTParser.parse(accessToken).getJWTClaimsSet().getIssuer();
+    } catch (ParseException e) {
+      throw new TokenValidationException("Error reading issuer claim from access token", e);
+    }
   }
 }

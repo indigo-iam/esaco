@@ -8,15 +8,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonInclude(Include.NON_EMPTY)
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class IamIntrospection {
 
   private final boolean active;
-  private final String scope;
+  private final String[] scope;
   private final String expiresAt;
   private final Long exp;
   private final String sub;
@@ -36,15 +36,14 @@ public class IamIntrospection {
 
   @JsonCreator
   public IamIntrospection(@JsonProperty("active") boolean active,
-      @JsonProperty("scope") String scope, @JsonProperty("expires_at") String expiresAt,
-      @JsonProperty("exp") Long exp, @JsonProperty("iss") String iss, @JsonProperty("sub") String sub,
-      @JsonProperty("user_id") String userId, @JsonProperty("client_id") String clientId,
-      @JsonProperty("token_type") String tokenType, @JsonProperty("groups") String[] groups,
+      @JsonProperty("scope") String[] scope, @JsonProperty("expires_at") String expiresAt,
+      @JsonProperty("exp") Long exp, @JsonProperty("iss") String iss,
+      @JsonProperty("sub") String sub, @JsonProperty("user_id") String userId,
+      @JsonProperty("client_id") String clientId, @JsonProperty("token_type") String tokenType,
+      @JsonProperty("groups") String[] groups,
       @JsonProperty("preferred_username") String preferredUsername,
-      @JsonProperty("organisation_name") String organisationName,
-      @JsonProperty("name") String name,
-      @JsonProperty("email") String email,
-      @JsonProperty("groupNames") String[] groupNames,
+      @JsonProperty("organisation_name") String organisationName, @JsonProperty("name") String name,
+      @JsonProperty("email") String email, @JsonProperty("groupNames") String[] groupNames,
       @JsonProperty("edu_person_entitlements") String[] eduPersonEntitlements,
       @JsonProperty("eduperson_entitlement") String[] eduPersonEntitlement,
       @JsonProperty("acr") String acr) {
@@ -101,7 +100,7 @@ public class IamIntrospection {
   }
 
 
-  public String getScope() {
+  public String[] getScope() {
 
     return scope;
   }
@@ -310,7 +309,4 @@ public class IamIntrospection {
       return false;
     return true;
   }
-
-
-
 }

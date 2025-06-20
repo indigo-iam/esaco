@@ -34,7 +34,7 @@ public class EsacoTestUtils {
   protected final IamIntrospection VALID_INTROSPECTION = IamIntrospection
     .getBuilder()
     .isActive(true)
-    .scope("openid profile")
+    .scope(new String[] {"openid", "profile"})
     .expiresAt("2017-09-04T16:09:03+0200")
     .exp(1504534143L)
     .iss(ISS)
@@ -76,7 +76,7 @@ public class EsacoTestUtils {
   protected final IamIntrospection CLIENT_CRED_INTROSPECTION = IamIntrospection
     .getBuilder()
     .isActive(true)
-    .scope("read-tasks write-tasks")
+    .scope(new String[] {"read-tasks", "write-tasks"})
     .expiresAt("2017-09-05T15:57:22+0200")
     .exp(1504619842L)
     .sub("client-cred")

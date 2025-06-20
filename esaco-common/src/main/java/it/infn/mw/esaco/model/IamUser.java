@@ -8,11 +8,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonInclude(Include.NON_NULL)
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class IamUser {
 
   private final String sub;
@@ -248,8 +248,8 @@ public class IamUser {
     return eduPersonEntitlements;
   }
 
-    @JsonProperty("eduperson_entitlement")
-    public String[] getEduPersonEntitlement() {
+  @JsonProperty("eduperson_entitlement")
+  public String[] getEduPersonEntitlement() {
 
     return eduPersonEntitlement;
   }

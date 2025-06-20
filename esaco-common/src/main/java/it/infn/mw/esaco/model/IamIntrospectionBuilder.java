@@ -2,7 +2,7 @@ package it.infn.mw.esaco.model;
 
 public class IamIntrospectionBuilder {
   boolean active;
-  String scope;
+  String[] scope;
   String expiresAt;
   Long exp;
   String iss;
@@ -25,7 +25,7 @@ public class IamIntrospectionBuilder {
     return this;
   }
 
-  public IamIntrospectionBuilder scope(String scope) {
+  public IamIntrospectionBuilder scope(String[] scope) {
     this.scope = scope;
     return this;
   }
