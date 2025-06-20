@@ -119,7 +119,7 @@ services:
     volumes:
       - /dev/urandom:/dev/random
       - trustanchors:/etc/grid-security/certificates
-      - ./application.yml:/esaco/config/application.yml
+      - ./application-clients.yml:/esaco/config/application-clients.yml
 
     networks:
       default:

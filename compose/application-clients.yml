@@ -7,5 +7,3 @@ oidc:
         client-id: password-grant
         client-secret: secret
 
-x509:
-  use-jvm-trust-anchors: false

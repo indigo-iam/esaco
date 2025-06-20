@@ -29,15 +29,6 @@ management:
 esaco:
   username: ${ESACO_USER_NAME:user}
   password: ${ESACO_USER_PASSWORD:password}
-        
-oidc:
-  clients:
-      - issuer-url: http://localhost:8080/
-        client-id: password-grant
-        client-secret: secret
-      - issuer-url: https://iam.local.io/
-        client-id: argus-oidc-client-id
-        client-secret: argus-oidc-client-secret
 
 x509:
   use-jvm-trust-anchors:  ${X509_USE_JVM_TRUST_ANCHORS:true}
