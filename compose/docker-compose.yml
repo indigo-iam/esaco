@@ -52,6 +52,13 @@ services:
       - trustanchors:/etc/grid-security/certificates
       - ./iam/keystore.jwks:/indigo-iam/config/keystore.jwks:ro
 
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:8080/actuator/health"]
+      interval: 7s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
     depends_on:
       db:
         condition: service_healthy
@@ -79,6 +86,13 @@ services:
       - trustanchors:/etc/grid-security/certificates
       - /dev/urandom:/dev/random
       - ./iam/keystore.jwks:/indigo-iam/config/keystore.jwks:ro
+
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:8080/actuator/health"]
+      interval: 7s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
 
     depends_on:
       db:
@@ -147,9 +161,9 @@ services:
       trust:
         condition: service_completed_successfully
       iam-be1:
-        condition: service_started
+        condition: service_healthy
       iam-be2:
-        condition: service_started
+        condition: service_healthy
       esaco:
         condition: service_started
       apache:
@@ -172,6 +186,28 @@ services:
       - ./nginx/iam.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 
+
+    networks:
+      default:
+        aliases:
+          - iam1.test.example
+          - iam2.test.example
+          - esaco.test.example
+          - apache.test.example
+
+  client:
+    container_name: client
+    image: ${CLIENT_IMAGE}:${CLIENT_IMAGE_TAG}
+
+    depends_on:
+      nginx:
+        condition: service_started
+
+    volumes:
+      - debian-ssl:/debian-ssl
+      - ./tests.sh:/script/tests.sh
+
+    entrypoint: /script/tests.sh
 
     networks:
       default:
