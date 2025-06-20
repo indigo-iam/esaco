@@ -208,6 +208,8 @@ services:
       - debian-ssl:/debian-ssl
       - ./tests.sh:/script/tests.sh
 
+    entrypoint: sleep infinity
+
     networks:
       default:
         aliases:
