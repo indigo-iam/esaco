@@ -15,14 +15,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.JWTParser;
 
+import it.infn.mw.esaco.exception.InvalidClientCredentialsException;
 import it.infn.mw.esaco.exception.TokenValidationException;
-import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 import it.infn.mw.esaco.service.TokenIntrospectionService;
 
 @Service
@@ -47,10 +48,14 @@ public class SpringTokenIntrospectionAdapter implements TokenIntrospectionServic
       String json = objectMapper.writeValueAsString(auth.getAttributes());
       return Optional.of(json);
     } catch (OAuth2IntrospectionException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof HttpClientErrorException.Unauthorized http401) {
+        LOGGER.warn("Unauthorized client credentials during introspection: {}",
+            http401.getResponseBodyAsString());
+        throw new InvalidClientCredentialsException("Bad credentials");
+      }
       LOGGER.warn("Invalid token during introspection: {}", e.getMessage());
       return Optional.empty();
-    } catch (UnsupportedIssuerException e) {
-      throw new UnsupportedIssuerException(e.getMessage());
     } catch (JsonProcessingException e) {
       LOGGER.error("Failed to serialize token attributes: {}", e.getMessage());
       return Optional.empty();

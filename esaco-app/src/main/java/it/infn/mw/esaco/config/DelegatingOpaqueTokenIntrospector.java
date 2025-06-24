@@ -1,11 +1,15 @@
 package it.infn.mw.esaco.config;
 
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.web.client.RestTemplate;
 
 import com.nimbusds.jwt.JWTParser;
@@ -20,16 +24,30 @@ public class DelegatingOpaqueTokenIntrospector implements OpaqueTokenIntrospecto
   private final Map<String, OpaqueTokenIntrospector> introspectors;
 
   public DelegatingOpaqueTokenIntrospector(OidcClientProperties properties,
-      RestTemplate restTemplate) {
+      RestTemplate baseRestTemplate) {
     this.introspectors = properties.getClients()
       .stream()
       .collect(Collectors.toMap(OidcClient::getIssuerUrl,
-          client -> createIntrospector(client, restTemplate), (existing, replacement) -> existing));
+          client -> new SpringOpaqueTokenIntrospector(client.getIssuerUrl() + "/introspect",
+              introspectionRestTemplate(baseRestTemplate, client.getClientId(),
+                  client.getClientSecret())),
+          (existing, replacement) -> existing));
   }
 
-  private OpaqueTokenIntrospector createIntrospector(OidcClient client, RestTemplate restTemplate) {
-    return new CustomRestTemplateOpaqueTokenIntrospector(client.getIssuerUrl() + "/introspect",
-        client.getClientId(), client.getClientSecret(), restTemplate);
+  private RestTemplate introspectionRestTemplate(RestTemplate baseTemplate, String clientId,
+      String clientSecret) {
+    RestTemplate introspectionTemplate = new RestTemplate(baseTemplate.getRequestFactory());
+    introspectionTemplate.setMessageConverters(baseTemplate.getMessageConverters());
+
+    String credentials = Base64.getEncoder()
+      .encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
+
+    introspectionTemplate.getInterceptors().add((request, body, execution) -> {
+      request.getHeaders().add(HttpHeaders.AUTHORIZATION, "Basic " + credentials);
+      return execution.execute(request, body);
+    });
+
+    return introspectionTemplate;
   }
 
   @Override

@@ -37,5 +37,4 @@ public class TokenInfoController extends TokenControllerUtils {
 
     return new TokenInfo(token, introspection, info);
   }
-
 }

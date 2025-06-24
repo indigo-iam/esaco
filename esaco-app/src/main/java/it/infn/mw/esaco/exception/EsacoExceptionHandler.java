@@ -42,9 +42,16 @@ public class EsacoExceptionHandler extends ResponseEntityExceptionHandler {
     return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
   }
 
+  @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+  @ExceptionHandler(InvalidClientCredentialsException.class)
+  @ResponseBody
+  public ErrorResponse handleInvalidClientCredsException(InvalidClientCredentialsException e) {
+
+    return buildErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
+  }
+
   private ErrorResponse buildErrorResponse(HttpStatus status, String message) {
 
     return new ErrorResponse(status.value(), status.getReasonPhrase(), message);
   }
-
 }
