@@ -38,9 +38,9 @@ __Notes:__
 * The services use a test certificate (the DN contains `*.test.example`) issued by a Test CA. To avoid warnings from the browser add it among the Authorities: copy the Test CA certificate from the container to the current directory with
 
   ```
-  $ docker-compose cp trust:/etc/grid-security/certificates/igi-test-ca.pem .
+  $ docker compose cp trust:/etc/grid-security/certificates/igi_test_ca.pem .
   ```
-* To allow SSL handshake in the next `curl` commands (now ignored with the `-k` option), use the specified Test CA certificate file with `--cacert igi-test-ca.pem`.
+* To allow SSL handshake in the next `curl` commands (now ignored with the `-k` option), use the specified Test CA certificate file with `--cacert igi_test_ca.pem`.
 
 ## Apache
 
