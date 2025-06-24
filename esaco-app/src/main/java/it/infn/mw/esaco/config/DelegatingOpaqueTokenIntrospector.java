@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.web.client.RestTemplate;
 
 import com.nimbusds.jwt.JWTParser;
 
@@ -15,18 +15,21 @@ import it.infn.mw.esaco.OidcClientProperties;
 import it.infn.mw.esaco.exception.TokenValidationException;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 
-@SuppressWarnings("deprecation")
 public class DelegatingOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
   private final Map<String, OpaqueTokenIntrospector> introspectors;
 
-  public DelegatingOpaqueTokenIntrospector(OidcClientProperties properties) {
+  public DelegatingOpaqueTokenIntrospector(OidcClientProperties properties,
+      RestTemplate restTemplate) {
     this.introspectors = properties.getClients()
       .stream()
       .collect(Collectors.toMap(OidcClient::getIssuerUrl,
-          client -> new NimbusOpaqueTokenIntrospector(client.getIssuerUrl() + "/introspect",
-              client.getClientId(), client.getClientSecret()),
-          (existing, replacement) -> existing));
+          client -> createIntrospector(client, restTemplate), (existing, replacement) -> existing));
+  }
+
+  private OpaqueTokenIntrospector createIntrospector(OidcClient client, RestTemplate restTemplate) {
+    return new CustomRestTemplateOpaqueTokenIntrospector(client.getIssuerUrl() + "/introspect",
+        client.getClientId(), client.getClientSecret(), restTemplate);
   }
 
   @Override

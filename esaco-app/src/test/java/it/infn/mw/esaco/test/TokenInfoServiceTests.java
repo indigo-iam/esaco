@@ -14,9 +14,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,7 +33,6 @@ import it.infn.mw.esaco.service.impl.SpringTokenIntrospectionAdapter;
 import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 import it.infn.mw.esaco.test.utils.MockTimeProvider;
 
-@SuppressWarnings("removal")
 @ContextConfiguration(classes = {EsacoApplication.class})
 @SpringBootTest
 @ActiveProfiles("test")
@@ -48,7 +47,7 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   @Qualifier("mockTimeProvider")
   private MockTimeProvider timeProvider;
 
-  @MockBean
+  @MockitoBean
   private SpringTokenIntrospectionAdapter introspectionService;
 
   @Autowired

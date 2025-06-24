@@ -6,6 +6,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Collections;
 
 import javax.net.ssl.SSLContext;
@@ -16,7 +17,7 @@ import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.util.Timeout;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
@@ -34,11 +35,11 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import eu.emi.security.authn.x509.ProxySupport;
+import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.emi.security.authn.x509.impl.DirectoryCertChainValidator;
 import eu.emi.security.authn.x509.impl.RevocationParametersExt;
-import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 import eu.emi.security.authn.x509.impl.ValidatorParamsExt;
 import it.infn.mw.esaco.config.DelegatingOpaqueTokenIntrospector;
 import it.infn.mw.esaco.exception.SSLContextInitializationError;
@@ -46,7 +47,6 @@ import it.infn.mw.esaco.service.TimeProvider;
 import it.infn.mw.esaco.service.impl.SystemTimeProvider;
 import it.infn.mw.esaco.util.x509.X509BlindTrustManager;
 
-@SuppressWarnings("deprecation")
 @Configuration
 @EnableAutoConfiguration
 @EnableConfigurationProperties(OidcClientProperties.class)
@@ -88,21 +88,39 @@ public class EsacoConfiguration {
 
   @Bean
   X509TrustManager trustManager() throws CertificateException {
-
+    X509CertChainValidator validator;
     switch (x509Properties.getTrustAnchorsType()) {
       case DIR:
-        // reading trust anchors from a grid-style PEM directory
-        return SocketFactoryCreator.getSSLTrustManager(certificateValidator());
+        validator = certificateValidator();
+        break;
       case BUNDLE:
-        // reading trust anchors from PEMs in a bundle, no CRLs, no proxies
-        return SocketFactoryCreator.getSSLTrustManager(bundleValidator());
+        validator = bundleValidator();
+        break;
       case NONE:
-        // blind & trusting, not for production use
         return new X509BlindTrustManager();
       default:
         throw new CertificateException(
             "Unsupported trust anchors type: " + x509Properties.getTrustAnchorsType());
     }
+
+    return new X509TrustManager() {
+      @Override
+      public void checkClientTrusted(X509Certificate[] chain, String authType)
+          throws CertificateException {
+        validator.validate(chain);
+      }
+
+      @Override
+      public void checkServerTrusted(X509Certificate[] chain, String authType)
+          throws CertificateException {
+        validator.validate(chain);
+      }
+
+      @Override
+      public X509Certificate[] getAcceptedIssuers() {
+        return new X509Certificate[0];
+      }
+    };
   }
 
   @Bean
@@ -127,11 +145,11 @@ public class EsacoConfiguration {
 
   @Bean
   HttpClient httpClient() throws Exception {
-    SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext());
+    DefaultClientTlsStrategy sslSocketFactory = new DefaultClientTlsStrategy(sslContext());
 
     PoolingHttpClientConnectionManager connectionManager =
         PoolingHttpClientConnectionManagerBuilder.create()
-          .setSSLSocketFactory(sslSocketFactory)
+          .setTlsSocketStrategy(sslSocketFactory)
           .build();
 
     connectionManager.setMaxTotal(10);
@@ -169,7 +187,7 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  OpaqueTokenIntrospector introspector(OidcClientProperties props) {
-    return new DelegatingOpaqueTokenIntrospector(props);
+  OpaqueTokenIntrospector introspector(OidcClientProperties props, RestTemplate restTemplate) {
+    return new DelegatingOpaqueTokenIntrospector(props, restTemplate);
   }
 }
