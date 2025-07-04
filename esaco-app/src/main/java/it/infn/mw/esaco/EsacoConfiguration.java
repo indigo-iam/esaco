@@ -1,13 +1,16 @@
 package it.infn.mw.esaco;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Collections;
+import java.util.function.Function;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -26,6 +29,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -169,8 +173,28 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  RestTemplate restTemplate() throws Exception {
+  RestTemplate defaultRestTemplate() throws Exception {
     return new RestTemplate(httpRequestFactory());
+  }
+
+  @Bean
+  Function<OidcClient, RestTemplate> introspectionRestTemplateFactory(
+      RestTemplate defaultRestTemplate) {
+    return client -> {
+      RestTemplate introspectionTemplate =
+          new RestTemplate(defaultRestTemplate.getRequestFactory());
+
+      String credentials = Base64.getEncoder()
+        .encodeToString((client.getClientId() + ":" + client.getClientSecret())
+          .getBytes(StandardCharsets.UTF_8));
+
+      introspectionTemplate.getInterceptors().add((request, body, execution) -> {
+        request.getHeaders().add(HttpHeaders.AUTHORIZATION, "Basic " + credentials);
+        return execution.execute(request, body);
+      });
+
+      return introspectionTemplate;
+    };
   }
 
   @Bean
@@ -187,7 +211,8 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  OpaqueTokenIntrospector introspector(OidcClientProperties props, RestTemplate restTemplate) {
-    return new DelegatingOpaqueTokenIntrospector(props, restTemplate);
+  OpaqueTokenIntrospector introspector(OidcClientProperties props,
+      Function<OidcClient, RestTemplate> restTemplateFactory) {
+    return new DelegatingOpaqueTokenIntrospector(props, restTemplateFactory);
   }
 }
