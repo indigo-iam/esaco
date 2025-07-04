@@ -63,15 +63,12 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
 
     given(tokenInfoService.parseJWTAccessToken(Mockito.anyString())).willCallRealMethod();
 
-    given(tokenInfoService.introspectToken(VALID_JWT))
-      .willReturn(mapper.writeValueAsString(VALID_INTROSPECTION));
+    given(tokenInfoService.introspectToken(VALID_JWT)).willReturn(VALID_INTROSPECTION);
     given(tokenInfoService.decodeUserInfo(VALID_JWT)).willReturn(VALID_USERINFO);
 
-    given(tokenInfoService.introspectToken(EXPIRED_JWT))
-      .willReturn(mapper.writeValueAsString(EXPIRED_INTROSPECTION));
+    given(tokenInfoService.introspectToken(EXPIRED_JWT)).willReturn(EXPIRED_INTROSPECTION);
 
-    given(tokenInfoService.introspectToken(CLIENT_CRED_JWT))
-      .willReturn(mapper.writeValueAsString(CLIENT_CRED_INTROSPECTION));
+    given(tokenInfoService.introspectToken(CLIENT_CRED_JWT)).willReturn(CLIENT_CRED_INTROSPECTION);
 
     given(tokenInfoService.decodeUserInfo(CLIENT_CRED_JWT)).willReturn(null);
 
@@ -124,7 +121,7 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
     assertNotNull(tokenInfo);
 
     AccessToken accessToken = tokenInfo.getAccessToken();
-    String introspection = tokenInfo.getIntrospection();
+    IamIntrospection introspection = tokenInfo.getIntrospection();
     IamUser userinfo = tokenInfo.getUserinfo();
 
     assertNotNull(accessToken);
@@ -135,28 +132,21 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
     assertThat(accessToken.getIssuer()).isEqualTo(ISS);
     assertThat(accessToken.getSubject()).isEqualTo(SUB);
 
-    IamIntrospection iamIntrospection = mapper.readValue(introspection, IamIntrospection.class);
+    assertThat(introspection.isActive()).isTrue();
+    assertThat(introspection.getAdditionalFields().get("user_id")).isEqualTo(USERNAME);
+    assertThat(introspection.getAdditionalFields().get("client_id")).isEqualTo(CLIENT_ID);
+    assertThat(introspection.getAdditionalFields().get("token_type")).isEqualTo(TOKEN_TYPE);
+    assertThat(introspection.getAdditionalFields().get("organisation_name")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("entitlements")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("eduperson_entitlement")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("acr")).isNotNull();
 
-    assertThat(iamIntrospection.isActive()).isTrue();
-    assertThat(iamIntrospection.getUserId()).isEqualTo(USERNAME);
-    assertThat(iamIntrospection.getClientId()).isEqualTo(CLIENT_ID);
-    assertThat(iamIntrospection.getTokenType()).isEqualTo(TOKEN_TYPE);
-    assertThat(iamIntrospection.getOrganisationName()).isNotBlank();
-    assertThat(iamIntrospection.getGroupNames()).isInstanceOf(String[].class).isNotEmpty();
-    assertThat(iamIntrospection.getEduPersonEntitlements()).isInstanceOf(String[].class)
-      .isNotEmpty();
-    assertThat(iamIntrospection.getEduPersonEntitlement()).isInstanceOf(String[].class)
-      .isNotEmpty();
-    assertThat(iamIntrospection.getAcr()).isNotBlank();
-
-    assertThat(userinfo.getPreferredUsername()).isEqualTo(USERNAME);
-    assertThat(userinfo.getGroups()).isInstanceOf(String[].class).isNotEmpty();
-    assertThat(userinfo.getOrganisationName()).isNotBlank();
-    assertThat(userinfo.getGroupNames()).isInstanceOf(String[].class).isNotEmpty();
-    assertThat(userinfo.getEduPersonEntitlements()).isInstanceOf(String[].class).isNotEmpty();
-    assertThat(userinfo.getEduPersonEntitlement()).isInstanceOf(String[].class).isNotEmpty();
-    assertThat(userinfo.getAcr()).isNotBlank();
-
+    assertThat(userinfo.getAdditionalFields().get("preferred_username")).isEqualTo(USERNAME);
+    assertThat(userinfo.getAdditionalFields().get("groups")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("organisation_name")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("entitlements")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("eduperson_entitlement")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("acr")).isNotNull();
   }
 
   @Test
@@ -167,7 +157,7 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
       .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.introspection").exists())
-      .andExpect(jsonPath("$.introspection", equalTo(format("{\"active\":false}"))));
+      .andExpect(jsonPath("$.introspection.active", equalTo(false)));
   }
 
   @Test
@@ -192,13 +182,12 @@ public class TokenInfoControllerTests extends EsacoTestUtils {
     assertThat(accessToken.getIssuer()).isEqualTo(ISS);
     assertThat(accessToken.getSubject()).isEqualTo("client-cred");
 
-    String introspection = tokenInfo.getIntrospection();
+    IamIntrospection introspection = tokenInfo.getIntrospection();
 
-    IamIntrospection iamIntrospection = mapper.readValue(introspection, IamIntrospection.class);
 
-    assertThat(iamIntrospection.isActive()).isTrue();
-    assertThat(iamIntrospection.getClientId()).isEqualTo("client-cred");
-    assertThat(iamIntrospection.getTokenType()).isEqualTo(TOKEN_TYPE);
+    assertThat(introspection.isActive()).isTrue();
+    assertThat(introspection.getAdditionalFields().get("client_id")).isEqualTo("client-cred");
+    assertThat(introspection.getAdditionalFields().get("token_type")).isEqualTo(TOKEN_TYPE);
   }
 
   @Test

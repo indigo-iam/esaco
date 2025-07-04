@@ -75,23 +75,19 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   @Test
   public void testIntrospectWithValidToken() throws Exception {
 
-    String introspection = tokenService.introspectToken(VALID_JWT);
+    IamIntrospection introspection = tokenService.introspectToken(VALID_JWT);
 
     assertThat(introspection).isNotNull();
 
-    IamIntrospection iamIntrospection = mapper.readValue(introspection, IamIntrospection.class);
-
-    assertThat(iamIntrospection.isActive()).isTrue();
-    assertThat(iamIntrospection.getUserId()).isEqualTo(USERNAME);
-    assertThat(iamIntrospection.getClientId()).isEqualTo(CLIENT_ID);
-    assertThat(iamIntrospection.getTokenType()).isEqualTo(TOKEN_TYPE);
-    assertThat(iamIntrospection.getOrganisationName()).isNotBlank();
-    assertThat(iamIntrospection.getGroupNames()).isInstanceOf(String[].class).isNotEmpty();
-    assertThat(iamIntrospection.getEduPersonEntitlements()).isInstanceOf(String[].class)
-      .isNotEmpty();
-    assertThat(iamIntrospection.getEduPersonEntitlement()).isInstanceOf(String[].class)
-      .isNotEmpty();
-    assertThat(iamIntrospection.getAcr()).isNotBlank();
+    assertThat(introspection.isActive()).isTrue();
+    assertThat(introspection.getAdditionalFields().get("user_id")).isEqualTo(USERNAME);
+    assertThat(introspection.getAdditionalFields().get("client_id")).isEqualTo(CLIENT_ID);
+    assertThat(introspection.getAdditionalFields().get("token_type")).isEqualTo(TOKEN_TYPE);
+    assertThat(introspection.getAdditionalFields().get("organisation_name")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("groups")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("entitlements")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("eduperson_entitlement")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("acr")).isNotNull();
   }
 
   @Test
@@ -101,13 +97,12 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
 
     assertNotNull(userinfo);
 
-    assertThat(userinfo.getPreferredUsername()).isEqualTo(USERNAME);
-    assertThat(userinfo.getGroups()).isInstanceOf(String[].class).isNotEmpty();
-    assertThat(userinfo.getOrganisationName()).isNotBlank();
-    assertThat(userinfo.getGroupNames()).isInstanceOf(String[].class).isNotEmpty();
-    assertThat(userinfo.getEduPersonEntitlements()).isInstanceOf(String[].class).isNotEmpty();
-    assertThat(userinfo.getEduPersonEntitlement()).isInstanceOf(String[].class).isNotEmpty();
-    assertThat(userinfo.getAcr()).isNotBlank();
+    assertThat(userinfo.getAdditionalFields().get("preferred_username")).isEqualTo(USERNAME);
+    assertThat(userinfo.getAdditionalFields().get("groups")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("organisation_name")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("entitlements")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("eduperson_entitlement")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("acr")).isNotNull();
   }
 
   @Test

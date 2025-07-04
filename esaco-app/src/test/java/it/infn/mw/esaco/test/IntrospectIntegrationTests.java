@@ -118,8 +118,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
       .andExpect(jsonPath("$.groups", hasItems("Production", "Analysis")))
       .andExpect(jsonPath("$.token_type", is("Bearer")))
       .andExpect(jsonPath("$.expires_at").exists())
-      .andExpect(jsonPath("$.groupNames", hasItems("Production", "Analysis")))
-      .andExpect(jsonPath("$.edu_person_entitlements",
+      .andExpect(jsonPath("$.eduperson_entitlement",
           hasItems("urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
       .andExpect(jsonPath("$.eduperson_entitlement",
           hasItems("urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu")))
