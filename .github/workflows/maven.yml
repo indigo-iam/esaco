@@ -26,20 +26,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        distribution: temurin
-        java-version: 17
-    - name: Cache Maven packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-    - name: Build with Maven
-      run: mvn -B package
+    - uses: actions/checkout@v4
     - name: Setup QEMU
       uses: docker/setup-qemu-action@v3
     - name: Setup Docker Buildx
@@ -59,10 +46,11 @@ jobs:
           type=ref,event=tag
           type=ref,event=branch
     - name: Build & push esaco docker image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         tags: ${{ steps.ls-meta.outputs.tags }}
         labels: ${{ steps.ls-meta.outputs.labels }}
-        context: esaco-app
-        platforms: linux/amd64,linux/arm64
+        context: .
+        # Uncomment if Dockerfile FROM changes
+        #platforms: linux/amd64,linux/arm64
         push: ${{ startsWith(github.ref, 'refs/tags/') }}
