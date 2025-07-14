@@ -15,11 +15,14 @@ FROM eclipse-temurin:17
 ENV ESACO_JAVA_OPTS="-Dspring.profiles.active=prod"
 ARG DEPENDENCY=/esaco/app/esaco-app/target/dependency
 
-COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
-COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
+RUN mkdir /esaco
+WORKDIR /esaco
+
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib ./lib
+COPY --from=build ${DEPENDENCY}/META-INF ./META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes ./
 
 RUN mkdir -p /etc/grid-security/certificates
 
 SHELL ["/bin/bash", "-c"]
-ENTRYPOINT java ${ESACO_JAVA_OPTS} -cp app:app/lib/* it.infn.mw.esaco.EsacoApplication
+ENTRYPOINT java ${ESACO_JAVA_OPTS} -cp ./:./lib/* it.infn.mw.esaco.EsacoApplication

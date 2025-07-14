@@ -118,7 +118,7 @@ services:
       - /dev/urandom:/dev/random
       - trustanchors:/etc/grid-security/certificates
       - debian-ssl:/etc/ssl/certs
-      - ./application-clients.yml:/app/application-clients.yml
+      - ./application-clients.yml:/esaco/config/application-clients.yml
 
     dns_search: test.example
 
