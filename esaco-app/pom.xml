@@ -101,12 +101,11 @@
       <groupId>org.italiangrid</groupId>
       <artifactId>voms-api-java</artifactId>
     </dependency>
-    
+
     <dependency>
-	  <groupId>com.nimbusds</groupId>
-	  <artifactId>oauth2-oidc-sdk</artifactId>
-	  <version>10.4</version>
-	</dependency>
+      <groupId>com.nimbusds</groupId>
+      <artifactId>oauth2-oidc-sdk</artifactId>
+    </dependency>
 
   </dependencies>
 
