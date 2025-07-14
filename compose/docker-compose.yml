@@ -1,0 +1,200 @@
+volumes:
+  trustanchors:
+  debian-ssl:
+  certs:
+
+networks:
+  default:
+    name: test.example
+
+services:
+
+  trust:
+    build:
+      context: ./trust
+    volumes:
+      - trustanchors:/etc/grid-security/certificates
+      - certs:/certs
+      - debian-ssl:/debian-ssl
+
+  db:
+    image: ${DB_IMAGE}:${DB_IMAGE_TAG}
+    container_name: db
+    hostname: db
+    volumes:
+     - ./db/iam-test-dump.sql:/docker-entrypoint-initdb.d/iam-test-dump.sql
+    
+    env_file:
+      - ./env-files/db.env
+
+    ports:
+      - "3307:3307"
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "3307", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 0s
+
+  iam-be1:
+    container_name: iam-be1
+    image: ${IAM_IMAGE}:${IAM_IMAGE_TAG}
+
+    env_file:
+      - env-files/iam.env
+      - ./iam/keystore.env
+
+    environment:
+      IAM_HOST: iam1.test.example
+      IAM_BASE_URL: https://iam1.test.example
+      IAM_ISSUER: https://iam1.test.example/
+      IAM_ORGANISATION_NAME: iam1
+
+    volumes:
+      - /dev/urandom:/dev/random
+      - trustanchors:/etc/grid-security/certificates
+      - ./iam/keystore.jwks:/indigo-iam/config/keystore.jwks:ro
+
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:8080/actuator/health"]
+      interval: 7s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+  iam-be2:
+    container_name: iam-be2
+    image: ${IAM_IMAGE}:${IAM_IMAGE_TAG}
+
+    env_file:
+      - env-files/iam.env
+      - ./iam/keystore.env
+
+    environment:
+      IAM_HOST: iam2.test.example
+      IAM_BASE_URL: https://iam2.test.example
+      IAM_ISSUER: https://iam2.test.example/
+      IAM_ORGANISATION_NAME: iam2
+
+    volumes:
+      - trustanchors:/etc/grid-security/certificates
+      - /dev/urandom:/dev/random
+      - ./iam/keystore.jwks:/indigo-iam/config/keystore.jwks:ro
+
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:8080/actuator/health"]
+      interval: 7s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+  esaco:
+    container_name: esaco
+    build:
+      context: ../
+      dockerfile: Dockerfile
+
+    depends_on:
+      - iam-be1
+      - iam-be2
+      - trust
+
+    env_file:
+      - env-files/esaco.env
+
+    ports:
+      - "8156:8156"
+
+    volumes:
+      - /dev/urandom:/dev/random
+      - trustanchors:/etc/grid-security/certificates
+      - debian-ssl:/etc/ssl/certs
+      - ./application-clients.yml:/esaco/config/application-clients.yml
+
+    dns_search: test.example
+
+  apache:
+    container_name: apache
+    image: ${APACHE_IMAGE}:${APACHE_IMAGE_TAG}
+
+    depends_on:
+      - esaco
+      - trust
+
+    env_file:
+      - env-files/apache.env
+
+    volumes:
+      - /dev/urandom:/dev/random
+      - debian-ssl:/debian-ssl
+      - ./httpd/openidc.conf:/etc/apache2/conf-available/openidc.conf:ro
+      - ./httpd/public-html:/var/www/html
+      - ./httpd/run.sh:/script/run.sh
+
+    entrypoint: /script/run.sh
+
+  nginx:
+    container_name: nginx
+    image: ${NGINX_IMAGE}:${NGINX_IMAGE_TAG}
+
+    depends_on:
+      trust:
+        condition: service_completed_successfully
+      iam-be1:
+        condition: service_healthy
+      iam-be2:
+        condition: service_healthy
+      esaco:
+        condition: service_started
+      apache:
+        condition: service_started
+
+    environment:
+      TZ: Europe/Rome
+      NGINX_HOST: nginx
+      NGINX_PORT: 443
+      X509_VOMS_DIR: /vomsdir
+
+    ports:
+      - "443:443"
+      - "80:80"
+
+    volumes:
+      - /dev/urandom:/dev/random
+      - debian-ssl:/etc/ssl/certs
+      - certs:/certs
+      - ./nginx/iam.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+    dns_search: test.example
+
+    networks:
+      default:
+        aliases:
+          - iam1.test.example
+          - iam2.test.example
+          - esaco.test.example
+          - apache.test.example
+
+  client:
+    container_name: client
+    image: ${CLIENT_IMAGE}:${CLIENT_IMAGE_TAG}
+
+    depends_on:
+      nginx:
+        condition: service_started
+
+    volumes:
+      - debian-ssl:/debian-ssl
+      - ./tests.sh:/script/tests.sh
+
+    entrypoint: sleep infinity

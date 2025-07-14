@@ -40,7 +40,7 @@ These defaults can be changed by setting the `ESACO_USER_NAME` and
 `ESACO_USER_PASSWORD` environment variables. 
 
 ESACO should be deployed behind a reverse proxy used to terminate TLS. When
-deploying behind a reverse proxy, set the `ESACO_USE_FORWARD_HEADERS`
+deploying behind a reverse proxy, set the `ESACO_FORWARD_HEADERS_STRATEGY`
 environment variable to true.
 
 #### Authorization server configuration
@@ -97,7 +97,7 @@ ESACO_BIND_PORT=8156
 ESACO_BIND_ADDRESS=0.0.0.0
 
 # Set this to true when deploying behind a reverse proxy (nginx)
-ESACO_USE_FORWARD_HEADERS=false
+ESACO_FORWARD_HEADERS_STRATEGY=false
 
 # X.509 trust anchors location
 X509_TRUST_ANCHORS_DIR=/etc/grid-security/certificates/

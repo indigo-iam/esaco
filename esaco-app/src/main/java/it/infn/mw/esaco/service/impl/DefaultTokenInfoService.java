@@ -59,15 +59,14 @@ public class DefaultTokenInfoService implements TokenInfoService {
 
   @Override
   @Cacheable("introspect")
-  public String introspectToken(String accessToken) {
+  public IamIntrospection introspectToken(String accessToken) {
 
     Optional<String> response = tokenIntrospectionService.introspectToken(accessToken);
 
     if (response.isPresent()) {
       String introspection = response.get();
       try {
-        mapper.readValue(introspection, IamIntrospection.class);
-        return introspection;
+        return mapper.readValue(introspection, IamIntrospection.class);
       } catch (Exception e) {
         String msg = "Error decoding information from introspection endpoint";
         LOGGER.error(msg, e);
