@@ -19,14 +19,14 @@
     <caffeine.version>3.1.8</caffeine.version>
     <json-path.version>2.4.0</json-path.version>
     <jackson.version>2.19.0</jackson.version>
-    <spring-boot.version>3.5.0</spring-boot.version>
+    <spring-boot.version>3.5.3</spring-boot.version>
     <jib-maven-plugin.version>3.1.4</jib-maven-plugin.version>
   </properties>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.0</version>
+    <version>3.5.3</version>
   </parent>
 
   <modules>
@@ -50,7 +50,7 @@
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk18on</artifactId>
-        <version>1.80</version>
+        <version>1.81</version>
       </dependency>
 
       <dependency>
