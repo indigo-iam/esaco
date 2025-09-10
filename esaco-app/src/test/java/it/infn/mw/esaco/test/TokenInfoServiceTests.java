@@ -1,30 +1,22 @@
 package it.infn.mw.esaco.test;
 
 import static java.lang.String.format;
-import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,13 +29,11 @@ import it.infn.mw.esaco.model.AccessToken;
 import it.infn.mw.esaco.model.IamIntrospection;
 import it.infn.mw.esaco.model.IamUser;
 import it.infn.mw.esaco.service.TokenInfoService;
-import it.infn.mw.esaco.service.impl.DefaultTokenIntrospectionService;
+import it.infn.mw.esaco.service.impl.SpringTokenIntrospectionAdapter;
 import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 import it.infn.mw.esaco.test.utils.MockTimeProvider;
-import it.infn.mw.esaco.test.utils.TestConfig;
 
-@RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {EsacoApplication.class, TestConfig.class})
+@ContextConfiguration(classes = {EsacoApplication.class})
 @SpringBootTest
 @ActiveProfiles("test")
 public class TokenInfoServiceTests extends EsacoTestUtils {
@@ -57,13 +47,13 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
   @Qualifier("mockTimeProvider")
   private MockTimeProvider timeProvider;
 
-  @MockBean
-  private DefaultTokenIntrospectionService introspectionService;
+  @MockitoBean
+  private SpringTokenIntrospectionAdapter introspectionService;
 
   @Autowired
   private TokenInfoService tokenService;
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
 
     when(introspectionService.introspectToken(VALID_JWT))
@@ -76,33 +66,28 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
 
     when(introspectionService.introspectToken(TOKEN_FROM_UNKNOWN_ISSUER))
       .thenThrow(new UnsupportedIssuerException(
-          String.format("Issuer %s not supported", TestConfig.TEST_ISSUER)));
+          String.format("Issuer %s not supported", "http://localhost:8080/")));
     when(introspectionService.getUserInfoForToken(TOKEN_FROM_UNKNOWN_ISSUER))
       .thenThrow(new UnsupportedIssuerException(
-          String.format("Issuer %s not supported", TestConfig.TEST_ISSUER)));
+          String.format("Issuer %s not supported", "http://localhost:8080/")));
   }
 
   @Test
   public void testIntrospectWithValidToken() throws Exception {
 
-    String introspection = tokenService.introspectToken(VALID_JWT);
+    IamIntrospection introspection = tokenService.introspectToken(VALID_JWT);
 
-    assertNotNull(introspection);
+    assertThat(introspection).isNotNull();
 
-    IamIntrospection iamIntrospection = mapper.readValue(introspection, IamIntrospection.class);
-
-    assertThat(iamIntrospection.isActive(), is(true));
-    assertThat(iamIntrospection.getUserId(), equalTo(USERNAME));
-    assertThat(iamIntrospection.getClientId(), equalTo(CLIENT_ID));
-    assertThat(iamIntrospection.getTokenType(), equalTo(TOKEN_TYPE));
-    assertThat(iamIntrospection.getOrganisationName(), not(is(emptyOrNullString())));
-    assertThat(iamIntrospection.getGroupNames(), isA(String[].class));
-    assertThat(iamIntrospection.getGroupNames(), not(emptyArray()));
-    assertThat(iamIntrospection.getEduPersonEntitlements(), isA(String[].class));
-    assertThat(iamIntrospection.getEduPersonEntitlements(), not(emptyArray()));
-    assertThat(iamIntrospection.getEduPersonEntitlement(), isA(String[].class));
-    assertThat(iamIntrospection.getEduPersonEntitlement(), not(emptyArray()));
-    assertThat(iamIntrospection.getAcr(), not(is(emptyOrNullString())));
+    assertThat(introspection.isActive()).isTrue();
+    assertThat(introspection.getAdditionalFields().get("user_id")).isEqualTo(USERNAME);
+    assertThat(introspection.getAdditionalFields().get("client_id")).isEqualTo(CLIENT_ID);
+    assertThat(introspection.getAdditionalFields().get("token_type")).isEqualTo(TOKEN_TYPE);
+    assertThat(introspection.getAdditionalFields().get("organisation_name")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("groups")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("entitlements")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("eduperson_entitlement")).isNotNull();
+    assertThat(introspection.getAdditionalFields().get("acr")).isNotNull();
   }
 
   @Test
@@ -112,82 +97,63 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
 
     assertNotNull(userinfo);
 
-    assertThat(userinfo.getPreferredUsername(), equalTo(USERNAME));
-    assertThat(userinfo.getGroups(), isA(String[].class));
-    assertThat(userinfo.getGroups(), not(emptyArray()));
-    assertThat(userinfo.getOrganisationName(), not(is(emptyOrNullString())));
-    assertThat(userinfo.getGroupNames(), isA(String[].class));
-    assertThat(userinfo.getGroupNames(), not(emptyArray()));
-    assertThat(userinfo.getEduPersonEntitlements(), isA(String[].class));
-    assertThat(userinfo.getEduPersonEntitlements(), not(emptyArray()));
-    assertThat(userinfo.getEduPersonEntitlement(), isA(String[].class));
-    assertThat(userinfo.getEduPersonEntitlement(), not(emptyArray()));
-    assertThat(userinfo.getAcr(), not(is(emptyOrNullString())));
+    assertThat(userinfo.getAdditionalFields().get("preferred_username")).isEqualTo(USERNAME);
+    assertThat(userinfo.getAdditionalFields().get("groups")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("organisation_name")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("entitlements")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("eduperson_entitlement")).isNotNull();
+    assertThat(userinfo.getAdditionalFields().get("acr")).isNotNull();
   }
 
-  @Test(expected = HttpConnectionException.class)
+  @Test
   public void testIntrospectionEndpointConnectionError() {
 
     when(introspectionService.introspectToken(Mockito.anyString())).thenReturn(Optional.empty());
 
-    try {
-      String introspection = tokenService.introspectToken(VALID_JWT);
-      assertNull(introspection);
-    } catch (Exception e) {
-      throw e;
-    }
+    assertThrows(HttpConnectionException.class, () -> {
+      tokenService.introspectToken(VALID_JWT);
+    });
   }
 
-  @Test(expected = HttpConnectionException.class)
+  @Test
   public void testUserinfoEndpointConnectionError() {
 
     when(introspectionService.getUserInfoForToken(Mockito.anyString()))
       .thenThrow(new HttpConnectionException(format("Error connecting to endpoint '%s'", "foo")));
 
-    try {
-      IamUser userInfo = tokenService.decodeUserInfo(VALID_JWT);
-      assertNull(userInfo);
-    } catch (Exception e) {
-      throw e;
-    }
+    assertThrows(HttpConnectionException.class, () -> {
+      tokenService.decodeUserInfo(VALID_JWT);
+    });
   }
 
-  @Test(expected = TokenIntrospectionException.class)
+  @Test
   public void testIntrospectionParsingError() {
 
     when(introspectionService.introspectToken(Mockito.anyString())).thenReturn(Optional
       .of("random_String}_that-isNot-a_JSON-representation_of:aIAM-.Introspection_object"));
 
-    try {
-      String introspection = tokenService.introspectToken(VALID_JWT);
-      assertNull(introspection);
-    } catch (Exception e) {
-      throw e;
-    }
-
+    assertThrows(TokenIntrospectionException.class, () -> {
+      tokenService.introspectToken(VALID_JWT);
+    });
   }
 
-  @Test(expected = TokenIntrospectionException.class)
+  @Test
   public void testUserinfoParsingError() {
 
     when(introspectionService.getUserInfoForToken(Mockito.anyString())).thenReturn(
         Optional.of("Invalid_String}_that-isNot-a_JSON-representation_of:aIAM-.user^info_object"));
 
-    try {
-      IamUser userinfo = tokenService.decodeUserInfo(VALID_JWT);
-      assertNull(userinfo);
-    } catch (Exception e) {
-      throw e;
-    }
+    assertThrows(TokenIntrospectionException.class, () -> {
+      tokenService.decodeUserInfo("broken_token_for_parsing_test");
+    });
   }
 
-  @Test(expected = TokenValidationException.class)
+  @Test
   public void testParseNotJwtToken() {
-    try {
-      tokenService.parseJWTAccessToken("any.notjwt.token");
-    } catch (Exception e) {
-      throw e;
-    }
+
+    assertThrows(TokenValidationException.class, () -> {
+      tokenService.parseJWTAccessToken(NOT_JWT_TOKEN);
+    });
   }
 
   @Test
@@ -197,22 +163,21 @@ public class TokenInfoServiceTests extends EsacoTestUtils {
     assertNotNull(token);
 
     timeProvider.setTime(token.getIssuedAt());
-    assertThat(tokenService.isAccessTokenActive(token), is(true));
+    assertThat(tokenService.isAccessTokenActive(token)).isTrue();
 
     timeProvider.setTime(token.getIssuedAt() + 1);
-    assertThat(tokenService.isAccessTokenActive(token), is(true));
+    assertThat(tokenService.isAccessTokenActive(token)).isTrue();
 
     timeProvider.setTime(token.getIssuedAt() - 1);
-    assertThat(tokenService.isAccessTokenActive(token), is(false));
+    assertThat(tokenService.isAccessTokenActive(token)).isFalse();
 
     timeProvider.setTime(token.getExpireAt() - 1);
-    assertThat(tokenService.isAccessTokenActive(token), is(true));
+    assertThat(tokenService.isAccessTokenActive(token)).isTrue();
 
     timeProvider.setTime(token.getExpireAt());
-    assertThat(tokenService.isAccessTokenActive(token), is(false));
+    assertThat(tokenService.isAccessTokenActive(token)).isFalse();
 
     timeProvider.setTime(token.getExpireAt() + 1);
-    assertThat(tokenService.isAccessTokenActive(token), is(false));
+    assertThat(tokenService.isAccessTokenActive(token)).isFalse();
   }
-
 }

@@ -1,8 +1,5 @@
 package it.infn.mw.esaco;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class OidcClient {
   private String issuerUrl;
   private String clientId;

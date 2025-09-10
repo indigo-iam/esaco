@@ -2,11 +2,11 @@ server:
   port: ${ESACO_BIND_PORT:8156}
   address: ${ESACO_BIND_ADDRESS:0.0.0.0}
 
-  use-forward-headers: ${ESACO_USE_FORWARD_HEADERS:false}
+  forward-headers-strategy: ${ESACO_FORWARD_HEADERS_STRATEGY:none}
 
 spring:
   main:
-    allow-bean-definition-overriding: TRUE
+    allow-bean-definition-overriding: false
     
   profiles:
     active: prod
@@ -16,19 +16,19 @@ spring:
     cache-names: introspect,userinfo
     caffeine:
       spec: ${ESACO_CACHE_SPEC:maximumSize=500,expireAfterWrite=60s}
-      
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    info:
+      access: READ_ONLY
+  
 esaco:
   username: ${ESACO_USER_NAME:user}
   password: ${ESACO_USER_PASSWORD:password}
-        
-oidc:
-  clients:
-      - issuer-url: http://localhost:8080/
-        client-id: password-grant
-        client-secret: secret
-      - issuer-url: https://iam.local.io/
-        client-id: argus-oidc-client-id
-        client-secret: argus-oidc-client-secret
 
 x509:
   use-jvm-trust-anchors:  ${X509_USE_JVM_TRUST_ANCHORS:true}
