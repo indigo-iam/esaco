@@ -4,11 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>it.infn.mw</groupId>
+    <groupId>it.infn.mw.esaco</groupId>
     <artifactId>esaco</artifactId>
     <version>1.0.0</version>
   </parent>
 
+  <groupId>it.infn.mw.esaco-common</groupId>
   <artifactId>esaco-common</artifactId>
   <packaging>jar</packaging>
 

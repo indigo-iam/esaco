@@ -3,23 +3,23 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>it.infn.mw</groupId>
+  <groupId>it.infn.mw.esaco</groupId>
   <artifactId>esaco</artifactId>
   <version>1.0.0</version>
   <packaging>pom</packaging>
 
   <name>ESACO</name>
-  <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>17</java.version>
+    <release>21</release>
 
-    <voms.version>3.3.5</voms.version>
+    <apache-httpclient.version>5.4.3</apache-httpclient.version>
+    <voms.version>3.3.6</voms.version>
     <caffeine.version>3.1.8</caffeine.version>
-    <json-path.version>2.4.0</json-path.version>
+    <json-path.version>2.9.0</json-path.version>
     <jackson.version>2.19.0</jackson.version>
-    <spring-boot.version>3.5.3</spring-boot.version>
+    <spring-boot.version>3.5.5</spring-boot.version>
     <jib-maven-plugin.version>3.1.4</jib-maven-plugin.version>
     <nimbus.version>10.4</nimbus.version>
   </properties>
@@ -27,7 +27,8 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.3</version>
+    <version>3.5.5</version>
+    <relativePath />
   </parent>
 
   <modules>
@@ -49,12 +50,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpkix-jdk18on</artifactId>
-        <version>1.81</version>
-      </dependency>
-
-      <dependency>
         <groupId>com.github.ben-manes.caffeine</groupId>
         <artifactId>caffeine</artifactId>
         <version>${caffeine.version}</version>
@@ -63,7 +58,7 @@
       <dependency>
         <groupId>org.apache.httpcomponents.client5</groupId>
         <artifactId>httpclient5</artifactId>
-        <version>5.4.1</version>
+        <version>${apache-httpclient.version}</version>
       </dependency>
 
       <dependency>
@@ -133,8 +128,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
+          <release>21</release>
           <encoding>UTF-8</encoding>
           <annotationProcessorPaths>
             <path>

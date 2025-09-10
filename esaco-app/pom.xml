@@ -4,11 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>it.infn.mw</groupId>
+    <groupId>it.infn.mw.esaco</groupId>
     <artifactId>esaco</artifactId>
     <version>1.0.0</version>
   </parent>
 
+  <groupId>it.infn.mw.esaco-app</groupId>
   <artifactId>esaco-app</artifactId>
   <packaging>jar</packaging>
 
@@ -17,14 +18,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>it.infn.mw</groupId>
+      <groupId>it.infn.mw.esaco-common</groupId>
       <artifactId>esaco-common</artifactId>
       <version>1.0.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk18on</artifactId>
     </dependency>
 
     <dependency>
@@ -113,22 +109,6 @@
     <plugins>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-          <encoding>UTF-8</encoding>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>org.springframework.boot</groupId>
-              <artifactId>spring-boot-configuration-processor</artifactId>
-              <version>${spring-boot.version}</version>
-            </path>
-          </annotationProcessorPaths>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
 
@@ -145,15 +125,6 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.8.12</version>
-
-        <configuration>
-          <instrumentation>
-            <ignores>
-              <ignore>*hashCode</ignore>
-              <ignore>*equals</ignore>
-            </ignores>
-          </instrumentation>
-        </configuration>
         <executions>
           <execution>
             <id>default-prepare-agent</id>
