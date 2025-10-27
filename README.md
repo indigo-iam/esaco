@@ -96,8 +96,8 @@ ESACO_BIND_PORT=8156
 # ESACO client will bind on this address
 ESACO_BIND_ADDRESS=0.0.0.0
 
-# Set this to true when deploying behind a reverse proxy (nginx)
-ESACO_FORWARD_HEADERS_STRATEGY=false
+# Set this to 'native' when deploying behind a reverse proxy (nginx)
+ESACO_FORWARD_HEADERS_STRATEGY=none
 
 # X.509 trust anchors location
 X509_TRUST_ANCHORS_DIR=/etc/grid-security/certificates/
