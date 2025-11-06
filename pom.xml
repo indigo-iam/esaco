@@ -5,7 +5,7 @@
 
   <groupId>it.infn.mw.esaco</groupId>
   <artifactId>esaco</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <packaging>pom</packaging>
 
   <name>ESACO</name>
@@ -19,7 +19,7 @@
     <caffeine.version>3.1.8</caffeine.version>
     <json-path.version>2.9.0</json-path.version>
     <jackson.version>2.19.0</jackson.version>
-    <spring-boot.version>3.5.5</spring-boot.version>
+    <spring-boot.version>3.5.7</spring-boot.version>
     <jib-maven-plugin.version>3.1.4</jib-maven-plugin.version>
     <nimbus.version>10.4</nimbus.version>
   </properties>
@@ -27,7 +27,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.5</version>
+    <version>3.5.7</version>
     <relativePath />
   </parent>
 
