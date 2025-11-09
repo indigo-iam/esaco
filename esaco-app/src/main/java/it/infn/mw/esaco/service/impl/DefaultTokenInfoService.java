@@ -81,7 +81,6 @@ public class DefaultTokenInfoService implements TokenInfoService {
   @Cacheable("userinfo")
   public IamUser decodeUserInfo(String accessToken) {
 
-    IamUser info = null;
     Optional<String> response = tokenIntrospectionService.getUserInfoForToken(accessToken);
 
     if (response.isPresent()) {
@@ -92,10 +91,8 @@ public class DefaultTokenInfoService implements TokenInfoService {
         LOGGER.error(msg, e);
         throw new TokenIntrospectionException(msg, e);
       }
-    } else {
-      LOGGER.info("No userinfo data available for access token '{}'", accessToken);
     }
-    return info;
+    return null;
   }
 
   @Override
