@@ -4,12 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -27,7 +25,6 @@ import org.springframework.web.client.RestTemplate;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -39,11 +36,11 @@ import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 
 class DelegatingOpaqueTokenIntrospectorTest {
 
-  public final static String OIDC_DISCOVERY_URL =
+  public static final String OIDC_DISCOVERY_URL =
       "https://issuer.example.org/.well-known/openid-configuration";
-  public final static String OAUTH_DISCOVERY_URL =
+  public static final String OAUTH_DISCOVERY_URL =
       "https://issuer.example.org/.well-known/oauth-authorization-server";
-  public final static String UNTRUSTED_ISSUER = "https://unknown-issuer.example.org";
+  public static final String UNTRUSTED_ISSUER = "https://unknown-issuer.example.org";
 
   private OidcClientProperties properties;
   private OidcClient client;
@@ -88,8 +85,7 @@ class DelegatingOpaqueTokenIntrospectorTest {
         });
   }
 
-  private String createFakeJwtWithIssuer(String issuer)
-      throws ParseException, KeyLengthException, JOSEException {
+  private String createFakeJwtWithIssuer(String issuer) throws JOSEException {
 
     JWTClaimsSet claims = new JWTClaimsSet.Builder().issuer(issuer).subject("sub").build();
     SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claims);

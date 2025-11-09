@@ -56,7 +56,7 @@ import it.infn.mw.esaco.util.x509.X509BlindTrustManager;
 public class EsacoConfiguration {
 
   // 0 means no timeout
-  private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC = 0; 
+  private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC = 0;
 
   @Bean
   X509CertChainValidatorExt certificateValidator(X509TrustProperties x509Properties) {
@@ -164,13 +164,13 @@ public class EsacoConfiguration {
 
   @Bean
   ClientHttpRequestFactory httpRequestFactory(X509TrustProperties x509Properties,
-      TlsProperties tlsProperties) throws Exception {
+      TlsProperties tlsProperties) {
     return new HttpComponentsClientHttpRequestFactory(httpClient(x509Properties, tlsProperties));
   }
 
   @Bean
-  RestTemplate defaultRestTemplate(X509TrustProperties x509Properties, TlsProperties tlsProperties)
-      throws Exception {
+  RestTemplate defaultRestTemplate(X509TrustProperties x509Properties,
+      TlsProperties tlsProperties) {
     return new RestTemplate(httpRequestFactory(x509Properties, tlsProperties));
   }
 
