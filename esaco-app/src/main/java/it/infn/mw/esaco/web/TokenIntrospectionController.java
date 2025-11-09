@@ -1,6 +1,5 @@
 package it.infn.mw.esaco.web;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,8 +10,12 @@ import it.infn.mw.esaco.service.TokenIntrospectionService;
 @RestController
 public class TokenIntrospectionController extends TokenControllerUtils {
 
-  @Autowired
   private TokenIntrospectionService tokenIntrospectionService;
+
+  public TokenIntrospectionController(TokenIntrospectionService tokenIntrospectionService) {
+
+    this.tokenIntrospectionService = tokenIntrospectionService;
+  }
 
   @PostMapping(value = "/introspect",
     produces = MediaType.APPLICATION_JSON_VALUE)

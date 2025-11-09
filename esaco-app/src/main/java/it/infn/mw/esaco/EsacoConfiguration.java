@@ -24,7 +24,6 @@ import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.util.Timeout;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -56,17 +55,11 @@ import it.infn.mw.esaco.util.x509.X509BlindTrustManager;
 @EnableConfigurationProperties(OidcClientProperties.class)
 public class EsacoConfiguration {
 
-  private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC = 0; // 0 means no
-  // timeout
-
-  @Autowired
-  private X509TrustProperties x509Properties;
-
-  @Autowired
-  private TlsProperties tlsProperties;
+  // 0 means no timeout
+  private static final int TRUST_ANCHORS_BUNDLE_CONNECTION_TIMEOUT_CA_MSEC = 0; 
 
   @Bean
-  X509CertChainValidatorExt certificateValidator() {
+  X509CertChainValidatorExt certificateValidator(X509TrustProperties x509Properties) {
 
     return new CertificateValidatorBuilder().lazyAnchorsLoading(false)
       .trustAnchorsDir(x509Properties.getTrustAnchorsDir())
@@ -75,7 +68,8 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  X509CertChainValidatorExt bundleValidator() throws CertificateException {
+  X509CertChainValidatorExt bundleValidator(X509TrustProperties x509Properties)
+      throws CertificateException {
 
     ValidatorParamsExt validatorParams =
         new ValidatorParamsExt(RevocationParametersExt.IGNORE, ProxySupport.DENY);
@@ -91,14 +85,14 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  X509TrustManager trustManager() throws CertificateException {
+  X509TrustManager trustManager(X509TrustProperties x509Properties) throws CertificateException {
     X509CertChainValidator validator;
     switch (x509Properties.getTrustAnchorsType()) {
       case DIR:
-        validator = certificateValidator();
+        validator = certificateValidator(x509Properties);
         break;
       case BUNDLE:
-        validator = bundleValidator();
+        validator = bundleValidator(x509Properties);
         break;
       case NONE:
         return new X509BlindTrustManager();
@@ -128,7 +122,7 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  SSLContext sslContext() {
+  SSLContext sslContext(X509TrustProperties x509Properties, TlsProperties tlsProperties) {
 
     try {
       SSLContext context = SSLContext.getInstance(tlsProperties.getVersion());
@@ -137,7 +131,7 @@ public class EsacoConfiguration {
       if (x509Properties.isUseJvmTrustAnchors()) {
         context.init(null, null, r);
       } else {
-        context.init(null, new TrustManager[] {trustManager()}, r);
+        context.init(null, new TrustManager[] {trustManager(x509Properties)}, r);
       }
 
       return context;
@@ -148,8 +142,10 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  HttpClient httpClient() throws Exception {
-    DefaultClientTlsStrategy sslSocketFactory = new DefaultClientTlsStrategy(sslContext());
+  HttpClient httpClient(X509TrustProperties x509Properties, TlsProperties tlsProperties)
+      throws Exception {
+    DefaultClientTlsStrategy sslSocketFactory =
+        new DefaultClientTlsStrategy(sslContext(x509Properties, tlsProperties));
 
     PoolingHttpClientConnectionManager connectionManager =
         PoolingHttpClientConnectionManagerBuilder.create()
@@ -168,13 +164,15 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  ClientHttpRequestFactory httpRequestFactory() throws Exception {
-    return new HttpComponentsClientHttpRequestFactory(httpClient());
+  ClientHttpRequestFactory httpRequestFactory(X509TrustProperties x509Properties,
+      TlsProperties tlsProperties) throws Exception {
+    return new HttpComponentsClientHttpRequestFactory(httpClient(x509Properties, tlsProperties));
   }
 
   @Bean
-  RestTemplate defaultRestTemplate() throws Exception {
-    return new RestTemplate(httpRequestFactory());
+  RestTemplate defaultRestTemplate(X509TrustProperties x509Properties, TlsProperties tlsProperties)
+      throws Exception {
+    return new RestTemplate(httpRequestFactory(x509Properties, tlsProperties));
   }
 
   @Bean

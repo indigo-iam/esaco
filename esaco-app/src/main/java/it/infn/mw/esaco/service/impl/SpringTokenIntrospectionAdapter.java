@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -32,14 +31,17 @@ public class SpringTokenIntrospectionAdapter implements TokenIntrospectionServic
   public static final Logger LOGGER =
       LoggerFactory.getLogger(SpringTokenIntrospectionAdapter.class);
 
-  @Autowired
   private OpaqueTokenIntrospector introspector;
-
-  @Autowired
   private ObjectMapper objectMapper;
-
-  @Autowired
   private RestTemplate restTemplate;
+
+  public SpringTokenIntrospectionAdapter(OpaqueTokenIntrospector introspector,
+      RestTemplate restTemplate, ObjectMapper objectMapper) {
+
+    this.introspector = introspector;
+    this.restTemplate = restTemplate;
+    this.objectMapper = objectMapper;
+  }
 
   @Override
   public Optional<String> introspectToken(String accessToken) {
