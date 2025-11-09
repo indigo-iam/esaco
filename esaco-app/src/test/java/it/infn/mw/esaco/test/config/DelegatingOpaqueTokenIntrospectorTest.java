@@ -24,6 +24,11 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.KeyLengthException;
+import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -32,12 +37,13 @@ import it.infn.mw.esaco.OidcClientProperties;
 import it.infn.mw.esaco.config.DelegatingOpaqueTokenIntrospector;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 
-public class DelegatingOpaqueTokenIntrospectorTest {
+class DelegatingOpaqueTokenIntrospectorTest {
 
-  final String OIDC_DISCOVERY_URL = "https://issuer.example.org/.well-known/openid-configuration";
-  final String OAUTH_DISCOVERY_URL =
+  public final static String OIDC_DISCOVERY_URL =
+      "https://issuer.example.org/.well-known/openid-configuration";
+  public final static String OAUTH_DISCOVERY_URL =
       "https://issuer.example.org/.well-known/oauth-authorization-server";
-  final String UNTRUSTED_ISSUER = "https://unknown-issuer.example.org";
+  public final static String UNTRUSTED_ISSUER = "https://unknown-issuer.example.org";
 
   private OidcClientProperties properties;
   private OidcClient client;
@@ -67,7 +73,7 @@ public class DelegatingOpaqueTokenIntrospectorTest {
   private void addDiscoveryResponse(String discoveryResponse, String discoveryUrl,
       HttpStatus statusResponse) {
 
-    when(restTemplate.getForEntity(eq(discoveryUrl), eq(String.class)))
+    when(restTemplate.getForEntity(discoveryUrl, String.class))
       .thenReturn(new ResponseEntity<>(discoveryResponse, statusResponse));
   }
 
@@ -82,16 +88,13 @@ public class DelegatingOpaqueTokenIntrospectorTest {
         });
   }
 
-  private String createFakeJwtWithIssuer(String issuer) throws ParseException {
-    try {
-      JWTClaimsSet claims = new JWTClaimsSet.Builder().issuer(issuer).subject("sub").build();
-      SignedJWT jwt = new SignedJWT(
-          new com.nimbusds.jose.JWSHeader(com.nimbusds.jose.JWSAlgorithm.HS256), claims);
-      jwt.sign(new com.nimbusds.jose.crypto.MACSigner("12345678901234567890123456789012"));
-      return jwt.serialize();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+  private String createFakeJwtWithIssuer(String issuer)
+      throws ParseException, KeyLengthException, JOSEException {
+
+    JWTClaimsSet claims = new JWTClaimsSet.Builder().issuer(issuer).subject("sub").build();
+    SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claims);
+    jwt.sign(new MACSigner("12345678901234567890123456789012"));
+    return jwt.serialize();
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -110,7 +113,7 @@ public class DelegatingOpaqueTokenIntrospectorTest {
     delegatingIntrospector.introspect(token);
 
     // Assert discovery was performed with correct URL
-    verify(restTemplate).getForEntity(eq(OIDC_DISCOVERY_URL), eq(String.class));
+    verify(restTemplate).getForEntity(OIDC_DISCOVERY_URL, String.class);
 
     ArgumentCaptor<RequestEntity> requestCaptor = ArgumentCaptor.forClass(RequestEntity.class);
     // Assert introspection was performed with correct URL

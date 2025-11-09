@@ -142,8 +142,7 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  HttpClient httpClient(X509TrustProperties x509Properties, TlsProperties tlsProperties)
-      throws Exception {
+  HttpClient httpClient(X509TrustProperties x509Properties, TlsProperties tlsProperties) {
     DefaultClientTlsStrategy sslSocketFactory =
         new DefaultClientTlsStrategy(sslContext(x509Properties, tlsProperties));
 
