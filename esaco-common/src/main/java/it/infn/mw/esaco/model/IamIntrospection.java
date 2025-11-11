@@ -2,11 +2,15 @@ package it.infn.mw.esaco.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import it.infn.mw.esaco.exception.TokenIntrospectionException;
 
 @JsonInclude(Include.NON_EMPTY)
 public class IamIntrospection {
@@ -66,6 +70,24 @@ public class IamIntrospection {
 
     public IamIntrospection build() {
       return new IamIntrospection(active, additionalFields);
+    }
+  }
+
+  public static IamIntrospection inactive() {
+    return new IamIntrospection(false, null);
+  }
+
+  public static IamIntrospection from(Optional<String> introspectionResponse) {
+
+    if (introspectionResponse.isEmpty()) {
+      return inactive();
+    }
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      return mapper.readValue(introspectionResponse.get(), IamIntrospection.class);
+    } catch (Exception e) {
+      throw new TokenIntrospectionException(
+          "Error decoding information from introspection endpoint", e);
     }
   }
 }

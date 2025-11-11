@@ -22,6 +22,10 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -32,7 +36,9 @@ import com.nimbusds.jwt.SignedJWT;
 import it.infn.mw.esaco.OidcClient;
 import it.infn.mw.esaco.OidcClientProperties;
 import it.infn.mw.esaco.config.DelegatingOpaqueTokenIntrospector;
+import it.infn.mw.esaco.exception.DiscoveryDocumentNotFoundException;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
+import it.infn.mw.esaco.service.OidcDiscoveryService;
 
 class DelegatingOpaqueTokenIntrospectorTest {
 
@@ -47,13 +53,16 @@ class DelegatingOpaqueTokenIntrospectorTest {
   private RestTemplate restTemplate;
   private Function<OidcClient, RestTemplate> restTemplateFactory;
   private DelegatingOpaqueTokenIntrospector delegatingIntrospector;
+  private OidcDiscoveryService discoveryService;
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  void setUp() {
+  void setUp() throws JsonMappingException, JsonProcessingException {
+
+    String issuer = "https://issuer.example.org";
 
     client = new OidcClient();
-    client.setIssuerUrl("https://issuer.example.org");
+    client.setIssuerUrl(issuer);
     client.setClientId("client-id");
     client.setClientSecret("client-secret");
 
@@ -64,14 +73,25 @@ class DelegatingOpaqueTokenIntrospectorTest {
     restTemplateFactory = (Function<OidcClient, RestTemplate>) mock(Function.class);
     when(restTemplateFactory.apply(client)).thenReturn(restTemplate);
 
-    delegatingIntrospector = new DelegatingOpaqueTokenIntrospector(properties, restTemplateFactory);
+    discoveryService = mock(OidcDiscoveryService.class);
+    addDiscoveryResponse(issuer, OIDC_DISCOVERY_URL, "https://issuer.example.org/introspect",
+        HttpStatus.OK);
+
+    delegatingIntrospector =
+        new DelegatingOpaqueTokenIntrospector(properties, restTemplateFactory, discoveryService);
   }
 
-  private void addDiscoveryResponse(String discoveryResponse, String discoveryUrl,
-      HttpStatus statusResponse) {
+  private void addDiscoveryResponse(String issuer, String discoveryUrl, String discoveryResponse,
+      HttpStatus statusResponse) throws JsonMappingException, JsonProcessingException {
 
-    when(restTemplate.getForEntity(discoveryUrl, String.class))
-      .thenReturn(new ResponseEntity<>(discoveryResponse, statusResponse));
+    ObjectMapper mapper = new ObjectMapper();
+    String json = "{ \"issuer\": \"" + issuer + "\" }";
+    if (discoveryResponse != null) {
+      json = "{ \"issuer\": \"" + issuer + "\", \"introspection_endpoint\": \""
+          + discoveryResponse + "\" }";
+    }
+    JsonNode mockJsonNode = mapper.readTree(json);
+    when(discoveryService.getDiscoveryDocument(issuer, restTemplate)).thenReturn(mockJsonNode);
   }
 
   @SuppressWarnings("unchecked")
@@ -99,17 +119,13 @@ class DelegatingOpaqueTokenIntrospectorTest {
 
     String issuer = client.getIssuerUrl();
     String introspectUrl = "https://issuer.example.org/oauth2/introspect";
-    String discoveryResponse =
-        "{\"issuer\":\"" + issuer + "\",\"introspection_endpoint\":\"" + introspectUrl + "\"}";
 
-    addDiscoveryResponse(discoveryResponse, OIDC_DISCOVERY_URL, HttpStatus.OK);
+    addDiscoveryResponse(issuer, OIDC_DISCOVERY_URL, "https://issuer.example.org/oauth2/introspect",
+        HttpStatus.OK);
     addIntrospectResponse(true, HttpStatus.OK);
 
     String token = createFakeJwtWithIssuer(issuer);
     delegatingIntrospector.introspect(token);
-
-    // Assert discovery was performed with correct URL
-    verify(restTemplate).getForEntity(OIDC_DISCOVERY_URL, String.class);
 
     ArgumentCaptor<RequestEntity> requestCaptor = ArgumentCaptor.forClass(RequestEntity.class);
     // Assert introspection was performed with correct URL
@@ -137,13 +153,13 @@ class DelegatingOpaqueTokenIntrospectorTest {
   void testDiscoveryFailsWhenNoIntrospectionEndpoint() throws Exception {
 
     String issuer = client.getIssuerUrl();
-    String discoveryResponseWithNoIntrospect = "{\"issuer\":\"" + issuer + "\"}";
 
-    addDiscoveryResponse(discoveryResponseWithNoIntrospect, OIDC_DISCOVERY_URL, HttpStatus.OK);
-    addDiscoveryResponse(discoveryResponseWithNoIntrospect, OAUTH_DISCOVERY_URL, HttpStatus.OK);
+    addDiscoveryResponse(issuer, OIDC_DISCOVERY_URL, null, HttpStatus.OK);
+    addDiscoveryResponse(issuer, OAUTH_DISCOVERY_URL, null, HttpStatus.OK);
 
     String token = createFakeJwtWithIssuer(issuer);
 
-    assertThrows(IllegalStateException.class, () -> delegatingIntrospector.introspect(token));
+    assertThrows(DiscoveryDocumentNotFoundException.class,
+        () -> delegatingIntrospector.introspect(token));
   }
 }

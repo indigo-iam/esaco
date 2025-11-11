@@ -2,11 +2,15 @@ package it.infn.mw.esaco.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import it.infn.mw.esaco.exception.TokenIntrospectionException;
 
 @JsonInclude(Include.NON_NULL)
 public class IamUser {
@@ -70,6 +74,19 @@ public class IamUser {
 
     public IamUser build() {
       return new IamUser(sub, additionalFields);
+    }
+  }
+
+  public static IamUser from(Optional<String> userInfoResponse) {
+
+    if (userInfoResponse.isEmpty()) {
+      return null;
+    }
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      return mapper.readValue(userInfoResponse.get(), IamUser.class);
+    } catch (Exception e) {
+      throw new TokenIntrospectionException("Error decoding information from userinfo endpoint", e);
     }
   }
 }
