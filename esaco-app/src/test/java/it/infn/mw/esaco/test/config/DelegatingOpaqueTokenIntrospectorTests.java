@@ -40,7 +40,7 @@ import it.infn.mw.esaco.exception.DiscoveryDocumentNotFoundException;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 import it.infn.mw.esaco.service.OidcDiscoveryService;
 
-class DelegatingOpaqueTokenIntrospectorTest {
+class DelegatingOpaqueTokenIntrospectorTests {
 
   public static final String OIDC_DISCOVERY_URL =
       "https://issuer.example.org/.well-known/openid-configuration";
