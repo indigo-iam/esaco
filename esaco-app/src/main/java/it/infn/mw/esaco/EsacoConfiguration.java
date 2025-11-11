@@ -46,6 +46,7 @@ import eu.emi.security.authn.x509.impl.RevocationParametersExt;
 import eu.emi.security.authn.x509.impl.ValidatorParamsExt;
 import it.infn.mw.esaco.config.DelegatingOpaqueTokenIntrospector;
 import it.infn.mw.esaco.exception.SSLContextInitializationError;
+import it.infn.mw.esaco.service.OidcDiscoveryService;
 import it.infn.mw.esaco.service.TimeProvider;
 import it.infn.mw.esaco.service.impl.SystemTimeProvider;
 import it.infn.mw.esaco.util.x509.X509BlindTrustManager;
@@ -163,15 +164,13 @@ public class EsacoConfiguration {
   }
 
   @Bean
-  ClientHttpRequestFactory httpRequestFactory(X509TrustProperties x509Properties,
-      TlsProperties tlsProperties) {
-    return new HttpComponentsClientHttpRequestFactory(httpClient(x509Properties, tlsProperties));
+  ClientHttpRequestFactory httpRequestFactory(HttpClient httpClient) {
+    return new HttpComponentsClientHttpRequestFactory(httpClient);
   }
 
   @Bean
-  RestTemplate defaultRestTemplate(X509TrustProperties x509Properties,
-      TlsProperties tlsProperties) {
-    return new RestTemplate(httpRequestFactory(x509Properties, tlsProperties));
+  RestTemplate defaultRestTemplate(ClientHttpRequestFactory httpRequestFactory) {
+    return new RestTemplate(httpRequestFactory);
   }
 
   @Bean
@@ -209,7 +208,8 @@ public class EsacoConfiguration {
 
   @Bean
   OpaqueTokenIntrospector introspector(OidcClientProperties props,
-      Function<OidcClient, RestTemplate> restTemplateFactory) {
-    return new DelegatingOpaqueTokenIntrospector(props, restTemplateFactory);
+      Function<OidcClient, RestTemplate> restTemplateFactory,
+      OidcDiscoveryService discoveryService) {
+    return new DelegatingOpaqueTokenIntrospector(props, restTemplateFactory, discoveryService);
   }
 }

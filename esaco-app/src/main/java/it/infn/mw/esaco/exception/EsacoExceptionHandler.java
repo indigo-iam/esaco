@@ -50,6 +50,14 @@ public class EsacoExceptionHandler extends ResponseEntityExceptionHandler {
     return buildErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
   }
 
+  @ResponseStatus(code = HttpStatus.BAD_GATEWAY)
+  @ExceptionHandler(DiscoveryDocumentNotFoundException.class)
+  @ResponseBody
+  public ErrorResponse handleDiscoveryDocumentNotFoundException(DiscoveryDocumentNotFoundException e) {
+
+    return buildErrorResponse(HttpStatus.BAD_GATEWAY, e.getMessage());
+  }
+
   private ErrorResponse buildErrorResponse(HttpStatus status, String message) {
 
     return new ErrorResponse(status.value(), status.getReasonPhrase(), message);

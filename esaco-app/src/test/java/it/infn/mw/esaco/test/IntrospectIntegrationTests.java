@@ -60,7 +60,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
       .andDo(print())
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.status", equalTo(BAD_REQUEST.value())))
-      .andExpect(jsonPath("$.error", equalTo(BAD_REQUEST.getReasonPhrase())));
+      .andExpect(jsonPath("$.detail", equalTo("Required parameter 'token' is not present.")));
   }
 
   @Test
@@ -79,7 +79,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   @Test
   public void testIntrospectionWithInvalidToken() throws Exception {
 
-    when(tokenIntrospectionService.introspectToken(VALID_JWT))
+    when(tokenIntrospectionService.introspect(VALID_JWT))
       .thenReturn(Optional.of(mapper.writeValueAsString(EXPIRED_INTROSPECTION)));
 
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
@@ -91,7 +91,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   @Test
   public void testIntrospectionWithExtraInformationValidToken() throws Exception {
 
-    when(tokenIntrospectionService.introspectToken(EXTRA_INFORMATION_JWT))
+    when(tokenIntrospectionService.introspect(EXTRA_INFORMATION_JWT))
       .thenReturn(Optional.of(EXTRA_INFORMATION_INTROSPECTION));
 
     mvc.perform(post(ENDPOINT).param("token", EXTRA_INFORMATION_JWT))
@@ -103,7 +103,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   @Test
   public void testIntrospectionWithValidToken() throws Exception {
 
-    when(tokenIntrospectionService.introspectToken(VALID_JWT))
+    when(tokenIntrospectionService.introspect(VALID_JWT))
       .thenReturn(Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
 
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))

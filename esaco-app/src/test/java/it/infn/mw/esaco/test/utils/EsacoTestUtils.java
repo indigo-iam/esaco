@@ -1,7 +1,6 @@
 package it.infn.mw.esaco.test.utils;
 
 import it.infn.mw.esaco.model.IamIntrospection;
-import it.infn.mw.esaco.model.IamUser;
 
 public class EsacoTestUtils {
 
@@ -53,24 +52,6 @@ public class EsacoTestUtils {
             new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
         .addField("acr", "https://aai.egi.eu/LoA#Substantial")
         .build();
-
-  protected final IamUser VALID_USERINFO =
-      new IamUser.Builder("73f16d93-2441-4a50-88ff-85360d78c6b5").addField("name", "Admin User")
-        .addField("preferred_username", "admin")
-        .addField("given_name", "Admin")
-        .addField("family_name", "User")
-        .addField("email", "admin@example.org")
-        .addField("gender", "M")
-        .addField("updated_at", "Mon Sep 04 15:08:36 CEST 2017")
-        .addField("groups", new String[] {"Production", "Analysis"})
-        .addField("organisation_name", "indigo-dc")
-        .addField("entitlements",
-            new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
-        .addField("eduperson_entitlement",
-            new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
-        .addField("acr", "https://aai.egi.eu/LoA#Substantial")
-        .build();
-
 
   protected final IamIntrospection EXPIRED_INTROSPECTION =
       new IamIntrospection.Builder(false).build();

@@ -44,23 +44,8 @@ public class BasicAuthnTests {
   }
 
   @Test
-  public void tokenInfoEndpointRequiresAuthenticatedUser() throws Exception {
-    mvc.perform(post(TOKENINFO_ENDPOINT))
-      .andDo(print())
-      .andExpect(unauthenticated())
-      .andExpect(status().isUnauthorized());
-  }
-
-  @Test
   public void checkAuthnIntrospectEndpoint() throws Exception {
     mvc.perform(post(INTROSPECT_ENDPOINT).with(httpBasic(username, password)))
-      .andDo(print())
-      .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  public void checkAuthnTokenInfoEndpoint() throws Exception {
-    mvc.perform(post(TOKENINFO_ENDPOINT).with(httpBasic(username, password)))
       .andDo(print())
       .andExpect(status().isBadRequest());
   }
