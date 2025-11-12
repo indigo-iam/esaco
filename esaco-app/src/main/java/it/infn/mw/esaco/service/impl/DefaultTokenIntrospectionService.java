@@ -37,7 +37,7 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
 
       return new IntrospectionResponse(introspector.introspect(accessToken));
 
-    } catch (Throwable e) {
+    } catch (Exception e) {
 
       LOGGER.warn("Error during introspection: {}", e.getMessage());
       throw new TokenIntrospectionException(e.getMessage(), e);

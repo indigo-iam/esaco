@@ -32,11 +32,7 @@ public class IntrospectionResponse {
       throw new TokenIntrospectionException("Null OAuth2AuthenticatedPrincipal.getAttributes() object");
     }
     setActive(Boolean.TRUE.equals(auth.getAttributes().get(OAuth2TokenIntrospectionClaimNames.ACTIVE)));
-    auth.getAttributes().forEach((k, v) -> addAdditionalField(k, v));
-  }
-
-  public IntrospectionResponse() {
-    // Default constructor
+    auth.getAttributes().forEach(this::addAdditionalField);
   }
 
   public IntrospectionResponse(boolean active, Map<String, Object> additionalFields) {
@@ -83,11 +79,6 @@ public class IntrospectionResponse {
         return this;
       }
       additionalFields.put(key, value);
-      return this;
-    }
-
-    public Builder addFields(Map<String, Object> fields) {
-      fields.forEach(this::addField);
       return this;
     }
 

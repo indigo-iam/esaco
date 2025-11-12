@@ -22,8 +22,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import it.infn.mw.esaco.EsacoApplication;
 import it.infn.mw.esaco.service.TokenIntrospectionService;
 import it.infn.mw.esaco.test.utils.EsacoTestUtils;

@@ -1,6 +1,5 @@
 package it.infn.mw.esaco.test;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,8 +51,8 @@ public class TokenIntrospectionServiceTests extends EsacoTestUtils {
 
     assertNotNull(response);
     assertTrue(response.isActive());
-    assertEquals(response.getAdditionalFields().size(), 1);
-    assertEquals(response.getAdditionalFields().get("sub"), "user123");
+    assertEquals(1, response.getAdditionalFields().size());
+    assertEquals("user123", response.getAdditionalFields().get("sub"));
   }
 
   @Test
