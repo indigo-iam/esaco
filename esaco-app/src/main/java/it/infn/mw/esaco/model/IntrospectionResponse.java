@@ -1,29 +1,45 @@
 package it.infn.mw.esaco.model;
 
+import static org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames.ACTIVE;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
+
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.infn.mw.esaco.exception.TokenIntrospectionException;
 
 @JsonInclude(Include.NON_EMPTY)
-public class IamIntrospection {
+public class IntrospectionResponse {
 
   private boolean active;
 
   private final Map<String, Object> additionalFields = new HashMap<>();
 
-  public IamIntrospection() {
+  public IntrospectionResponse(OAuth2AuthenticatedPrincipal auth) {
+
+    if (Objects.isNull(auth)) {
+      throw new TokenIntrospectionException("Null OAuth2AuthenticatedPrincipal object");
+    }
+    if (Objects.isNull(auth.getAttributes())) {
+      throw new TokenIntrospectionException("Null OAuth2AuthenticatedPrincipal.getAttributes() object");
+    }
+    setActive(Boolean.TRUE.equals(auth.getAttributes().get(OAuth2TokenIntrospectionClaimNames.ACTIVE)));
+    auth.getAttributes().forEach((k, v) -> addAdditionalField(k, v));
+  }
+
+  public IntrospectionResponse() {
     // Default constructor
   }
 
-  public IamIntrospection(boolean active, Map<String, Object> additionalFields) {
+  public IntrospectionResponse(boolean active, Map<String, Object> additionalFields) {
     this.active = active;
     if (additionalFields != null) {
       this.additionalFields.putAll(additionalFields);
@@ -45,6 +61,9 @@ public class IamIntrospection {
 
   @JsonAnySetter
   public void addAdditionalField(String key, Object value) {
+    if (ACTIVE.equalsIgnoreCase(key)) {
+      return;
+    }
     this.additionalFields.put(key, value);
   }
 
@@ -57,9 +76,13 @@ public class IamIntrospection {
     }
 
     public Builder addField(String key, Object value) {
-      if (value != null && (!(value instanceof String) || !((String) value).isBlank())) {
-        additionalFields.put(key, value);
+      if (ACTIVE.equalsIgnoreCase(key) || Objects.isNull(value)) {
+        return this;
       }
+      if (value instanceof String valueStr && valueStr.isBlank()) {
+        return this;
+      }
+      additionalFields.put(key, value);
       return this;
     }
 
@@ -68,26 +91,8 @@ public class IamIntrospection {
       return this;
     }
 
-    public IamIntrospection build() {
-      return new IamIntrospection(active, additionalFields);
-    }
-  }
-
-  public static IamIntrospection inactive() {
-    return new IamIntrospection(false, null);
-  }
-
-  public static IamIntrospection from(Optional<String> introspectionResponse) {
-
-    if (introspectionResponse.isEmpty()) {
-      return inactive();
-    }
-    ObjectMapper mapper = new ObjectMapper();
-    try {
-      return mapper.readValue(introspectionResponse.get(), IamIntrospection.class);
-    } catch (Exception e) {
-      throw new TokenIntrospectionException(
-          "Error decoding information from introspection endpoint", e);
+    public IntrospectionResponse build() {
+      return new IntrospectionResponse(active, additionalFields);
     }
   }
 }

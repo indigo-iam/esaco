@@ -1,4 +1,4 @@
-package it.infn.mw.esaco.exception;
+package it.infn.mw.esaco.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFilter;

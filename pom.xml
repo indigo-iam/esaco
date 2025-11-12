@@ -41,7 +41,6 @@
   </parent>
 
   <modules>
-    <module>esaco-common</module>
     <module>esaco-app</module>
   </modules>
 
@@ -167,6 +166,11 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <excludes>
+            <exclude>**/EsacoApplication.class</exclude>
+          </excludes>
+        </configuration>
       </plugin>
     </plugins>
   </build>

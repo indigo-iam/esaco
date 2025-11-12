@@ -17,11 +17,6 @@
   <url>http://maven.apache.org</url>
 
   <dependencies>
-    <dependency>
-      <groupId>it.infn.mw.esaco-common</groupId>
-      <artifactId>esaco-common</artifactId>
-      <version>1.0.1</version>
-    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>

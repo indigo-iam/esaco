@@ -10,12 +10,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -42,10 +41,10 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   private MockMvc mvc;
 
   @Autowired
-  private ObjectMapper mapper;
+  TokenIntrospectionService tokenIntrospectionService;
 
   @MockitoBean
-  TokenIntrospectionService tokenIntrospectionService;
+  OpaqueTokenIntrospector inspector;
 
   @Test
   @WithAnonymousUser
@@ -79,8 +78,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   @Test
   public void testIntrospectionWithInvalidToken() throws Exception {
 
-    when(tokenIntrospectionService.introspect(VALID_JWT))
-      .thenReturn(Optional.of(mapper.writeValueAsString(EXPIRED_INTROSPECTION)));
+    when(inspector.introspect(VALID_JWT)).thenReturn(EXPIRED_INTROSPECTION);
 
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
       .andDo(print())
@@ -91,8 +89,8 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   @Test
   public void testIntrospectionWithExtraInformationValidToken() throws Exception {
 
-    when(tokenIntrospectionService.introspect(EXTRA_INFORMATION_JWT))
-      .thenReturn(Optional.of(EXTRA_INFORMATION_INTROSPECTION));
+    when(inspector.introspect(EXTRA_INFORMATION_JWT))
+      .thenReturn(EXTRA_INFORMATION_INTROSPECTION);
 
     mvc.perform(post(ENDPOINT).param("token", EXTRA_INFORMATION_JWT))
       .andDo(print())
@@ -103,8 +101,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   @Test
   public void testIntrospectionWithValidToken() throws Exception {
 
-    when(tokenIntrospectionService.introspect(VALID_JWT))
-      .thenReturn(Optional.of(mapper.writeValueAsString(VALID_INTROSPECTION)));
+    when(inspector.introspect(VALID_JWT)).thenReturn(VALID_INTROSPECTION);
 
     mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
       .andDo(print())

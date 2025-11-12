@@ -1,16 +1,15 @@
 package it.infn.mw.esaco.test;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,13 +20,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import it.infn.mw.esaco.EsacoApplication;
-import it.infn.mw.esaco.service.OidcDiscoveryService;
+import it.infn.mw.esaco.exception.TokenIntrospectionException;
+import it.infn.mw.esaco.exception.UnsupportedIssuerException;
+import it.infn.mw.esaco.model.IntrospectionResponse;
 import it.infn.mw.esaco.service.TokenIntrospectionService;
 import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 
@@ -35,9 +31,6 @@ import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 @SpringBootTest
 @ActiveProfiles("test")
 public class TokenIntrospectionServiceTests extends EsacoTestUtils {
-
-  @Autowired
-  private ObjectMapper mapper;
 
   @Autowired
   private TokenIntrospectionService tokenIntrospectionService;
@@ -55,10 +48,12 @@ public class TokenIntrospectionServiceTests extends EsacoTestUtils {
 
     when(introspector.introspect(VALID_JWT)).thenReturn(principal);
 
-    Optional<String> response = tokenIntrospectionService.introspect(VALID_JWT);
+    IntrospectionResponse response = tokenIntrospectionService.introspect(VALID_JWT);
 
-    assertTrue(response.isPresent());
-    assertEquals(response.get(), mapper.writeValueAsString(attributes));
+    assertNotNull(response);
+    assertTrue(response.isActive());
+    assertEquals(response.getAdditionalFields().size(), 1);
+    assertEquals(response.getAdditionalFields().get("sub"), "user123");
   }
 
   @Test
@@ -66,15 +61,20 @@ public class TokenIntrospectionServiceTests extends EsacoTestUtils {
     when(introspector.introspect(VALID_JWT))
       .thenThrow(new OAuth2IntrospectionException("Connection refused"));
 
-    Optional<String> result = tokenIntrospectionService.introspect(VALID_JWT);
-    assertTrue(result.isEmpty(), "Expected empty Optional on connection error");
+    TokenIntrospectionException e = assertThrows(TokenIntrospectionException.class, () -> {
+      tokenIntrospectionService.introspect(VALID_JWT);
+    });
+    assertTrue(e.getCause() instanceof OAuth2IntrospectionException);
   }
 
   @Test
   public void testIntrospectionWithUnsupportedIssuer() {
     when(introspector.introspect(TOKEN_FROM_UNKNOWN_ISSUER))
-      .thenThrow(new OAuth2IntrospectionException("Unsupported issuer"));
+      .thenThrow(new UnsupportedIssuerException("Unsupported issuer"));
 
-    assertTrue(tokenIntrospectionService.introspect(TOKEN_FROM_UNKNOWN_ISSUER).isEmpty());
+    TokenIntrospectionException e = assertThrows(TokenIntrospectionException.class, () -> {
+      tokenIntrospectionService.introspect(TOKEN_FROM_UNKNOWN_ISSUER);
+    });
+    assertTrue(e.getCause() instanceof UnsupportedIssuerException);
   }
 }
