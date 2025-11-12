@@ -55,12 +55,12 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
 
   @Test
   @WithAnonymousUser
-  public void introspectEndpointRequiresAuthenticatedUser() throws Exception {
+  void introspectEndpointRequiresAuthenticatedUser() throws Exception {
     mvc.perform(post(ENDPOINT)).andDo(print()).andExpect(status().isUnauthorized());
   }
 
   @Test
-  public void testIntrospectWithoutToken() throws Exception {
+  void testIntrospectWithoutToken() throws Exception {
 
     mvc.perform(post(ENDPOINT))
       .andDo(print())
@@ -70,7 +70,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   }
 
   @Test
-  public void testMalformedToken() throws Exception {
+  void testMalformedToken() throws Exception {
     String token = "abcdefghilmnopqrstuvz";
 
     mvc.perform(post(ENDPOINT).param("token", token))
@@ -83,7 +83,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   }
 
   @Test
-  public void testIntrospectionRaiseDiscoveryDocumentNotFoundError() throws Exception {
+  void testIntrospectionRaiseDiscoveryDocumentNotFoundError() throws Exception {
 
     String errorMessage = format("No introspection_endpoint in discovery document for %s", ISS);
     when(inspector.introspect(VALID_JWT))
@@ -99,7 +99,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   }
 
   @Test
-  public void testIntrospectionRaiseUnsupportedIssuerError() throws Exception {
+  void testIntrospectionRaiseUnsupportedIssuerError() throws Exception {
 
     String errorMessage = format("Unsupported issuer: %s", ISS);
     when(inspector.introspect(VALID_JWT)).thenThrow(new UnsupportedIssuerException(errorMessage));
@@ -114,7 +114,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   }
 
   @Test
-  public void testIntrospectionRaiseHttpConnectionError() throws Exception {
+  void testIntrospectionRaiseHttpConnectionError() throws Exception {
 
     String errorMessage = "Connection error";
     when(inspector.introspect(VALID_JWT)).thenThrow(new HttpConnectionException(errorMessage));
@@ -129,7 +129,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   }
 
   @Test
-  public void testIntrospectionRaiseHttpClientUnauthorizedError() throws Exception {
+  void testIntrospectionRaiseHttpClientUnauthorizedError() throws Exception {
 
     when(inspector.introspect(VALID_JWT)).thenThrow(HttpClientErrorException
       .create(HttpStatusCode.valueOf(401), "Unauthorized error", null, null, null));
@@ -144,7 +144,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
 
   // HttpClientErrorException.Unauthorized
   @Test
-  public void testIntrospectionWithExpiredToken() throws Exception {
+  void testIntrospectionWithExpiredToken() throws Exception {
 
     when(inspector.introspect(VALID_JWT)).thenReturn(EXPIRED_INTROSPECTION);
 
@@ -155,7 +155,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   }
 
   @Test
-  public void testIntrospectionWithExtraInformationValidToken() throws Exception {
+  void testIntrospectionWithExtraInformationValidToken() throws Exception {
 
     when(inspector.introspect(EXTRA_INFORMATION_JWT)).thenReturn(EXTRA_INFORMATION_INTROSPECTION);
 
@@ -166,7 +166,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   }
 
   @Test
-  public void testIntrospectionWithValidToken() throws Exception {
+  void testIntrospectionWithValidToken() throws Exception {
 
     when(inspector.introspect(VALID_JWT)).thenReturn(VALID_INTROSPECTION);
 

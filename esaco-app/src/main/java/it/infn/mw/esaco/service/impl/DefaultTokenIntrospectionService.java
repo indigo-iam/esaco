@@ -3,8 +3,6 @@ package it.infn.mw.esaco.service.impl;
 import java.text.ParseException;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +15,6 @@ import it.infn.mw.esaco.service.TokenIntrospectionService;
 
 @Service
 public class DefaultTokenIntrospectionService implements TokenIntrospectionService {
-
-  public static final Logger LOGGER =
-      LoggerFactory.getLogger(DefaultTokenIntrospectionService.class);
 
   private final OpaqueTokenIntrospector introspector;
 
@@ -39,7 +34,6 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
 
     } catch (Exception e) {
 
-      LOGGER.warn("Error during introspection: {}", e.getMessage());
       throw new TokenIntrospectionException(e.getMessage(), e);
     }
   }

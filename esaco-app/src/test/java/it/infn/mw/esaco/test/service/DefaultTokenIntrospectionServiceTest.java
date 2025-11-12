@@ -1,5 +1,6 @@
 package it.infn.mw.esaco.test.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,8 +40,8 @@ class DefaultTokenIntrospectionServiceTest extends EsacoTestUtils {
     IntrospectionResponse response = service.introspect(VALID_JWT);
 
     assertNotNull(response);
-    assertTrue(expectedResponse.isActive() == response.isActive());
-    assertTrue(expectedResponse.getAdditionalFields().equals(response.getAdditionalFields()));
+    assertEquals(expectedResponse.isActive(), response.isActive());
+    assertEquals(expectedResponse.getAdditionalFields(), response.getAdditionalFields());
     verify(introspector).introspect(VALID_JWT);
   }
 
@@ -50,7 +51,7 @@ class DefaultTokenIntrospectionServiceTest extends EsacoTestUtils {
         assertThrows(TokenIntrospectionException.class, () -> service.introspect(null));
     verifyNoInteractions(introspector);
     assertTrue(e.getCause() instanceof TokenValidationException);
-    assertTrue("Cannot perform request with empty token".equals(e.getCause().getMessage()));
+    assertEquals("Cannot perform request with empty token", e.getCause().getMessage());
   }
 
   @Test
@@ -59,7 +60,7 @@ class DefaultTokenIntrospectionServiceTest extends EsacoTestUtils {
         assertThrows(TokenIntrospectionException.class, () -> service.introspect(""));
     verifyNoInteractions(introspector);
     assertTrue(e.getCause() instanceof TokenValidationException);
-    assertTrue("Cannot perform request with empty token".equals(e.getCause().getMessage()));
+    assertEquals("Cannot perform request with empty token", e.getCause().getMessage());
   }
 
   @Test
@@ -69,7 +70,7 @@ class DefaultTokenIntrospectionServiceTest extends EsacoTestUtils {
         assertThrows(TokenIntrospectionException.class, () -> service.introspect(malformed));
     verifyNoInteractions(introspector);
     assertTrue(e.getCause() instanceof TokenValidationException);
-    assertTrue("Malformed JWT token string".equals(e.getCause().getMessage()));
+    assertEquals("Malformed JWT token string", e.getCause().getMessage());
   }
 
   @Test

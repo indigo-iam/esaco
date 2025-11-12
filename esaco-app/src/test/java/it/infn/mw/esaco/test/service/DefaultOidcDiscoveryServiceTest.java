@@ -36,8 +36,8 @@ class DefaultOidcDiscoveryServiceTest {
     String issuer = "https://example.com";
     String responseBody = "{\"issuer\":\"https://example.com\"}";
 
-    when(restTemplate.getForEntity(eq(issuer + "/.well-known/openid-configuration"),
-        eq(String.class))).thenReturn(new ResponseEntity<>(responseBody, HttpStatus.OK));
+    when(restTemplate.getForEntity(issuer + "/.well-known/openid-configuration", String.class))
+      .thenReturn(new ResponseEntity<>(responseBody, HttpStatus.OK));
 
     JsonNode result = service.getDiscoveryDocument(issuer, restTemplate);
 
@@ -50,10 +50,11 @@ class DefaultOidcDiscoveryServiceTest {
     String issuer = "https://issuer.com";
     String oauthResponse = "{\"token_endpoint\":\"https://issuer.com/token\"}";
 
-    when(restTemplate.getForEntity(eq(issuer + "/.well-known/openid-configuration"),
-        eq(String.class))).thenThrow(new RestClientException("OIDC fail"));
-    when(restTemplate.getForEntity(eq(issuer + "/.well-known/oauth-authorization-server"),
-        eq(String.class))).thenReturn(new ResponseEntity<>(oauthResponse, HttpStatus.OK));
+    when(restTemplate.getForEntity(issuer + "/.well-known/openid-configuration", String.class))
+      .thenThrow(new RestClientException("OIDC fail"));
+    when(
+        restTemplate.getForEntity(issuer + "/.well-known/oauth-authorization-server", String.class))
+          .thenReturn(new ResponseEntity<>(oauthResponse, HttpStatus.OK));
 
     JsonNode result = service.getDiscoveryDocument(issuer, restTemplate);
     assertEquals("https://issuer.com/token", result.get("token_endpoint").asText());
@@ -75,8 +76,8 @@ class DefaultOidcDiscoveryServiceTest {
     String issuer = "https://example.com/";
     String responseBody = "{\"issuer\":\"https://example.com\"}";
 
-    when(restTemplate.getForEntity(eq("https://example.com/.well-known/openid-configuration"),
-        eq(String.class))).thenReturn(new ResponseEntity<>(responseBody, HttpStatus.OK));
+    when(restTemplate.getForEntity("https://example.com/.well-known/openid-configuration",
+        String.class)).thenReturn(new ResponseEntity<>(responseBody, HttpStatus.OK));
 
     JsonNode result = service.getDiscoveryDocument(issuer, restTemplate);
     assertEquals("https://example.com", result.get("issuer").asText());
