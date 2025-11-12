@@ -6,14 +6,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.infn.mw.esaco.exception.DiscoveryDocumentNotFoundException;
-import it.infn.mw.esaco.exception.InvalidClientCredentialsException;
-import it.infn.mw.esaco.exception.TokenValidationException;
-import it.infn.mw.esaco.exception.UnsupportedIssuerException;
+import it.infn.mw.esaco.exception.TokenIntrospectionException;
+import it.infn.mw.esaco.model.IntrospectionResponse;
 import it.infn.mw.esaco.service.TokenIntrospectionService;
 
 @RestController
-public class TokenIntrospectionController extends TokenControllerUtils {
+public class TokenIntrospectionController {
 
   private TokenIntrospectionService tokenIntrospectionService;
 
@@ -23,12 +21,10 @@ public class TokenIntrospectionController extends TokenControllerUtils {
   }
 
   @PostMapping(value = "/introspect", produces = MediaType.APPLICATION_JSON_VALUE)
-  public String introspectToken(
+  public IntrospectionResponse introspectToken(
       @RequestParam(value = OAuth2ParameterNames.TOKEN, required = true) String accessToken)
-      throws InvalidClientCredentialsException, TokenValidationException, UnsupportedIssuerException, DiscoveryDocumentNotFoundException {
+      throws TokenIntrospectionException {
 
-    accessTokenSanityChecks(accessToken);
-
-    return tokenIntrospectionService.introspect(accessToken).orElse(INACTIVE_TOKEN_RESPONSE);
+    return tokenIntrospectionService.introspect(accessToken);
   }
 }

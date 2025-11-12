@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
@@ -57,7 +56,7 @@ class DelegatingOpaqueTokenIntrospectorTests {
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  void setUp() throws JsonMappingException, JsonProcessingException {
+  void setUp() throws JsonProcessingException {
 
     String issuer = "https://issuer.example.org";
 
@@ -74,15 +73,13 @@ class DelegatingOpaqueTokenIntrospectorTests {
     when(restTemplateFactory.apply(client)).thenReturn(restTemplate);
 
     discoveryService = mock(OidcDiscoveryService.class);
-    addDiscoveryResponse(issuer, OIDC_DISCOVERY_URL, "https://issuer.example.org/introspect",
-        HttpStatus.OK);
+    addDiscoveryResponse(issuer, "https://issuer.example.org/introspect");
 
     delegatingIntrospector =
         new DelegatingOpaqueTokenIntrospector(properties, restTemplateFactory, discoveryService);
   }
 
-  private void addDiscoveryResponse(String issuer, String discoveryUrl, String discoveryResponse,
-      HttpStatus statusResponse) throws JsonMappingException, JsonProcessingException {
+  private void addDiscoveryResponse(String issuer, String discoveryResponse) throws JsonProcessingException {
 
     ObjectMapper mapper = new ObjectMapper();
     String json = "{ \"issuer\": \"" + issuer + "\" }";
@@ -120,8 +117,7 @@ class DelegatingOpaqueTokenIntrospectorTests {
     String issuer = client.getIssuerUrl();
     String introspectUrl = "https://issuer.example.org/oauth2/introspect";
 
-    addDiscoveryResponse(issuer, OIDC_DISCOVERY_URL, "https://issuer.example.org/oauth2/introspect",
-        HttpStatus.OK);
+    addDiscoveryResponse(issuer, "https://issuer.example.org/oauth2/introspect");
     addIntrospectResponse(true, HttpStatus.OK);
 
     String token = createFakeJwtWithIssuer(issuer);
@@ -154,8 +150,8 @@ class DelegatingOpaqueTokenIntrospectorTests {
 
     String issuer = client.getIssuerUrl();
 
-    addDiscoveryResponse(issuer, OIDC_DISCOVERY_URL, null, HttpStatus.OK);
-    addDiscoveryResponse(issuer, OAUTH_DISCOVERY_URL, null, HttpStatus.OK);
+    addDiscoveryResponse(issuer, null);
+    addDiscoveryResponse(issuer , null);
 
     String token = createFakeJwtWithIssuer(issuer);
 
