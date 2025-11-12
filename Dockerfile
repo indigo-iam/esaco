@@ -5,7 +5,6 @@ COPY .git .git
 
 COPY pom.xml .
 COPY esaco-app esaco-app
-COPY esaco-common esaco-common
 
 RUN mvn package -Dmaven.test.skip
 

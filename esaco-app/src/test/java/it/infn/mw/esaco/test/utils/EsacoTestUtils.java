@@ -1,7 +1,12 @@
 package it.infn.mw.esaco.test.utils;
 
-import it.infn.mw.esaco.model.IamIntrospection;
-import it.infn.mw.esaco.model.IamUser;
+import java.sql.Date;
+import java.time.Instant;
+import java.util.Map;
+
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
+
+import it.infn.mw.esaco.model.IntrospectionResponse;
 
 public class EsacoTestUtils {
 
@@ -30,59 +35,51 @@ public class EsacoTestUtils {
   protected final String EXTRA_INFORMATION_JWT =
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY3RpdmUiOnRydWUsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUiLCJleHBpcmVzX2F0IjoiMjAxNy0wOS0wNFQxNjowOTowMyswMjAwIiwiZXhwIjoxNTg0NjMxNjcwLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvIiwic3ViIjoiNzNmMTZkOTMtMjQ0MS00YTUwLTg4ZmYtODUzNjBkNzhjNmI1IiwidW5lY2Vzc2FyeV9maWVsZCI6InVuZWNlc3NhcnlfaW5mb3JtYXRpb24iLCJ1c2VyX2lkIjoiYWRtaW4iLCJjbGllbnRfaWQiOiJwYXNzd29yZC1ncmFudCIsInRva2VuX3R5cGUiOiJCZWFyZXIiLCJncm91cHMiOlsiUHJvZHVjdGlvbiIsIkFuYWx5c2lzIl0sInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluIiwib3JnYW5pc2F0aW9uX25hbWUiOiJpbmRpZ28tZGMiLCJuYW1lIjoiQWRtaW4gVXNlciIsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5vcmciLCJncm91cE5hbWVzIjpbIlByb2R1Y3Rpb24iLCJBbmFseXNpcyJdLCJlZHVfcGVyc29uX2VudGl0bGVtZW50cyI6WyJ1cm46bWFjZTplZ2kuZXU6Z3JvdXA6dm8udGVzdC5lZ2kuZXU6cm9sZT1tZW1iZXIjYWFpLmVnaS5ldSJdLCJlZHVwZXJzb25fZW50aXRsZW1lbnQiOlsidXJuOm1hY2U6ZWdpLmV1Omdyb3VwOnZvLnRlc3QuZWdpLmV1OnJvbGU9bWVtYmVyI2FhaS5lZ2kuZXUiXSwiYWNyIjoiaHR0cHM6Ly9hYWkuZWdpLmV1L0xvQSNTdWJzdGFudGlhbCIsImp0aSI6IjkyYzQ3ODI1LWJjYTAtNDBlNy05NjllLWE2NDQ3ZmZiNmFjOCIsImlhdCI6MTU4NDYyODA3MH0.oSer92_vf-_OlSezwyOa-bfOTObS9_ph-_M3_yD-gEk";
 
-  protected final String EXTRA_INFORMATION_INTROSPECTION =
-      "{\"active\":true,\"scope\":\"openid profile\",\"expires_at\":\"2017-09-04T16:09:03+0200\",\"exp\":1504534143,\"iss\":\"http://localhost:8080/\",\"sub\":\"73f16d93-2441-4a50-88ff-85360d78c6b5\",\"unecessary_field\":\"unecessary_information\",\"user_id\":\"admin\",\"client_id\":\"password-grant\",\"token_type\":\"Bearer\",\"groups\":[\"Production\",\"Analysis\"],\"preferred_username\":\"admin\",\"organisation_name\":\"indigo-dc\",\"name\":\"Admin User\",\"email\":\"admin@example.org\",\"groupNames\":[\"Production\",\"Analysis\"],\"edu_person_entitlements\":[\"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu\"],\"eduperson_entitlement\":[\"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu\"],\"acr\":\"https://aai.egi.eu/LoA#Substantial\"}";
+  protected final OAuth2IntrospectionAuthenticatedPrincipal EXTRA_INFORMATION_INTROSPECTION =
+      new OAuth2IntrospectionAuthenticatedPrincipal(Map.ofEntries(Map.entry("active", true),
+          Map.entry("scope", new String[] {"openid", "profile"}),
+          Map.entry("expires_at", Date.from(Instant.ofEpochSecond(1504534143))),
+          Map.entry("exp", 1504534143L), Map.entry("iss", ISS),
+          Map.entry("unecessary_field", "unecessary_information"),
+          Map.entry("sub", "73f16d93-2441-4a50-88ff-85360d78c6b5"), Map.entry("user_id", "admin"),
+          Map.entry("client_id", "password-grant"), Map.entry("token_type", "Bearer"),
+          Map.entry("groups", new String[] {"Production", "Analysis"}),
+          Map.entry("preferred_username", "admin"), Map.entry("organisation_name", "indigo-dc"),
+          Map.entry("name", "Admin User"), Map.entry("email", "admin@example.org"),
+          Map.entry("entitlements",
+              new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"}),
+          Map.entry("eduperson_entitlement",
+              new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"}),
+          Map.entry("acr", "https://aai.egi.eu/LoA#Substantial")), null);
 
-  protected final IamIntrospection VALID_INTROSPECTION =
-      new IamIntrospection.Builder(true).addField("scope", new String[] {"openid", "profile"})
-        .addField("expires_at", "2017-09-04T16:09:03+0200")
-        .addField("exp", 1504534143L)
-        .addField("iss", ISS)
-        .addField("sub", "73f16d93-2441-4a50-88ff-85360d78c6b5")
-        .addField("user_id", "admin")
-        .addField("client_id", "password-grant")
+  protected final OAuth2IntrospectionAuthenticatedPrincipal VALID_INTROSPECTION =
+      new OAuth2IntrospectionAuthenticatedPrincipal(Map.ofEntries(Map.entry("active", true),
+          Map.entry("scope", new String[] {"openid", "profile"}),
+          Map.entry("expires_at", Date.from(Instant.ofEpochSecond(1504534143))),
+          Map.entry("exp", 1504534143L), Map.entry("iss", ISS),
+          Map.entry("sub", "73f16d93-2441-4a50-88ff-85360d78c6b5"), Map.entry("user_id", "admin"),
+          Map.entry("client_id", "password-grant"), Map.entry("token_type", "Bearer"),
+          Map.entry("groups", new String[] {"Production", "Analysis"}),
+          Map.entry("preferred_username", "admin"), Map.entry("organisation_name", "indigo-dc"),
+          Map.entry("name", "Admin User"), Map.entry("email", "admin@example.org"),
+          Map.entry("entitlements",
+              new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"}),
+          Map.entry("eduperson_entitlement",
+              new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"}),
+          Map.entry("acr", "https://aai.egi.eu/LoA#Substantial")), null);
+
+  protected final OAuth2IntrospectionAuthenticatedPrincipal EXPIRED_INTROSPECTION =
+      new OAuth2IntrospectionAuthenticatedPrincipal(Map.of("active", false), null);
+
+  protected final IntrospectionResponse CLIENT_CRED_INTROSPECTION =
+      new IntrospectionResponse.Builder(true)
+        .addField("scope", new String[] {"read-tasks", "write-tasks"})
+        .addField("expires_at", "2017-09-05T15:57:22+0200")
+        .addField("exp", 1504619842L)
+        .addField("user_id", "client-cred")
+        .addField("client_id", "client-cred")
         .addField("token_type", "Bearer")
-        .addField("groups", new String[] {"Production", "Analysis"})
-        .addField("preferred_username", "admin")
-        .addField("organisation_name", "indigo-dc")
-        .addField("name", "Admin User")
-        .addField("email", "admin@example.org")
-        .addField("entitlements",
-            new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
-        .addField("eduperson_entitlement",
-            new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
-        .addField("acr", "https://aai.egi.eu/LoA#Substantial")
         .build();
-
-  protected final IamUser VALID_USERINFO =
-      new IamUser.Builder("73f16d93-2441-4a50-88ff-85360d78c6b5").addField("name", "Admin User")
-        .addField("preferred_username", "admin")
-        .addField("given_name", "Admin")
-        .addField("family_name", "User")
-        .addField("email", "admin@example.org")
-        .addField("gender", "M")
-        .addField("updated_at", "Mon Sep 04 15:08:36 CEST 2017")
-        .addField("groups", new String[] {"Production", "Analysis"})
-        .addField("organisation_name", "indigo-dc")
-        .addField("entitlements",
-            new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
-        .addField("eduperson_entitlement",
-            new String[] {"urn:mace:egi.eu:group:vo.test.egi.eu:role=member#aai.egi.eu"})
-        .addField("acr", "https://aai.egi.eu/LoA#Substantial")
-        .build();
-
-
-  protected final IamIntrospection EXPIRED_INTROSPECTION =
-      new IamIntrospection.Builder(false).build();
-
-  protected final IamIntrospection CLIENT_CRED_INTROSPECTION = new IamIntrospection.Builder(true)
-    .addField("scope", new String[] {"read-tasks", "write-tasks"})
-    .addField("expires_at", "2017-09-05T15:57:22+0200")
-    .addField("exp", 1504619842L)
-    .addField("user_id", "client-cred")
-    .addField("client_id", "client-cred")
-    .addField("token_type", "Bearer")
-    .build();
 
   protected final String ISSUER_CONFIGURATION =
       "{\"request_parameter_supported\":true,\"claims_parameter_supported\":false,\"introspection_endpoint\":\"http://localhost:8080/introspect\",\"scopes_supported\":[\"openid\",\"profile\",\"email\",\"address\",\"phone\",\"offline_access\"],\"issuer\":\"http://localhost:8080/\",\"userinfo_encryption_enc_values_supported\":[\"A256CBC+HS512\",\"A256GCM\",\"A192GCM\",\"A128GCM\",\"A128CBC-HS256\",\"A192CBC-HS384\",\"A256CBC-HS512\",\"A128CBC+HS256\"],\"id_token_encryption_enc_values_supported\":[\"A256CBC+HS512\",\"A256GCM\",\"A192GCM\",\"A128GCM\",\"A128CBC-HS256\",\"A192CBC-HS384\",\"A256CBC-HS512\",\"A128CBC+HS256\"],\"authorization_endpoint\":\"http://localhost:8080/authorize\",\"service_documentation\":\"http://localhost:8080/about\",\"request_object_encryption_enc_values_supported\":[\"A256CBC+HS512\",\"A256GCM\",\"A192GCM\",\"A128GCM\",\"A128CBC-HS256\",\"A192CBC-HS384\",\"A256CBC-HS512\",\"A128CBC+HS256\"],\"userinfo_signing_alg_values_supported\":[\"HS256\",\"HS384\",\"HS512\",\"RS256\",\"RS384\",\"RS512\",\"ES256\",\"ES384\",\"ES512\",\"PS256\",\"PS384\",\"PS512\"],\"claims_supported\":[\"sub\",\"name\",\"preferred_username\",\"given_name\",\"family_name\",\"middle_name\",\"nickname\",\"profile\",\"picture\",\"website\",\"gender\",\"zoneinfo\",\"locale\",\"updated_at\",\"birthdate\",\"email\",\"email_verified\",\"phone_number\",\"phone_number_verified\",\"address\",\"organisation_name\",\"groups\",\"external_authn\"],\"claim_types_supported\":[\"normal\"],\"op_policy_uri\":\"http://localhost:8080/about\",\"token_endpoint_auth_methods_supported\":[\"client_secret_post\",\"client_secret_basic\",\"none\"],\"token_endpoint\":\"http://localhost:8080/token\",\"response_types_supported\":[\"code\",\"token\"],\"request_uri_parameter_supported\":false,\"userinfo_encryption_alg_values_supported\":[\"RSA-OAEP\",\"RSA-OAEP-256\",\"RSA1_5\"],\"grant_types_supported\":[\"authorization_code\",\"implicit\",\"refresh_token\",\"client_credentials\",\"password\",\"urn:ietf:params:oauth:grant-type:jwt-bearer\",\"urn:ietf:params:oauth:grant_type:redelegate\",\"urn:ietf:params:oauth:grant-type:token-exchange\"],\"revocation_endpoint\":\"http://localhost:8080/revoke\",\"userinfo_endpoint\":\"http://localhost:8080/userinfo\",\"token_endpoint_auth_signing_alg_values_supported\":[\"HS256\",\"HS384\",\"HS512\",\"RS256\",\"RS384\",\"RS512\",\"ES256\",\"ES384\",\"ES512\",\"PS256\",\"PS384\",\"PS512\"],\"op_tos_uri\":\"http://localhost:8080/about\",\"require_request_uri_registration\":false,\"code_challenge_methods_supported\":[\"plain\",\"S256\"],\"id_token_encryption_alg_values_supported\":[\"RSA-OAEP\",\"RSA-OAEP-256\",\"RSA1_5\"],\"jwks_uri\":\"http://localhost:8080/jwk\",\"subject_types_supported\":[\"public\",\"pairwise\"],\"id_token_signing_alg_values_supported\":[\"HS256\",\"HS384\",\"HS512\",\"RS256\",\"RS384\",\"RS512\",\"ES256\",\"ES384\",\"ES512\",\"PS256\",\"PS384\",\"PS512\",\"none\"],\"registration_endpoint\":\"http://localhost:8080/register\",\"request_object_signing_alg_values_supported\":[\"HS256\",\"HS384\",\"HS512\",\"RS256\",\"RS384\",\"RS512\",\"ES256\",\"ES384\",\"ES512\",\"PS256\",\"PS384\",\"PS512\"],\"request_object_encryption_alg_values_supported\":[\"RSA-OAEP\",\"RSA-OAEP-256\",\"RSA1_5\"]}";

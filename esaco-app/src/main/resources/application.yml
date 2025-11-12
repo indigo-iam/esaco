@@ -13,7 +13,8 @@ spring:
 
   cache:
     type: ${ESACO_CACHE:caffeine}
-    cache-names: introspect,userinfo
+    cache-names:
+      - oidcDiscovery
     caffeine:
       spec: ${ESACO_CACHE_SPEC:maximumSize=500,expireAfterWrite=60s}
 
