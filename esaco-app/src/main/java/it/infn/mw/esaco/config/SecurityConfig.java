@@ -27,7 +27,7 @@ public class SecurityConfig {
   }
 
   @Bean
-  SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  SecurityFilterChain securityFilterChain(HttpSecurity http) {
     http
       .authorizeHttpRequests(auth -> auth.requestMatchers(EndpointRequest.to("health", "info"))
         .permitAll()
