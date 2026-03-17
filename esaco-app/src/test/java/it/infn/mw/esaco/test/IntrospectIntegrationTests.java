@@ -5,10 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.BAD_GATEWAY;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -16,36 +13,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.HttpClientErrorException;
 
-import it.infn.mw.esaco.EsacoApplication;
 import it.infn.mw.esaco.exception.DiscoveryDocumentNotFoundException;
 import it.infn.mw.esaco.exception.HttpConnectionException;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
+import it.infn.mw.esaco.model.ErrorType;
 import it.infn.mw.esaco.service.TokenIntrospectionService;
 import it.infn.mw.esaco.test.utils.EsacoTestUtils;
 
-@ContextConfiguration(classes = {EsacoApplication.class})
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@WithMockUser(username = "test", roles = "USER")
 public class IntrospectIntegrationTests extends EsacoTestUtils {
 
   final static String ENDPOINT = "/introspect";
 
   @Autowired
-  private MockMvc mvc;
+  MockMvc mvc;
 
   @Autowired
   TokenIntrospectionService tokenIntrospectionService;
@@ -62,24 +55,23 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
   @Test
   void testIntrospectWithoutToken() throws Exception {
 
-    mvc.perform(post(ENDPOINT))
+    mvc.perform(post(ENDPOINT).with(user("test").roles("USER")))
       .andDo(print())
       .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.status", equalTo(BAD_REQUEST.value())))
-      .andExpect(jsonPath("$.detail", equalTo("Required parameter 'token' is not present.")));
+      .andExpect(jsonPath("$.error", equalTo(ErrorType.invalid_request.name())))
+      .andExpect(
+          jsonPath("$.error_description", equalTo("Required parameter 'token' is not present.")));
   }
 
   @Test
   void testMalformedToken() throws Exception {
     String token = "abcdefghilmnopqrstuvz";
 
-    mvc.perform(post(ENDPOINT).param("token", token))
+    mvc.perform(post(ENDPOINT).with(user("test").roles("USER")).param("token", token))
       .andDo(print())
       .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.status").exists())
-      .andExpect(jsonPath("$.status").value(equalTo(BAD_REQUEST.value())))
-      .andExpect(jsonPath("$.error", equalTo(BAD_REQUEST.getReasonPhrase())))
-      .andExpect(jsonPath("$.message", equalTo("Malformed JWT token string")));
+      .andExpect(jsonPath("$.error", equalTo(ErrorType.invalid_token.name())))
+      .andExpect(jsonPath("$.error_description", equalTo("Malformed JWT token string")));
   }
 
   @Test
@@ -89,13 +81,11 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
     when(inspector.introspect(VALID_JWT))
       .thenThrow(new DiscoveryDocumentNotFoundException(errorMessage));
 
-    mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
+    mvc.perform(post(ENDPOINT).with(user("test").roles("USER")).param("token", VALID_JWT))
       .andDo(print())
       .andExpect(status().isBadGateway())
-      .andExpect(jsonPath("$.status").exists())
-      .andExpect(jsonPath("$.status").value(equalTo(BAD_GATEWAY.value())))
-      .andExpect(jsonPath("$.error", equalTo(BAD_GATEWAY.getReasonPhrase())))
-      .andExpect(jsonPath("$.message", equalTo(errorMessage)));
+      .andExpect(jsonPath("$.error", equalTo(ErrorType.server_error.name())))
+      .andExpect(jsonPath("$.error_description", equalTo(errorMessage)));
   }
 
   @Test
@@ -104,13 +94,11 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
     String errorMessage = format("Unsupported issuer: %s", ISS);
     when(inspector.introspect(VALID_JWT)).thenThrow(new UnsupportedIssuerException(errorMessage));
 
-    mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
+    mvc.perform(post(ENDPOINT).with(user("test").roles("USER")).param("token", VALID_JWT))
       .andDo(print())
       .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.status").exists())
-      .andExpect(jsonPath("$.status").value(equalTo(BAD_REQUEST.value())))
-      .andExpect(jsonPath("$.error", equalTo(BAD_REQUEST.getReasonPhrase())))
-      .andExpect(jsonPath("$.message", equalTo(errorMessage)));
+      .andExpect(jsonPath("$.error", equalTo(ErrorType.invalid_token.name())))
+      .andExpect(jsonPath("$.error_description", equalTo(errorMessage)));
   }
 
   @Test
@@ -119,13 +107,11 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
     String errorMessage = "Connection error";
     when(inspector.introspect(VALID_JWT)).thenThrow(new HttpConnectionException(errorMessage));
 
-    mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
+    mvc.perform(post(ENDPOINT).with(user("test").roles("USER")).param("token", VALID_JWT))
       .andDo(print())
       .andExpect(status().isInternalServerError())
-      .andExpect(jsonPath("$.status").exists())
-      .andExpect(jsonPath("$.status").value(equalTo(INTERNAL_SERVER_ERROR.value())))
-      .andExpect(jsonPath("$.error", equalTo(INTERNAL_SERVER_ERROR.getReasonPhrase())))
-      .andExpect(jsonPath("$.message", equalTo(errorMessage)));
+      .andExpect(jsonPath("$.error", equalTo(ErrorType.server_error.name())))
+      .andExpect(jsonPath("$.error_description", equalTo(errorMessage)));
   }
 
   @Test
@@ -134,21 +120,19 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
     when(inspector.introspect(VALID_JWT)).thenThrow(HttpClientErrorException
       .create(HttpStatusCode.valueOf(401), "Unauthorized error", null, null, null));
 
-    mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
+    mvc.perform(post(ENDPOINT).with(user("test").roles("USER")).param("token", VALID_JWT))
       .andDo(print())
       .andExpect(status().isUnauthorized())
-      .andExpect(jsonPath("$.status").exists())
-      .andExpect(jsonPath("$.status").value(equalTo(UNAUTHORIZED.value())))
-      .andExpect(jsonPath("$.error", equalTo(UNAUTHORIZED.getReasonPhrase())));
+      .andExpect(jsonPath("$.error", equalTo(ErrorType.unauthorized_client.name())))
+      .andExpect(jsonPath("$.error_description", equalTo("401 Unauthorized error")));
   }
 
-  // HttpClientErrorException.Unauthorized
   @Test
   void testIntrospectionWithExpiredToken() throws Exception {
 
     when(inspector.introspect(VALID_JWT)).thenReturn(EXPIRED_INTROSPECTION);
 
-    mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
+    mvc.perform(post(ENDPOINT).with(user("test").roles("USER")).param("token", VALID_JWT))
       .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.active").value("false"));
@@ -159,7 +143,9 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
 
     when(inspector.introspect(EXTRA_INFORMATION_JWT)).thenReturn(EXTRA_INFORMATION_INTROSPECTION);
 
-    mvc.perform(post(ENDPOINT).param("token", EXTRA_INFORMATION_JWT))
+    mvc
+      .perform(
+          post(ENDPOINT).with(user("test").roles("USER")).param("token", EXTRA_INFORMATION_JWT))
       .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.unecessary_field").value("unecessary_information"));
@@ -170,7 +156,7 @@ public class IntrospectIntegrationTests extends EsacoTestUtils {
 
     when(inspector.introspect(VALID_JWT)).thenReturn(VALID_INTROSPECTION);
 
-    mvc.perform(post(ENDPOINT).param("token", VALID_JWT))
+    mvc.perform(post(ENDPOINT).with(user("test").roles("USER")).param("token", VALID_JWT))
       .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.active").value("true"))

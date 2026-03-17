@@ -22,9 +22,6 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -38,6 +35,8 @@ import it.infn.mw.esaco.config.DelegatingOpaqueTokenIntrospector;
 import it.infn.mw.esaco.exception.DiscoveryDocumentNotFoundException;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 import it.infn.mw.esaco.service.OidcDiscoveryService;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 class DelegatingOpaqueTokenIntrospectorTests {
 
@@ -56,7 +55,7 @@ class DelegatingOpaqueTokenIntrospectorTests {
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  void setUp() throws JsonProcessingException {
+  void setUp() {
 
     String issuer = "https://issuer.example.org";
 
@@ -79,7 +78,7 @@ class DelegatingOpaqueTokenIntrospectorTests {
         new DelegatingOpaqueTokenIntrospector(properties, restTemplateFactory, discoveryService);
   }
 
-  private void addDiscoveryResponse(String issuer, String discoveryResponse) throws JsonProcessingException {
+  private void addDiscoveryResponse(String issuer, String discoveryResponse) {
 
     ObjectMapper mapper = new ObjectMapper();
     String json = "{ \"issuer\": \"" + issuer + "\" }";

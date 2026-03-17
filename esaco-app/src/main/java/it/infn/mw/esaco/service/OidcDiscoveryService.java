@@ -3,7 +3,7 @@ package it.infn.mw.esaco.service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 public interface OidcDiscoveryService {
 

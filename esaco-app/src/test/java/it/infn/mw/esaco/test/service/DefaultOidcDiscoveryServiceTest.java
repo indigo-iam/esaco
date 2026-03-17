@@ -15,10 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import it.infn.mw.esaco.service.OidcDiscoveryService;
 import it.infn.mw.esaco.service.impl.DefaultOidcDiscoveryService;
+import tools.jackson.databind.JsonNode;
 
 class DefaultOidcDiscoveryServiceTest {
 
@@ -42,7 +41,7 @@ class DefaultOidcDiscoveryServiceTest {
     JsonNode result = service.getDiscoveryDocument(issuer, restTemplate);
 
     assertNotNull(result);
-    assertEquals("https://example.com", result.get("issuer").asText());
+    assertEquals("https://example.com", result.get("issuer").asString());
   }
 
   @Test
@@ -57,7 +56,7 @@ class DefaultOidcDiscoveryServiceTest {
           .thenReturn(new ResponseEntity<>(oauthResponse, HttpStatus.OK));
 
     JsonNode result = service.getDiscoveryDocument(issuer, restTemplate);
-    assertEquals("https://issuer.com/token", result.get("token_endpoint").asText());
+    assertEquals("https://issuer.com/token", result.get("token_endpoint").asString());
   }
 
   @Test
@@ -80,6 +79,6 @@ class DefaultOidcDiscoveryServiceTest {
         String.class)).thenReturn(new ResponseEntity<>(responseBody, HttpStatus.OK));
 
     JsonNode result = service.getDiscoveryDocument(issuer, restTemplate);
-    assertEquals("https://example.com", result.get("issuer").asText());
+    assertEquals("https://example.com", result.get("issuer").asString());
   }
 }

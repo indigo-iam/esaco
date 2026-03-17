@@ -1,6 +1,6 @@
 package it.infn.mw.esaco.config;
 
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -27,7 +27,7 @@ public class SecurityConfig {
   }
 
   @Bean
-  SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  SecurityFilterChain securityFilterChain(HttpSecurity http) {
     http
       .authorizeHttpRequests(auth -> auth.requestMatchers(EndpointRequest.to("health", "info"))
         .permitAll()
@@ -50,5 +50,4 @@ public class SecurityConfig {
       .roles("USER")
       .build());
   }
-
 }

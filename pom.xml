@@ -14,14 +14,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <release>21</release>
 
-    <apache-httpclient.version>5.4.3</apache-httpclient.version>
-    <voms.version>3.3.6</voms.version>
-    <caffeine.version>3.1.8</caffeine.version>
-    <json-path.version>2.9.0</json-path.version>
-    <jackson.version>2.19.0</jackson.version>
-    <spring-boot.version>3.5.7</spring-boot.version>
+    <apache-httpclient.version>5.6</apache-httpclient.version>
+    <voms.version>3.3.7</voms.version>
+    <caffeine.version>3.2.3</caffeine.version>
+    <json-path.version>2.10.0</json-path.version>
+    <spring-boot.version>4.0.3</spring-boot.version>
     <jib-maven-plugin.version>3.1.4</jib-maven-plugin.version>
-    <nimbus.version>10.4</nimbus.version>
+    <nimbus.version>10.16</nimbus.version>
 
     <jacoco-plugin.version>0.8.12</jacoco-plugin.version>
     <code.coverage.project.folder>${basedir}/../</code.coverage.project.folder>
@@ -36,7 +35,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.7</version>
+    <version>4.0.3</version>
     <relativePath />
   </parent>
 
@@ -83,21 +82,9 @@
       </dependency>
 
       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-json</artifactId>
+        <version>${spring-boot.version}</version>
       </dependency>
 
       <dependency>
