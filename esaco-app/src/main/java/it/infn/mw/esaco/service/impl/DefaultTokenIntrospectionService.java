@@ -27,13 +27,9 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
   public IntrospectionResponse introspect(String accessToken) throws TokenIntrospectionException {
 
     try {
-
       accessTokenSanityChecks(accessToken);
-
       return new IntrospectionResponse(introspector.introspect(accessToken));
-
     } catch (Exception e) {
-
       throw new TokenIntrospectionException(e.getMessage(), e);
     }
   }
@@ -41,8 +37,7 @@ public class DefaultTokenIntrospectionService implements TokenIntrospectionServi
   private void accessTokenSanityChecks(String accessToken) {
 
     if (Objects.isNull(accessToken) || accessToken.isEmpty()) {
-      throw new TokenValidationException(
-        "Cannot perform request with empty token");
+      throw new TokenValidationException("Cannot perform request with empty token");
     }
 
     try {

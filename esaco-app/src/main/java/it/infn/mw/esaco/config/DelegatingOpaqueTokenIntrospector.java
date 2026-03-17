@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.nimbusds.jwt.JWTParser;
 
 import it.infn.mw.esaco.OidcClient;
@@ -20,6 +19,7 @@ import it.infn.mw.esaco.exception.DiscoveryDocumentNotFoundException;
 import it.infn.mw.esaco.exception.TokenValidationException;
 import it.infn.mw.esaco.exception.UnsupportedIssuerException;
 import it.infn.mw.esaco.service.OidcDiscoveryService;
+import tools.jackson.databind.JsonNode;
 
 public class DelegatingOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
@@ -49,7 +49,7 @@ public class DelegatingOpaqueTokenIntrospector implements OpaqueTokenIntrospecto
     RestTemplate restTemplate = restTemplateFactory.apply(client);
 
     JsonNode discoveryDoc = discoveryService.getDiscoveryDocument(issuer, restTemplate);
-    String introspectionEndpoint = discoveryDoc.path("introspection_endpoint").asText(null);
+    String introspectionEndpoint = discoveryDoc.path("introspection_endpoint").asString(null);
 
     if (Objects.isNull(introspectionEndpoint)) {
       throw new DiscoveryDocumentNotFoundException(format("No introspection_endpoint in discovery document for %s", issuer));

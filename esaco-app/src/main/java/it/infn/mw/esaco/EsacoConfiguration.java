@@ -31,11 +31,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import eu.emi.security.authn.x509.ProxySupport;
 import eu.emi.security.authn.x509.X509CertChainValidator;
@@ -191,14 +188,6 @@ public class EsacoConfiguration {
 
       return introspectionTemplate;
     };
-  }
-
-  @Bean
-  Jackson2ObjectMapperBuilder jacksonBuilder() {
-
-    Jackson2ObjectMapperBuilder jacksonBuilder = new Jackson2ObjectMapperBuilder();
-    jacksonBuilder.filters(new SimpleFilterProvider().setFailOnUnknownId(false));
-    return jacksonBuilder;
   }
 
   @Bean

@@ -2,43 +2,57 @@ package it.infn.mw.esaco.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import it.infn.mw.esaco.model.ErrorResponse;
+import it.infn.mw.esaco.model.OAuth2Error;
+import it.infn.mw.esaco.model.ErrorType;
 
-@ControllerAdvice
-public class EsacoExceptionHandler extends ResponseEntityExceptionHandler {
+@RestControllerAdvice
+public class EsacoExceptionHandler {
 
   @ExceptionHandler(TokenIntrospectionException.class)
-  @ResponseBody
-  public ResponseEntity<ErrorResponse> handleIntrospectionException(TokenIntrospectionException e) {
-
+  public ResponseEntity<OAuth2Error> handleTokenIntrospectionException(
+      TokenIntrospectionException e) {
     Throwable cause = e.getCause();
+
     if (cause instanceof HttpClientErrorException.Unauthorized http401) {
-      return buildErrorResponse(HttpStatus.UNAUTHORIZED, http401.getMessage());
+      return buildErrorResponse(HttpStatus.UNAUTHORIZED, ErrorType.unauthorized_client,
+          http401.getMessage());
     }
     if (cause instanceof HttpConnectionException httpConn) {
-      return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, httpConn.getMessage());
+      return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.server_error,
+          httpConn.getMessage());
     }
     if (cause instanceof DiscoveryDocumentNotFoundException discoveryEx) {
-      return buildErrorResponse(HttpStatus.BAD_GATEWAY, discoveryEx.getMessage());
+      return buildErrorResponse(HttpStatus.BAD_GATEWAY, ErrorType.server_error,
+          discoveryEx.getMessage());
     }
-    if (cause instanceof UnsupportedIssuerException basIssuer) {
-      return buildErrorResponse(HttpStatus.BAD_REQUEST, basIssuer.getMessage());
+    if (cause instanceof UnsupportedIssuerException unsupportedIssuer) {
+      return buildErrorResponse(HttpStatus.BAD_REQUEST, ErrorType.invalid_token,
+          unsupportedIssuer.getMessage());
     }
     if (cause instanceof TokenValidationException invalid) {
-      return buildErrorResponse(HttpStatus.BAD_REQUEST, invalid.getMessage());
+      return buildErrorResponse(HttpStatus.BAD_REQUEST, ErrorType.invalid_token,
+          invalid.getMessage());
     }
-    return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+
+    return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.server_error,
+        e.getMessage());
   }
 
-  private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  public ResponseEntity<OAuth2Error> handleMissingParameter(
+      MissingServletRequestParameterException ex) {
+    return buildErrorResponse(HttpStatus.BAD_REQUEST, ErrorType.invalid_request,
+        "Required parameter '" + ex.getParameterName() + "' is not present.");
+  }
 
-    ErrorResponse body = new ErrorResponse(status.value(), status.getReasonPhrase(), message);
+  private ResponseEntity<OAuth2Error> buildErrorResponse(HttpStatus status, ErrorType error,
+      String description) {
+    OAuth2Error body = new OAuth2Error(error.name(), description);
     return ResponseEntity.status(status).body(body);
   }
 }
