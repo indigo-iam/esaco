@@ -1,3 +1,8 @@
+/**
+ * // SPDX-FileCopyrightText: 2026 Istituto Nazionale di Fisica Nucleare
+ * //
+ * // SPDX-License-Identifier: EUPL-1.2
+ */
 package it.infn.mw.esaco.config;
 
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;

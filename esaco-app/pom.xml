@@ -1,3 +1,10 @@
+<!--
+
+    // SPDX-FileCopyrightText: 2026 Istituto Nazionale di Fisica Nucleare
+    //
+    // SPDX-License-Identifier: EUPL-1.2
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -139,6 +146,20 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <configuration>
+          <header>${project.parent.basedir}/LICENSE</header>
+          <excludes>
+            <exclude>**/*.springBeans</exclude>
+            <exclude>**/resources/banner.txt</exclude>
+            <exclude>**/*.factorypath</exclude>
+          </excludes>
+          <useDefaultExcludes>true</useDefaultExcludes>
+        </configuration>
       </plugin>
     </plugins>
   </build>
