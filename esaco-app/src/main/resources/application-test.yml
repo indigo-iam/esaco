@@ -1,3 +1,9 @@
+#
+# // SPDX-FileCopyrightText: 2026 Istituto Nazionale di Fisica Nucleare
+# //
+# // SPDX-License-Identifier: EUPL-1.2
+#
+
 x509:
   trustAnchorsDir: ${X509_TRUST_ANCHORS_DIR:/tmp}
 
