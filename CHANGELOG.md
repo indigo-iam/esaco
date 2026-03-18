@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.0 (2026 Mar. 16)
+
+* Remove tokeninfo endpoint
+* Upgrade to Spring Boot 4
+* Minor updates to other dependencies
+* Follow RFC 6749 for OAuth error responses
+
 ## 1.0.1 (2025 Nov. 11)
 
 ### What's Changed
