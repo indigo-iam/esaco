@@ -22,7 +22,7 @@
     <json-path.version>2.10.0</json-path.version>
     <nimbus.version>10.16</nimbus.version>
 
-    <jacoco-plugin.version>0.8.12</jacoco-plugin.version>
+    <jacoco-plugin.version>0.8.14</jacoco-plugin.version>
     <code.coverage.project.folder>${basedir}/../</code.coverage.project.folder>
     <code.coverage.overall.data.folder>${basedir}/target/</code.coverage.overall.data.folder>
 
