@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1 (2026 May 25)
+
+* Bump com.nimbusds:oauth2-oidc-sdk from 10.16 to 11.37.2
+* Bump com.jayway.jsonpath:json-path from 2.10.0 to 3.0.0
+* Bump com.github.ben-manes.caffeine:caffeine from 3.2.3 to 3.2.4
+
 ## 2.0.0 (2026 Mar. 16)
 
 * Remove tokeninfo endpoint
