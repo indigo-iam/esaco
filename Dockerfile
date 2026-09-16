@@ -1,4 +1,4 @@
-FROM maven:3.9.9-eclipse-temurin-21 AS builder
+FROM maven:3.9.16-eclipse-temurin-25 AS builder
 
 WORKDIR /esaco/app
 
@@ -9,7 +9,7 @@ RUN mvn -B -DskipTests package
 
 RUN mkdir -p esaco-app/target/dependency && (cd esaco-app/target/dependency; jar -xf ../*.jar)
 
-FROM eclipse-temurin:21
+FROM eclipse-temurin:25
 ENV ESACO_JAVA_OPTS="-Dspring.profiles.active=prod"
 ARG DEPENDENCY=/esaco/app/esaco-app/target/dependency
 
