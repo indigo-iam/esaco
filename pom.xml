@@ -33,6 +33,7 @@
     <license-maven-plugin.version>5.0.0</license-maven-plugin.version>
     <!-- Workaround for Eclipse m2e incompatibility with maven-jar-plugin 3.5.x -->
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+    <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
 
   </properties>
 
@@ -113,6 +114,11 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>${sonar-maven-plugin.version}</version>
         </plugin>
 
         <plugin>
