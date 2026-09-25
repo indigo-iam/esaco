@@ -12,13 +12,13 @@ jobs:
   build:
     strategy:
       matrix:
-        java-version: [21]
+        java-version: [25]
 
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
