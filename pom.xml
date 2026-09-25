@@ -16,9 +16,9 @@
 
     <apache-httpclient.version>5.6.4</apache-httpclient.version>
     <caffeine.version>3.2.4</caffeine.version>
-    <voms.version>3.3.8</voms.version>
     <spring-boot.version>4.1.1</spring-boot.version>
     <jib-maven-plugin.version>3.5.2</jib-maven-plugin.version>
+    <voms.version>3.4.0-SNAPSHOT</voms.version>
     <json-path.version>3.0.0</json-path.version>
     <nimbus.version>11.37.2</nimbus.version>
 
@@ -34,8 +34,21 @@
     <!-- Workaround for Eclipse m2e incompatibility with maven-jar-plugin 3.5.x -->
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
     <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
-
   </properties>
+
+  <repositories>
+    <repository>
+      <name>Central Portal Snapshots</name>
+      <id>central-portal-snapshots</id>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
