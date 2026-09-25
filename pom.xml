@@ -14,11 +14,11 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>25</java.version>
 
-    <apache-httpclient.version>5.6.3</apache-httpclient.version>
+    <apache-httpclient.version>5.6.4</apache-httpclient.version>
     <caffeine.version>3.2.4</caffeine.version>
     <voms.version>3.3.8</voms.version>
-    <spring-boot.version>4.1.0</spring-boot.version>
-    <jib-maven-plugin.version>3.5.1</jib-maven-plugin.version>
+    <spring-boot.version>4.1.1</spring-boot.version>
+    <jib-maven-plugin.version>3.5.2</jib-maven-plugin.version>
     <json-path.version>3.0.0</json-path.version>
     <nimbus.version>11.37.2</nimbus.version>
 
@@ -30,7 +30,7 @@
     <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
     <sonar.language>java</sonar.language>
 
-    <license-maven-plugin.version>5.0.0</license-maven-plugin.version>
+    <license-maven-plugin.version>5.1.2</license-maven-plugin.version>
     <!-- Workaround for Eclipse m2e incompatibility with maven-jar-plugin 3.5.x -->
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
     <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
@@ -40,7 +40,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1</version>
     <relativePath />
   </parent>
 
