@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.0.2 (2026 Sep. 28)
+
+* Bump org.apache.httpcomponents.client5:httpclient5 from 5.6.1 to 5.6.4
+* Bump org.springframework.boot:spring-boot-starter-parent from 4.0.6 to 4.1.0
+* Bump Spring Boot to 4.1.1
+* Move to Java v25
+* Bump actions/checkout from v6 to v7
+* Bump actions/cache from v6 to v7
+* Bump actions/setup-java from v5 to v6
+* Bump jib-maven-plugin from 3.1.4 to 3.5.2
+* Bump jacoco-plugin from 0.8.12 to 0.8.15
+* Bump license-maven-plugin from 3.0 to 5.1.2
+* Bump voms-api-java from 3.3.8 to 3.4.0
+* Add sonar maven plugin
+
 ## 2.0.1 (2026 May 25)
 
 * Bump com.nimbusds:oauth2-oidc-sdk from 10.16 to 11.37.2
