@@ -30,7 +30,7 @@
     <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
     <sonar.language>java</sonar.language>
 
-    <license-maven-plugin.version>5.0.0</license-maven-plugin.version>
+    <license-maven-plugin.version>5.1.2</license-maven-plugin.version>
     <!-- Workaround for Eclipse m2e incompatibility with maven-jar-plugin 3.5.x -->
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
     <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
