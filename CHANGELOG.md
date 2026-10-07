@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.2 (2026 Oct. 7)
+
+* Bump httpclient5 version from 5.6.1 to 5.6.4
+* Bump Spring Boot version to 4.1.1
+* Move to Java v25
+* Bump voms-api-java version from 3.3.8 to 3.4.0
+
 ## 2.0.1 (2026 May 25)
 
 * Bump com.nimbusds:oauth2-oidc-sdk from 10.16 to 11.37.2
