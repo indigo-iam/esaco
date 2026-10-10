@@ -14,7 +14,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>25</java.version>
 
-    <apache-httpclient.version>5.6.4</apache-httpclient.version>
+    <apache-httpclient.version>5.6.5</apache-httpclient.version>
     <caffeine.version>3.3.0</caffeine.version>
     <spring-boot.version>4.1.1</spring-boot.version>
     <jib-maven-plugin.version>3.5.2</jib-maven-plugin.version>
