@@ -15,12 +15,12 @@
     <java.version>25</java.version>
 
     <apache-httpclient.version>5.6.5</apache-httpclient.version>
-    <caffeine.version>3.3.0</caffeine.version>
-    <spring-boot.version>4.1.1</spring-boot.version>
+    <caffeine.version>3.3.1</caffeine.version>
+    <spring-boot.version>4.1.2</spring-boot.version>
     <jib-maven-plugin.version>3.5.2</jib-maven-plugin.version>
     <voms.version>3.4.0</voms.version>
     <json-path.version>3.0.0</json-path.version>
-    <nimbus.version>11.38.2</nimbus.version>
+    <nimbus.version>11.39</nimbus.version>
 
     <jacoco-plugin.version>0.8.15</jacoco-plugin.version>
     <code.coverage.project.folder>${basedir}/../</code.coverage.project.folder>
