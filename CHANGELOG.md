@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.0.3 (2026 Nov. 26)
+
+- Rebuild the Docker image with an updated Java runtime to address CVE-2026-114938 (Java4Shell).
+- Update Spring Boot from 4.1.1 to 4.2.0.
+- Update Apache HttpClient 5 from 5.6.4 to 5.6.5.
+- Update Caffeine from 3.3.0 to 3.3.1.
+- Update Nimbus OAuth 2.0 SDK with OpenID Connect extensions from 11.38.2 to 11.39.
+
 ## 2.0.2 (2026 Oct. 7)
 
 * Bump httpclient5 version from 5.6.1 to 5.6.4
